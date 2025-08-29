@@ -172,8 +172,15 @@ NAVIGATION                                                  *fuzzbox-navigation*
 
 * <CTRL-P> or <Up> moves up by one line in the menu window
 * <CTRL-N> or <Down> moves down by one line in the menu window
-* <CTRL-U> moves up by half a page in the preview window
-* <CTRL-D> moves down by half a page in the preview window
+* <PageUp> scrolls up one page in the preview window
+* <PageDown> scrolls down one page in the preview window
+* <CTRL-U> scrolls up half a page in the preview window
+* <CTRL-D> scrolls down half a page in the preview window
+* <CTRL-B> or <Home> moves the cursor to the start of the prompt
+* <CTRL-E> or <End> moves the cursor to the end of the prompt
+* <CTRL-Left> moves the cursor one word left in the prompt
+* <CTRL-Right> moves the cursor one word right in the prompt
+* <CTRL-W> deletes the word before the cursor in the prompt
 * <CTRL-C> or <ESC> exits Fuzzbox, closing all the windows
 
 You can use `g:fuzzbox_keymaps` to change these defaults.
@@ -441,12 +448,14 @@ Change navigation keymaps. The following are the defaults
     \ 'menu_up': ["\<C-p>", "\<Up>"],
     \ 'menu_down': ["\<C-n>", "\<Down>"],
     \ 'menu_select': ["\<CR>"],
+    \ 'preview_page_up': ["\<PageUp>"],
+    \ 'preview_page_down': ["\<PageDown>"],
     \ 'preview_scroll_up': ["\<C-u>"],
     \ 'preview_scroll_down': ["\<C-d>"],
     \ 'cursor_end': ["\<C-e>", "\<End>"],
     \ 'cursor_begining': ["\<C-b>", "\<Home>"],
-    \ 'cursor_word_left': ["\<C-Left>", "\<S-Left>"],
-    \ 'cursor_word_right': ["\<C-Right>", "\<S-Right>"],
+    \ 'cursor_word_left': ["\<C-Left>"],
+    \ 'cursor_word_right': ["\<C-Right>"],
     \ 'backspace': ["\<C-h>", "\<BS>"],
     \ 'delete': ["\<Del>"],
     \ 'delete_all': [],

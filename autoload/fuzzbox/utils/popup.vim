@@ -24,18 +24,18 @@ var keymaps: dict<any> = {
     'menu_select': ["\<CR>"],
     'preview_page_up': ["\<PageUp>"],
     'preview_page_down': ["\<PageDown>"],
-    'preview_scroll_up': ["\<C-u>"],
-    'preview_scroll_down': ["\<C-d>"],
-    'cursor_begining': ["\<C-b>", "\<Home>"],
-    'cursor_end': ["\<C-e>", "\<End>"],
-    'cursor_word_left': ["\<C-Left>", "\<S-Left>"],
-    'cursor_word_right': ["\<C-Right>", "\<S-Right>"],
-    'backspace': ["\<C-h>", "\<BS>"],
-    'delete': ["\<Del>"],
+    'preview_scroll_up': ["\<C-u>"], # :h CTRL-U
+    'preview_scroll_down': ["\<C-d>"], # :h CTRL-D
+    'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
+    'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
+    'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>
+    'cursor_word_right': ["\<C-Right>"], # :h c_<C-Right>
+    'backspace': ["\<C-h>", "\<BS>"], # :h c_CTRL-H
+    'delete': ["\<Del>"], # :h c_<Del>
     'delete_all': [],
-    'delete_word': ["\<C-w>"],
+    'delete_word': ["\<C-w>"], # :h c_CTRL-W
     'delete_prefix': [],
-    'exit': ["\<Esc>", "\<C-c>", "\<C-[>"],
+    'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
 }
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
     extend(keymaps, g:fuzzbox_keymaps) : keymaps
