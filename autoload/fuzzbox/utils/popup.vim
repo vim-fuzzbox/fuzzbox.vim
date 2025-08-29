@@ -247,9 +247,9 @@ def PromptFilter(wid: number, key: string): number
         cur_pos = min([ max_pos, cur_pos + 1 ])
     elseif index(keymaps['delete'], key) >= 0
         if cur_pos == max_pos
-            return 1
-        endif
-        if cur_pos == 0
+            line = line[: -2]
+            cur_pos -= 1
+        elseif cur_pos == 0
             line = line[1 : ]
         else
             var before = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : []
