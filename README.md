@@ -225,6 +225,17 @@ let g:fuzzbox_respect_gitignore = 1
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_respect_gitignore` and `g:fuzzbox_grep_respect_gitignore`
 
+### g:fuzzbox_respect_wildignore
+Make FuzzyFiles & FuzzyGrep respect Vim's |wildignore| option. Default 0
+```vim
+let g:fuzzbox_respect_wildignore = 0
+```
+Fuzzbox parses `&wildignore` when the plugin is loaded, and appends patterns to
+`g:fuzzbox_exclude_dir` and `g:fuzzbox_exclude_file`. Patterns with a `/` are
+assumed to be directory patterns, patterns without are assumed to be a file
+patterns. This is not exactly the same as Vim's parsing of `&wildignore`. See
+`:h autocmd-patterns`
+
 ### g:fuzzbox_include_hidden
 Make FuzzyFiles & FuzzyGrep include hidden files. Default 1. Only applied when
 1. rg, fd or PowerShell Get-ChildItem used with FuzzyFiles

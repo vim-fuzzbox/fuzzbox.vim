@@ -24,20 +24,21 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.7. g:fuzzbox_borderchars.................|fuzzbox-g:fuzzbox_borderchars|
     1.7.8. g:fuzzbox_reuse_windows.............|fuzzbox-g:fuzzbox_reuse_windows|
     1.7.9. g:fuzzbox_respect_gitignore.....|fuzzbox-g:fuzzbox_respect_gitignore|
-    1.7.10. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
-    1.7.11. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
-    1.7.12. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
-    1.7.13. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
-    1.7.14. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
-    1.7.15. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.16. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.17. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.18. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.19. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.20. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.21. g:fuzzbox_buffers_keymap..........|fuzzbox-g:fuzzbox_buffers_keymap|
-    1.7.22. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
-    1.7.23. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.10. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
+    1.7.11. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
+    1.7.12. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
+    1.7.13. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
+    1.7.14. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
+    1.7.15. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
+    1.7.16. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
+    1.7.17. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.18. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.19. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.20. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.21. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.22. g:fuzzbox_buffers_keymap..........|fuzzbox-g:fuzzbox_buffers_keymap|
+    1.7.23. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
+    1.7.24. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -286,6 +287,19 @@ Make FuzzyFiles & FuzzyGrep respect `.gitignore`. Default 1. Only work when
 
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_respect_gitignore` and `g:fuzzbox_grep_respect_gitignore`
+
+G:FUZZBOX_RESPECT_WILDIGNORE              *fuzzbox-g:fuzzbox_respect_wildignore*
+
+Make FuzzyFiles & FuzzyGrep respect Vim's |wildignore| option. Default 0
+>
+  let g:fuzzbox_respect_wildignore = 0
+<
+
+Fuzzbox parses `&wildignore` when the plugin is loaded, and appends patterns to
+`g:fuzzbox_exclude_dir` and `g:fuzzbox_exclude_file`. Patterns with a `/` are
+assumed to be directory patterns, patterns without are assumed to be a file
+patterns. This is not exactly the same as Vim's parsing of `&wildignore`. See
+`:h autocmd-patterns`
 
 G:FUZZBOX_INCLUDE_HIDDEN                      *fuzzbox-g:fuzzbox_include_hidden*
 
