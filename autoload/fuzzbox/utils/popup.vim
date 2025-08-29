@@ -22,6 +22,8 @@ var keymaps: dict<any> = {
     'menu_up': ["\<C-p>", "\<Up>"],
     'menu_down': ["\<C-n>", "\<Down>"],
     'menu_select': ["\<CR>"],
+    'preview_page_up': ["\<PageUp>"],
+    'preview_page_down': ["\<PageDown>"],
     'preview_scroll_up': ["\<C-u>"],
     'preview_scroll_down': ["\<C-d>"],
     'cursor_begining': ["\<C-b>", "\<Home>"],
@@ -410,7 +412,11 @@ def MenuFilter(wid: number, key: string): number
 enddef
 
 def PreviewFilter(wid: number, key: string): number
-    if index(keymaps['preview_scroll_up'], key) >= 0
+    if index(keymaps['preview_page_up'], key) >= 0
+        win_execute(wid, "norm! \<c-b>")
+    elseif index(keymaps['preview_page_down'], key) >= 0
+        win_execute(wid, "norm! \<c-f>")
+    elseif index(keymaps['preview_scroll_up'], key) >= 0
         win_execute(wid, "norm! \<c-u>")
     elseif index(keymaps['preview_scroll_down'], key) >= 0
         win_execute(wid, "norm! \<c-d>")
