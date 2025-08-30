@@ -155,3 +155,16 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     popup_close(wid)
     exe 'copen'
 enddef
+
+export def MenuToggleWrap(wid: number, result: string, opts: dict<any>)
+    var linenr = line('.', wid)
+    win_execute(wid, 'set wrap!')
+    if opts.dropdown
+        win_execute(wid, 'norm! G')
+        win_execute(wid, 'norm! gg')
+    else
+        win_execute(wid, 'norm! gg')
+        win_execute(wid, 'norm! G')
+    endif
+    win_execute(wid, 'norm! ' .. linenr .. 'G')
+enddef

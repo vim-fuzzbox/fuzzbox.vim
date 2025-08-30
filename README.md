@@ -129,9 +129,10 @@ Fuzzbox will not overwrite mappings from your vimrc when adding default mappings
 - \<CTRL-Left> moves the cursor one word left in the prompt
 - \<CTRL-Right> moves the cursor one word right in the prompt
 - \<CTRL-W> deletes the word before the cursor in the prompt
+- \<CTRL-\\> toggles text wrap in the menu window (off by default)
 - \<CTRL-C> or \<ESC> exits Fuzzbox, closing all the windows
 
-You can use `g:fuzzbox_keymaps` to change these defaults.
+You can use `g:fuzzbox_keymaps` to change most of these defaults.
 
 Navigation with the mouse is also supported. A single mouse click in the menu
 window moves the cursor line, double click selects a line. The mouse wheel can
