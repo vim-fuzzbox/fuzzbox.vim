@@ -48,17 +48,6 @@ export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
     endif
 enddef
 
-# get the line under the cursor in the menu window
-export def GetCursorItem(): string
-    var bufnr = winbufnr(wins.menu)
-    var cursorlinepos = line('.', wins.menu)
-    var bufline = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
-    if has_devicons
-        bufline = devicons.RemoveDevicon(bufline)
-    endif
-    return bufline
-enddef
-
 # Search pattern @pattern in a list of strings @li
 # if pattern is empty, return [li, []]
 # params:

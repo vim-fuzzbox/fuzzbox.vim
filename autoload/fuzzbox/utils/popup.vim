@@ -126,12 +126,7 @@ def InvokeAction(Action: func)
         return
     endif
     var wid = wins.menu
-    var bufnr = popup_wins[wid].bufnr
-    var cursorlinepos = line('.', wid)
-    var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
-    if has_devicons
-        linetext = devicons.RemoveDevicon(linetext)
-    endif
+    var linetext = GetCursorItem()
     try
         try
             Action(wid, linetext, popup_opts)
@@ -189,16 +184,9 @@ enddef
 # return:
 #   if last result is changed
 def MenuCursorContentChangeCb(): number
-    var bufnr = popup_wins[wins.menu].bufnr
-    var cursorlinepos = line('.', wins.menu)
-    var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
-    if has_devicons
-        linetext = devicons.RemoveDevicon(linetext)
-    endif
-
     if has_key(popup_wins[wins.menu], 'preview_cb')
         if type(popup_wins[wins.menu].preview_cb) == v:t_func
-            popup_wins[wins.menu].preview_cb(wins.preview, linetext)
+            popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
         endif
     endif
     return 1
@@ -217,6 +205,17 @@ enddef
 
 export def GetPrompt(): string
     return popup_wins[wins.prompt].prompt.line->join('')
+enddef
+
+# get the line under the cursor in the menu window
+export def GetCursorItem(): string
+    var bufnr = popup_wins[wins.menu].bufnr
+    var cursorlinepos = line('.', wins.menu)
+    var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
+    if has_devicons
+        linetext = devicons.RemoveDevicon(linetext)
+    endif
+    return linetext
 enddef
 
 def PromptFilter(wid: number, key: string): number
@@ -376,6 +375,9 @@ def MenuFilter(wid: number, key: string): number
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
         if has_key(popup_wins[wid], 'select_cb')
                 && type(popup_wins[wid].select_cb) == v:t_func
+            if empty(GetCursorItem())
+                return 0
+            endif
             InvokeAction(popup_wins[wid].select_cb)
         endif
         popup_close(wid)
@@ -394,6 +396,9 @@ def MenuFilter(wid: number, key: string): number
     elseif index(keymaps['menu_select'], key) >= 0
         if has_key(popup_wins[wid], 'select_cb')
                 && type(popup_wins[wid].select_cb) == v:t_func
+            if empty(GetCursorItem())
+                return 0
+            endif
             InvokeAction(popup_wins[wid].select_cb)
         endif
         popup_close(wid)

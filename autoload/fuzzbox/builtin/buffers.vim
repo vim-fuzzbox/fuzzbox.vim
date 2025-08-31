@@ -87,7 +87,7 @@ def GetBufList(): list<string>
 enddef
 
 def DeleteSelectedBuffer(wipe: bool)
-    var buf = selector.GetCursorItem()
+    var buf = popup.GetCursorItem()
     if buf == ''
         return
     endif
@@ -111,7 +111,7 @@ def CloseSelectedBuffer(wid: number, result: string, opts: dict<any>)
 enddef
 
 def DeleteSelectedFile(wid: number, result: string, opts: dict<any>)
-    var buf = selector.GetCursorItem()
+    var buf = popup.GetCursorItem()
     var choice = confirm('Delete file ' .. buf .. '. Are you sure?', "&Yes\n&No")
     if choice != 1
         return
