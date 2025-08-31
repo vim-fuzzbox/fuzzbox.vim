@@ -49,6 +49,9 @@ def JumpToAddress(tagaddress: string)
 enddef
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var [tagname, tagfile, tagaddress] = ParseResult(result)
     var path = ExpandPath(tagfile)
     if filereadable(path)
@@ -62,7 +65,7 @@ def Preview(wid: number, result: string)
     if wid == -1
         return
     endif
-    if result == ''
+    if empty(result)
         previewer.PreviewText(wid, '')
         return
     endif

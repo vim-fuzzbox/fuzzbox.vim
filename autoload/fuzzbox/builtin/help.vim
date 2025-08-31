@@ -15,7 +15,7 @@ def Preview(wid: number, result: string)
     if wid == -1
         return
     endif
-    if result == ''
+    if empty(result)
         popup_settext(wid, '')
         return
     endif
@@ -32,6 +32,9 @@ def Preview(wid: number, result: string)
 enddef
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var tag = result
     var tag_data = tag_table[tag]
     try

@@ -11,6 +11,9 @@ var file_name: string
 var menu_wid: number
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var linenr = str2nr(split(result, ':')[0])
     exe 'norm! ' .. linenr .. 'G'
     norm! zz
@@ -20,7 +23,7 @@ def Preview(wid: number, result: string)
     if wid == -1
         return
     endif
-    if result == ''
+    if empty(result)
         popup_settext(wid, '')
         return
     endif

@@ -4,6 +4,9 @@ import autoload '../utils/selector.vim'
 import autoload '../utils/popup.vim'
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     feedkeys(':' .. result .. "\<CR>", 'n')
 enddef
 

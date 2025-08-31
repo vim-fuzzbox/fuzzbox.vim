@@ -375,9 +375,6 @@ def MenuFilter(wid: number, key: string): number
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
         if has_key(popup_wins[wid], 'select_cb')
                 && type(popup_wins[wid].select_cb) == v:t_func
-            if empty(GetCursorItem())
-                return 0
-            endif
             InvokeAction(popup_wins[wid].select_cb)
         endif
         popup_close(wid)
@@ -396,9 +393,6 @@ def MenuFilter(wid: number, key: string): number
     elseif index(keymaps['menu_select'], key) >= 0
         if has_key(popup_wins[wid], 'select_cb')
                 && type(popup_wins[wid].select_cb) == v:t_func
-            if empty(GetCursorItem())
-                return 0
-            endif
             InvokeAction(popup_wins[wid].select_cb)
         endif
         popup_close(wid)

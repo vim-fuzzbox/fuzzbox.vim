@@ -32,7 +32,7 @@ def Preview(wid: number, result: string)
     if wid == -1
         return
     endif
-    if result == ''
+    if empty(result)
         popup_settext(wid, '')
         return
     endif

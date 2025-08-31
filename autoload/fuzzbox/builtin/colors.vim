@@ -14,12 +14,18 @@ def GetColors(): list<string>
 enddef
 
 def Preview(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var color = result
     &bg = old_bg
     noa execute 'colorscheme ' .. color
 enddef
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var color = result
     var bg: string
     if color =~# 'light$'
