@@ -11,7 +11,7 @@ def Select(wid: number, result: string)
         if nargs == "0"
             feedkeys("\<CR>", 'n')
         endif
-    else !empty(result)
+    elseif !empty(result)
         # Built-in command, no check for nargs, just feed to cmdline
         feedkeys(':' .. result .. ' ', 'n')
     endif
