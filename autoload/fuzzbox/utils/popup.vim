@@ -343,6 +343,7 @@ enddef
 
 def MenuFilter(wid: number, key: string): number
     var bufnr = popup_wins[wid].bufnr
+    var width = popup_wins[wid].width
     var cursorlinepos = line('.', wid)
     var moved = 0
     if index(keymaps['menu_down'], key) >= 0
@@ -362,14 +363,16 @@ def MenuFilter(wid: number, key: string): number
         endif
     elseif key ==? "\<LeftMouse>"
         var pos = getmousepos()
-        if pos.winid != wid
+        # if wincol > width, assume clicking in scrollbar
+        if pos.winid != wid || pos.wincol > width
             return 0
         endif
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
         moved = 1
     elseif key ==? "\<2-LeftMouse>"
         var pos = getmousepos()
-        if pos.winid != wid
+        # if wincol > width, assume clicking in scrollbar
+        if pos.winid != wid || pos.wincol > width
             return 0
         endif
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
