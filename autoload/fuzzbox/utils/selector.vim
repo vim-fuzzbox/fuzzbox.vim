@@ -361,6 +361,12 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         popup.SetCounter(len_list, len_list)
     endif
 
-    autocmd User PopupClosed ++once () => { timer_stop(async_tid) }
+    # User autocmd triggered when closing popups to clean up any running timers
+    # Note: calling timer_stop() from a lambda expression does not work here
+    autocmd User __FuzzboxCleanup ++once Cleanup()
     return wins
+enddef
+
+def Cleanup()
+    timer_stop(async_tid)
 enddef

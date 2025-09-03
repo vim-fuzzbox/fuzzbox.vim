@@ -175,6 +175,9 @@ def GeneralPopupCallback(wid: number, select: any)
         popup_wins[wid].close_cb(wid)
     endif
 
+    # Clean up any running timers etc., see selector.vim
+    doautocmd <nomodeline> User __FuzzboxCleanup
+
     popup_wins = {}
 
     silent doautocmd <nomodeline> User FuzzboxClosed
