@@ -19,6 +19,11 @@ var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
     && type(g:fuzzbox_prompt_prefix) == v:t_string ?
     g:fuzzbox_prompt_prefix : '> '
 
+# Experimental: number of async results to show in menu, fewer is faster
+export var async_limit = exists('g:fuzzbox_async_limit')
+    && type(g:fuzzbox_async_limit) == v:t_number ?
+    g:fuzzbox_async_limit : 200
+
 var wins: dict<any>
 
 var enable_devicons = devicons.Enabled()
@@ -99,7 +104,6 @@ export def FuzzySearch(li: list<string>, pattern: string, ...args: list<any>): l
 enddef
 
 var async_list: list<string>
-var async_limit: number
 var async_pattern: string
 var async_results: list<any>
 var async_tid: number
@@ -128,10 +132,10 @@ enddef
 
 def InputAsync(wid: number, result: string)
     if result != ''
-        async_tid = FuzzySearchAsync(raw_list, result, 200, function('InputAsyncCb'))
+        async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
     else
         timer_stop(async_tid)
-        var strs = raw_list[: 100]
+        var strs = raw_list[: async_limit]
         UpdateMenu(strs, [])
         if has_counter
             popup.SetCounter(len_list, len_list)
@@ -347,7 +351,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     len_list = len(raw_list)
     var li = copy(li_raw)
     if opts.input_cb == function('InputAsync')
-        li = li[: 100]
+        li = li[: async_limit]
     endif
     if has_devicons
          devicons.AddDevicons(li)

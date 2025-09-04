@@ -21,6 +21,8 @@ var update_tid: number
 var cache: dict<any>
 var enable_devicons = devicons.Enabled()
 
+var async_limit = selector.async_limit
+
 def ProcessResult(list_raw: list<string>, ...args: list<any>): list<string>
     var limit = -1
     var li: list<string>
@@ -66,9 +68,9 @@ def Input(wid: number, result: string)
     var file_list = cur_result
 
     if cur_pattern != ''
-        selector.FuzzySearchAsync(cur_result, cur_pattern, 200, function('AsyncCb'))
+        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
     else
-        selector.UpdateMenu(ProcessResult(cur_result, 100), [])
+        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
         popup.SetCounter(len(cur_result), len_total)
     endif
 enddef
@@ -116,7 +118,7 @@ def JobExitCb(id: job, status: number)
     in_loading = 0
     timer_stop(update_tid)
     if last_result_len <= 0
-        selector.UpdateMenu(ProcessResult(cur_result, 100), [])
+        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
     endif
     len_total = len(cur_result)
     popup.SetCounter(len_total, len_total)
@@ -143,9 +145,9 @@ def UpdateMenu(...li: list<any>)
     last_result_len = cur_result_len
 
     if cur_pattern != last_pattern
-        selector.FuzzySearchAsync(cur_result, cur_pattern, 200, function('AsyncCb'))
+        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
         if cur_pattern == ''
-            selector.UpdateMenu(ProcessResult(cur_result, 100), [])
+            selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
         endif
         last_pattern = cur_pattern
     endif

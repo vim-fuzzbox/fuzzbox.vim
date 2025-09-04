@@ -353,7 +353,7 @@ def UpdateMenu(...li: list<any>)
         cols = []
     else
         last_result = cur_result
-        [strs, cols, cur_dict] = ResultHandle(cur_result[: 200])
+        [strs, cols, cur_dict] = ResultHandle(cur_result[: selector.async_limit])
     endif
 
     var hl_list = cols
