@@ -15,8 +15,6 @@ var hlcursor: dict<any>
 var has_devicons: bool
 export var active = false
 
-var iswin = helpers.IsWin()
-
 # user can register a custom action for any key
 var actions: dict<any>
 
@@ -627,8 +625,9 @@ export def MenuSetHl(name: string, hl_list_raw: list<any>)
         hl_list = reduce(hl_list_raw, (acc, v) => add(acc, [height - v[0] + 1] + v[1 :]), [])
     endif
 
-    if iswin
-        # in MS-Windows, matchaddpos() has maximum limit of 8 position groups
+    if !has('patch-9.0.0622')
+        # matchaddpos() has maximum limit of 8 positions prior to patch 9.0.0620
+        # patch 9.0.0622 then fixed some performance issues with many matches
         var idx = 0
         while idx < len(hl_list)
             matchaddpos('fuzzboxMatching', hl_list[idx : idx + 7 ], 99, -1,  {window: wins.menu})
