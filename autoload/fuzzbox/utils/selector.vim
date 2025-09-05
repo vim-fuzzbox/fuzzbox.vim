@@ -122,16 +122,7 @@ def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>)
 enddef
 
 def InputAsync(wid: number, result: string)
-    if result != ''
-        async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
-    else
-        timer_stop(async_tid)
-        var strs = raw_list[: async_limit]
-        UpdateMenu(strs, [])
-        if has_counter
-            popup.SetCounter(len_list, len_list)
-        endif
-    endif
+    async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
 enddef
 
 # merge continus numbers and convert them from string index to vim column
@@ -168,7 +159,7 @@ def MergeContinusNumber(li: list<number>): list<any>
     return poss_result
 enddef
 
-def Worker(tid: number)
+def AsyncWorker(tid: number)
     var li = async_list[: async_step]
     var results: list<any> = matchfuzzypos(li, async_pattern)
     var processed_results = []
@@ -248,6 +239,8 @@ export def FuzzySearchAsync(li: list<string>, pattern: string, limit: number, Cb
     # only one outstanding call at a time
     timer_stop(async_tid)
     if pattern == ''
+        len_results = len(raw_list)
+        Cb(raw_list[: limit], [])
         return -1
     endif
     async_list = li
@@ -256,8 +249,8 @@ export def FuzzySearchAsync(li: list<string>, pattern: string, limit: number, Cb
     async_results = []
     len_results = 0
     AsyncCb = Cb
-    async_tid = timer_start(50, function('Worker'), {repeat: -1})
-    Worker(async_tid)
+    async_tid = timer_start(50, function('AsyncWorker'), {repeat: -1})
+    AsyncWorker(async_tid)
     return async_tid
 enddef
 
@@ -266,10 +259,10 @@ export def UpdateList(li: list<string>)
 enddef
 
 def Input(wid: number, result: string)
-    prompt_str = result
+    prompt_str = result # required for RefreshMenu()
     var str_list: list<string>
     var hl_list: list<any>
-    [str_list, hl_list] = FuzzySearch(raw_list, prompt_str)
+    [str_list, hl_list] = FuzzySearch(raw_list, result)
 
     UpdateMenu(str_list, hl_list)
     if has_counter
