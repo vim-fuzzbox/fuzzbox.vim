@@ -605,9 +605,8 @@ enddef
 
 # Set Highlight for menu window
 # params:
-#   - wid: popup window id
 #   - hi_list: list of position to highlight eg. [[1,2,3], [1,5]]
-export def MenuSetHl(name: string, hl_list_raw: list<any>)
+export def MenuSetHl(hl_list_raw: list<any>)
     if !has_key(popup_wins, wins.menu)
         return
     endif

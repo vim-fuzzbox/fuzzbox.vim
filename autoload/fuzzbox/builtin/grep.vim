@@ -356,17 +356,7 @@ def UpdateMenu(...li: list<any>)
         [strs, cols, cur_dict] = ResultHandle(cur_result[: selector.async_limit])
     endif
 
-    var hl_list = cols
-
-    if enable_devicons
-        var hl_offset = devicons.GetDeviconOffset()
-        hl_list = reduce(hl_list, (a, v) => {
-            v[1] += hl_offset
-            return add(a, v)
-        }, [])
-    endif
-
-    selector.UpdateMenu(strs, hl_list)
+    selector.UpdateMenu(strs, cols)
     UpdatePreviewHl()
     last_pattern = cur_pattern
     last_result_len = cur_result_len

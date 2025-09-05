@@ -38,22 +38,8 @@ def ProcessResult(list_raw: list<string>, ...args: list<any>): list<string>
     return li
 enddef
 
-def AsyncCb(result: list<any>)
-    var strs = []
-    var hl_list = []
-    var hl_offset = enable_devicons ? devicons.GetDeviconOffset() : 0
-    var idx = 1
-    for item in result
-        add(strs, item[0])
-        hl_list += reduce(item[1], (acc, val) => {
-            var pos = copy(val)
-            pos[0] += hl_offset
-            add(acc, [idx] + pos)
-            return acc
-        }, [])
-        idx += 1
-    endfor
-    selector.UpdateMenu(ProcessResult(strs), hl_list)
+def AsyncCb(str_list: list<string>, hl_list: list<list<any>>)
+    selector.UpdateMenu(ProcessResult(str_list), hl_list)
     popup.SetCounter(selector.len_results, len_total)
 enddef
 
