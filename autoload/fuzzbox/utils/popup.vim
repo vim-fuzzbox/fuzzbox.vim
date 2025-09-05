@@ -15,6 +15,8 @@ var hlcursor: dict<any>
 var has_devicons: bool
 export var active = false
 
+var iswin = helpers.IsWin()
+
 # user can register a custom action for any key
 var actions: dict<any>
 
@@ -625,12 +627,17 @@ export def MenuSetHl(name: string, hl_list_raw: list<any>)
         hl_list = reduce(hl_list_raw, (acc, v) => add(acc, [height - v[0] + 1] + v[1 :]), [])
     endif
 
-    # in MS-Windows, matchaddpos() has maximum limit of 8 position groups
-    var idx = 0
-    while idx < len(hl_list)
-        matchaddpos('fuzzboxMatching', hl_list[idx : idx + 7 ], 99, -1,  {window: wins.menu})
-        idx += 8
-    endwhile
+    if iswin
+        # in MS-Windows, matchaddpos() has maximum limit of 8 position groups
+        var idx = 0
+        while idx < len(hl_list)
+            matchaddpos('fuzzboxMatching', hl_list[idx : idx + 7 ], 99, -1,  {window: wins.menu})
+            idx += 8
+        endwhile
+        return
+    endif
+
+    matchaddpos('fuzzboxMatching', hl_list, 99, -1,  {window: wins.menu})
 enddef
 
 def PopupPrompt(args: dict<any>): number
