@@ -10,7 +10,6 @@ var len_list: number
 var cwd: string
 var menu_wid: number
 var prompt_str: string
-var menu_hl_list: list<any>
 var default_actions: dict<any>
 var async_step = exists('g:fuzzbox_async_step')
     && type(g:fuzzbox_async_step) == v:t_number ?
@@ -41,15 +40,21 @@ export var len_results: number
 
 # render the menu window with list of items and fuzzy matched positions
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
+    # Note: copy required to allow source list to be changed by selector
     var new_list = copy(str_list)
     if has_devicons
+        var hl_offset = devicons.GetDeviconOffset()
+        var new_hl_list = reduce(hl_list, (a, v) => {
+            v[1] += hl_offset
+            return add(a, v)
+         }, [])
         devicons.AddDevicons(new_list)
         popup.MenuSetText(new_list)
-        popup.MenuSetHl('select', hl_list)
+        popup.MenuSetHl(new_hl_list)
         devicons.AddColor(menu_wid)
     else
         popup.MenuSetText(new_list)
-        popup.MenuSetHl('select', hl_list)
+        popup.MenuSetHl(hl_list)
     endif
 enddef
 
@@ -109,22 +114,8 @@ var async_results: list<any>
 var async_tid: number
 var AsyncCb: func
 
-def InputAsyncCb(result: list<any>)
-    var strs = []
-    var hl_list = []
-    var hl_offset = has_devicons ? devicons.GetDeviconOffset() : 0
-    var idx = 1
-    for item in result
-        add(strs, item[0])
-        hl_list += reduce(item[1], (acc, val) => {
-            var pos = copy(val)
-            pos[0] += hl_offset
-            add(acc, [idx] + pos)
-            return acc
-        }, [])
-        idx += 1
-    endfor
-    UpdateMenu(strs, hl_list)
+def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>)
+    UpdateMenu(str_list, hl_list)
     if has_counter
         popup.SetCounter(len_results, len_list)
     endif
@@ -219,7 +210,20 @@ def Worker(tid: number)
     if len(async_results) >= async_limit
         async_results = async_results[: async_limit]
     endif
-    AsyncCb(async_results)
+
+    var str_list = []
+    var hl_list = []
+    var idx = 1
+    for item in async_results
+        add(str_list, item[0])
+        hl_list += reduce(item[1], (acc, val) => {
+            var pos = copy(val)
+            add(acc, [idx] + pos)
+            return acc
+        }, [])
+        idx += 1
+    endfor
+    AsyncCb(str_list, hl_list)
 
     async_list = async_list[async_step + 1 :]
     if len(async_list) == 0
@@ -263,24 +267,11 @@ enddef
 
 def Input(wid: number, result: string)
     prompt_str = result
-    menu_hl_list = []
-    var ret: list<string>
-    [ret, menu_hl_list] = FuzzySearch(raw_list, prompt_str)
+    var str_list: list<string>
+    var hl_list: list<any>
+    [str_list, hl_list] = FuzzySearch(raw_list, prompt_str)
 
-    if has_devicons
-        devicons.AddDevicons(ret)
-        var hl_offset = devicons.GetDeviconOffset()
-         menu_hl_list = reduce(menu_hl_list, (a, v) => {
-            v[1] += hl_offset
-            return add(a, v)
-         }, [])
-    endif
-
-    popup.MenuSetText(ret)
-    popup.MenuSetHl('select', menu_hl_list)
-    if has_devicons
-        devicons.AddColor(menu_wid)
-    endif
+    UpdateMenu(str_list, hl_list)
     if has_counter
         popup.SetCounter(len_results, len_list)
     endif
