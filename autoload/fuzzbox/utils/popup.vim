@@ -370,12 +370,16 @@ def MenuFilter(wid: number, key: string): number
         endif
     elseif index(keymaps['menu_page_up'], key) >= 0
         win_execute(wid, "norm! \<c-b>")
+        moved = 1
     elseif index(keymaps['menu_page_down'], key) >= 0
         win_execute(wid, "norm! \<c-f>")
+        moved = 1
     elseif index(keymaps['menu_scroll_up'], key) >= 0
         win_execute(wid, "norm! \<c-u>")
+        moved = 1
     elseif index(keymaps['menu_scroll_down'], key) >= 0
         win_execute(wid, "norm! \<c-d>")
+        moved = 1
     elseif key ==? "\<LeftMouse>"
         var pos = getmousepos()
         # if wincol > width, assume clicking in scrollbar
