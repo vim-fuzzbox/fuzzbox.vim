@@ -28,8 +28,8 @@ var keymaps: dict<any> = {
     'menu_scroll_down': ["\<PageDown>"],
     'preview_page_up': [],
     'preview_page_down': [],
-    'preview_scroll_up': ["\<C-u>"], # :h CTRL-U
-    'preview_scroll_down': ["\<C-d>"], # :h CTRL-D
+    'preview_scroll_up': ["\<C-u>", "\<S-Up>"], # :h CTRL-U
+    'preview_scroll_down': ["\<C-d>", "\<S-Down>"], # :h CTRL-D
     'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
     'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
     'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>

@@ -122,8 +122,8 @@ Fuzzbox will not overwrite mappings from your vimrc when adding default mappings
 - \<CTRL-N> or \<Down> moves down by one line in the menu window
 - \<PageUp> scrolls up half a page in the menu window
 - \<PageDown> scrolls down half a page in the menu window
-- \<CTRL-U> scrolls up half a page in the preview window
-- \<CTRL-D> scrolls down half a page in the preview window
+- \<CTRL-U> or \<S-Up> scrolls up half a page in the preview window
+- \<CTRL-D> or \<S-Down> scrolls down half a page in the preview window
 - \<CTRL-B> or \<Home> moves the cursor to the start of the prompt
 - \<CTRL-E> or \<End> moves the cursor to the end of the prompt
 - \<CTRL-Left> moves the cursor one word left in the prompt
@@ -368,8 +368,8 @@ let g:fuzzbox_keymaps = {
   \ 'menu_scroll_down': ["\<PageDown>"],
   \ 'preview_page_up': [],
   \ 'preview_page_down': [],
-  \ 'preview_scroll_up': ["\<C-u>"],
-  \ 'preview_scroll_down': ["\<C-d>"],
+  \ 'preview_scroll_up': ["\<C-u>","\<S-Up>"],
+  \ 'preview_scroll_down': ["\<C-d>", "\<S-Down>"],
   \ 'cursor_end': ["\<C-e>", "\<End>"],
   \ 'cursor_begining': ["\<C-b>", "\<Home>"],
   \ 'cursor_word_left': ["\<C-Left>"],
