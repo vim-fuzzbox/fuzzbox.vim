@@ -22,8 +22,12 @@ var keymaps: dict<any> = {
     'menu_up': ["\<C-p>", "\<Up>"],
     'menu_down': ["\<C-n>", "\<Down>"],
     'menu_select': ["\<CR>"],
-    'preview_page_up': ["\<PageUp>"],
-    'preview_page_down': ["\<PageDown>"],
+    'menu_page_up': [],
+    'menu_page_down': [],
+    'menu_scroll_up': ["\<PageUp>"],
+    'menu_scroll_down': ["\<PageDown>"],
+    'preview_page_up': [],
+    'preview_page_down': [],
     'preview_scroll_up': ["\<C-u>"], # :h CTRL-U
     'preview_scroll_down': ["\<C-d>"], # :h CTRL-D
     'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
@@ -364,6 +368,14 @@ def MenuFilter(wid: number, key: string): number
         else
             win_execute(wid, 'norm! k')
         endif
+    elseif index(keymaps['menu_page_up'], key) >= 0
+        win_execute(wid, "norm! \<c-b>")
+    elseif index(keymaps['menu_page_down'], key) >= 0
+        win_execute(wid, "norm! \<c-f>")
+    elseif index(keymaps['menu_scroll_up'], key) >= 0
+        win_execute(wid, "norm! \<c-u>")
+    elseif index(keymaps['menu_scroll_down'], key) >= 0
+        win_execute(wid, "norm! \<c-d>")
     elseif key ==? "\<LeftMouse>"
         var pos = getmousepos()
         # if wincol > width, assume clicking in scrollbar
