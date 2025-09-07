@@ -1,6 +1,7 @@
 vim9script
 
 import autoload '../utils/selector.vim'
+import autoload '../utils/previewer.vim'
 import autoload '../utils/popup.vim'
 import autoload '../utils/devicons.vim'
 import autoload '../utils/helpers.vim'
@@ -33,31 +34,14 @@ def Preview(wid: number, result: string)
         return
     endif
     if empty(result)
-        popup_settext(wid, '')
+        previewer.PreviewText(wid, '')
         return
     endif
     var file: string
     var lnum: number
     file = buf_dict[result][0]
     lnum = buf_dict[result][2]
-    if !filereadable(file)
-        if file == ''
-            popup_settext(wid, '')
-        else
-            popup_settext(wid, file .. ' not found')
-        endif
-        return
-    endif
-    popup.SetTitle(wid, fnamemodify(file, ':t'))
-    var bufnr = buf_dict[result][1]
-    var ft = getbufvar(bufnr, '&filetype')
-    var fileraw = readfile(file)
-    var preview_bufnr = winbufnr(wid)
-    popup_settext(wid, fileraw)
-    try
-        setbufvar(preview_bufnr, '&syntax', ft)
-    catch
-    endtry
+    previewer.PreviewFile(wid, file)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
 enddef
@@ -66,11 +50,15 @@ def GetBufList(): list<string>
     var buf_data = getbufinfo({buflisted: 1, bufloaded: 0})
     buf_dict = {}
 
+    # skip [No Name] buffers
+    filter(buf_data, (_, buf) => !empty(buf.name))
+
+    # skip excluded buffers - case-sensitive match on tail of the file name
+    if !empty(exclude_buffers)
+        filter(buf_data, (_, buf) => index(exclude_buffers, fnamemodify(buf.name, ':t')) == -1)
+    endif
+
     reduce(buf_data, (acc, buf) => {
-        if index(exclude_buffers, fnamemodify(buf.name, ':t')) >= 0
-        || buf.name == ''
-            return acc
-        endif
         var file = fnamemodify(buf.name, ":~:.")
         acc[file] = [buf.name, buf.bufnr, buf.lnum, buf.lastused]
         return acc
