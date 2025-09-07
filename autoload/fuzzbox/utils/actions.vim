@@ -17,7 +17,13 @@ export def OpenFile(wid: number, result: string, opts: dict<any>)
     helpers.MoveToUsableWindow()
     if bufnr > 0 && !filereadable(buf)
         # for special buffers that cannot be edited
-        execute 'buffer ' .. bufnr
+        if bufwinnr(bufnr) != -1
+            # jump to window if visible in current tab
+            execute ':' .. bufwinnr(bufnr) .. 'wincmd w'
+        else
+            # otherwise open buffer in current window
+            execute 'buffer ' .. bufnr
+        endif
     elseif cwd ==# getcwd()
         execute 'edit ' .. fnameescape(buf)
     else
