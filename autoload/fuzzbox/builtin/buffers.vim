@@ -72,9 +72,6 @@ def GetBufList(): list<string>
             return acc
         endif
         var file = fnamemodify(buf.name, ":~:.")
-        if len(file) > _window_width / 2 * &columns
-            file = pathshorten(file)
-        endif
         acc[file] = [buf.name, buf.bufnr, buf.lnum, buf.lastused]
         return acc
     }, buf_dict)
