@@ -196,6 +196,14 @@ let g:fuzzbox_counter = 1
 ```
 This option is ignored by some selectors/commands, e.g. FuzzyFiles, FuzzyGrep
 
+### g:fuzzbox_scrollbar
+Show a scrollbar in the menu window when the results do not fit. Default 0
+```vim
+let g:fuzzbox_scrollbar = 0
+```
+This option does not affect whether the menu window is scrollable, it always
+is, just whether a scrollbar is shown.
+
 ### g:fuzzbox_prompt_prefix
 Set the prefix for the input in the prompt window. Default '> ', must be a
 string, but an empty string is valid.

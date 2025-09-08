@@ -29,6 +29,7 @@ var enable_devicons = devicons.Enabled()
 var enable_dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
 var enable_counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
 var enable_preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
+var enable_scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
 
 # track whether options are endbled for the current selector
 var has_devicons: bool
@@ -325,6 +326,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     )
     opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : enable_dropdown
     opts.preview = has_key(opts, 'preview') ? opts.preview : enable_preview
+    opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : enable_scrollbar
     opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : prompt_prefix
 
     opts.actions = has_key(opts, 'actions') ? extend(default_actions, opts.actions) : default_actions
