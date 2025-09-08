@@ -53,9 +53,12 @@ def GetBufList(): list<string>
     # skip [No Name] buffers
     filter(buf_data, (_, buf) => !empty(buf.name))
 
-    # skip excluded buffers - case-sensitive match on tail of the file name
+    # skip excluded buffers - case-sensitive match on buftype or tail of file name
     if !empty(exclude_buffers)
-        filter(buf_data, (_, buf) => index(exclude_buffers, fnamemodify(buf.name, ':t')) == -1)
+        filter(buf_data, (_, buf) => {
+            return index(exclude_buffers, fnamemodify(buf.name, ':t')) == -1
+                && index(exclude_buffers, getbufvar(buf.bufnr, "&buftype")) == -1
+        })
     endif
 
     reduce(buf_data, (acc, buf) => {
