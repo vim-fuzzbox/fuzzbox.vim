@@ -386,9 +386,14 @@ let g:fuzzbox_keymaps = {
 ### g:fuzzbox_buffers_exclude
 FuzzyBuffers will exclude the buffers in this list. Buffers not included in
 Vim's buffer list are excluded by default, so this is only necessary for buffers
-included in Vim's buffer list, but you want hidden by FuzzyBuffers. Default `[]`
+included in Vim's buffer list, but you want hidden by FuzzyBuffers (possibly
+from a badly behaved plugin). The match is on buffer name or type. Default `[]`
 ```vim
 let g:fuzzbox_buffers_exclude = []
+```
+Example usage:
+```vim
+let g:fuzzbox_buffers_exclude = ['terminal']
 ```
 
 ### g:fuzzbox_buffers_keymap
