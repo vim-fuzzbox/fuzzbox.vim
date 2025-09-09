@@ -17,6 +17,8 @@ var async_step = exists('g:fuzzbox_async_step')
 var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
     && type(g:fuzzbox_prompt_prefix) == v:t_string ?
     g:fuzzbox_prompt_prefix : '> '
+var menu_wrap = exists('g:fuzzbox_menu_wrap') ? g:fuzzbox_menu_wrap : false
+var preview_wrap = exists('g:fuzzbox_preview_wrap') ? g:fuzzbox_preview_wrap : true
 
 # Experimental: number of async results to show in menu, fewer is faster
 export var async_limit = exists('g:fuzzbox_async_limit')
@@ -328,6 +330,8 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.preview = has_key(opts, 'preview') ? opts.preview : enable_preview
     opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : enable_scrollbar
     opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : prompt_prefix
+    opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : menu_wrap
+    opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : preview_wrap
 
     opts.actions = has_key(opts, 'actions') ? extend(default_actions, opts.actions) : default_actions
 

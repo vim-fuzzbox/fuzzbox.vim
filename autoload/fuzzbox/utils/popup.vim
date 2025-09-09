@@ -743,7 +743,6 @@ def PopupMenu(args: dict<any>): number
      yoffset: 0.3,
      cursorline: 1,
      filter: function('MenuFilter'),
-     wrap: 0,
      }
 
     opts = extend(opts, args)
@@ -763,14 +762,12 @@ def PopupPreview(args: dict<any>): number
      yoffset: 0.3,
      cursorline: 1,
      filter: function('PreviewFilter'),
-     wrap: 0,
      }
 
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
 
     setwinvar(wid, '&number', 1)
-    setwinvar(wid, '&wrap', 1)
     return wid
 enddef
 
@@ -860,6 +857,9 @@ export def PopupSelection(opts: dict<any>): dict<any>
     if has_key(opts, 'menu_title')
         menu_opts['title'] = opts.menu_title
     endif
+    if has_key(opts, 'menu_wrap')
+        menu_opts['wrap'] = opts.menu_wrap
+    endif
     wins.menu = PopupMenu(menu_opts)
 
     var prompt_opts = {
@@ -892,7 +892,11 @@ export def PopupSelection(opts: dict<any>): dict<any>
             yoffset: yoffset,
             xoffset: preview_xoffset + 2,
             zindex: 1100,
+            wrap: 1
         }
+        if has_key(opts, 'preview_wrap')
+            preview_opts['wrap'] = opts.preview_wrap
+        endif
         wins.preview = PopupPreview(preview_opts)
         wins.preview = wins.preview
         popup_wins[wins.preview].partids = wins

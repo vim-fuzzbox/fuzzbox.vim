@@ -408,7 +408,6 @@ export def Start(opts: dict<any> = {})
         return
     endif
     preview_wid = wids.preview
-    setwinvar(menu_wid, '&wrap', 0)
     update_tid = timer_start(100, function('UpdateMenu'), {repeat: -1})
     if len(get(opts, 'search', '')) > 0
         popup.SetPrompt(opts.search)

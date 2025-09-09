@@ -22,24 +22,26 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.5. g:fuzzbox_counter.........................|fuzzbox-g:fuzzbox_counter|
     1.7.6. g:fuzzbox_scrollbar.....................|fuzzbox-g:fuzzbox_scrollbar|
     1.7.7. g:fuzzbox_prompt_prefix.............|fuzzbox-g:fuzzbox_prompt_prefix|
-    1.7.8. g:fuzzbox_borderchars.................|fuzzbox-g:fuzzbox_borderchars|
-    1.7.9. g:fuzzbox_reuse_windows.............|fuzzbox-g:fuzzbox_reuse_windows|
-    1.7.10. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
-    1.7.11. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
-    1.7.12. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
-    1.7.13. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
-    1.7.14. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
-    1.7.15. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
-    1.7.16. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
-    1.7.17. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.18. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.19. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.20. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.21. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.22. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.23. g:fuzzbox_buffers_keymap..........|fuzzbox-g:fuzzbox_buffers_keymap|
-    1.7.24. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
-    1.7.25. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.8. g:fuzzbox_menu_wrap.....................|fuzzbox-g:fuzzbox_menu_wrap|
+    1.7.9. g:fuzzbox_preview_wrap...............|fuzzbox-g:fuzzbox_preview_wrap|
+    1.7.10. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
+    1.7.11. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
+    1.7.12. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
+    1.7.13. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
+    1.7.14. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
+    1.7.15. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
+    1.7.16. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
+    1.7.17. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
+    1.7.18. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
+    1.7.19. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
+    1.7.20. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.21. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.22. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.23. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.24. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.25. g:fuzzbox_buffers_keymap..........|fuzzbox-g:fuzzbox_buffers_keymap|
+    1.7.26. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
+    1.7.27. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -270,6 +272,22 @@ Set the prefix for the input in the prompt window. Default '> ', must be a
 string, but an empty string is valid.
 >
   let g:fuzzbox_prompt_prefix = '> '
+<
+
+G:FUZZBOX_MENU_WRAP                                *fuzzbox-g:fuzzbox_menu_wrap*
+
+Enable text wrap in the menu window. Default 0
+>
+  let g:fuzzbox_menu_wrap = 0
+<
+
+You can also use `CTRL-\` to toggle text wrap in the menu while Fuzzbox is open.
+
+G:FUZZBOX_PREVIEW_WRAP                          *fuzzbox-g:fuzzbox_preview_wrap*
+
+Enable text wrap in the preview window. Default 1
+>
+  let g:fuzzbox_preview_wrap = 1
 <
 
 G:FUZZBOX_BORDERCHARS                            *fuzzbox-g:fuzzbox_borderchars*

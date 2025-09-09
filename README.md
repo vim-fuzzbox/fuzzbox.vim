@@ -211,6 +211,19 @@ string, but an empty string is valid.
 let g:fuzzbox_prompt_prefix = '> '
 ```
 
+### g:fuzzbox_menu_wrap
+Enable text wrap in the menu window. Default 0
+```vim
+let g:fuzzbox_menu_wrap = 0
+```
+You can also use `CTRL-\` to toggle text wrap in the menu while Fuzzbox is open.
+
+### g:fuzzbox_preview_wrap
+Enable text wrap in the preview window. Default 1
+```vim
+let g:fuzzbox_preview_wrap = 1
+```
+
 ### g:fuzzbox_borderchars
 Set the borderchars of popup windows. Must be a list of 8 characters.
 ```vim
