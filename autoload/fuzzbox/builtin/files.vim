@@ -134,6 +134,7 @@ def UpdateMenu(...li: list<any>)
         selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
         if cur_pattern == ''
             selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
+            popup.SetCounter(cur_result_len, len_total)
         endif
         last_pattern = cur_pattern
     endif
