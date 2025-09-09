@@ -504,9 +504,8 @@ def CreatePopup(args: dict<any>): number
     endif
     var wid = popup_create('', opts)
     if has_key(args, 'cursorline') && args.cursorline
-        # we don't use popup option 'cursorline' because it is buggy (some
-        # colorscheme will make cursorline highlight disappear)
-        opts.has_cursorline = 1
+       # we don't use popup option 'cursorline' because it is buggy (some
+       # colorscheme will make cursorline highlight disappear)
        setwinvar(wid, '&cursorline', 1)
        setwinvar(wid, '&cursorlineopt', 'line')
     endif
