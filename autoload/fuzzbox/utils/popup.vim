@@ -26,10 +26,12 @@ var keymaps: dict<any> = {
     'menu_page_down': [],
     'menu_scroll_up': ["\<PageUp>"],
     'menu_scroll_down': ["\<PageDown>"],
+    'menu_shift_up': ["\<S-Up>"],
+    'menu_shift_down': ["\<S-Down>"],
     'preview_page_up': [],
     'preview_page_down': [],
-    'preview_scroll_up': ["\<C-u>", "\<S-Up>"], # :h CTRL-U
-    'preview_scroll_down': ["\<C-d>", "\<S-Down>"], # :h CTRL-D
+    'preview_scroll_up': ["\<C-u>"], # :h CTRL-U
+    'preview_scroll_down': ["\<C-d>"], # :h CTRL-D
     'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
     'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
     'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>
@@ -188,15 +190,17 @@ def GeneralPopupCallback(wid: number, select: any)
 enddef
 
 # Handle situation when Text under cursor in menu window is changed
-# return:
-#   if last result is changed
-def MenuCursorContentChangeCb(): number
+var preview_tid: number
+def MenuCursorContentChangeCb()
     if has_key(popup_wins[wins.menu], 'preview_cb')
         if type(popup_wins[wins.menu].preview_cb) == v:t_func
-            popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
+            # timer to avoid triggering preview unnecessarily during mouse scroll
+            timer_stop(preview_tid)
+            preview_tid = timer_start(30, (_) => {
+                popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
+            }, { repeat: 0 })
         endif
     endif
-    return 1
 enddef
 
 # set prompt content
@@ -364,9 +368,11 @@ def MenuFilter(wid: number, key: string): number
             var minline = textrows - validrow + 1
             if cursorlinepos > minline
                 win_execute(wid, 'norm! k')
+                moved = 1
             endif
         else
             win_execute(wid, 'norm! k')
+            moved = 1
         endif
     elseif index(keymaps['menu_page_up'], key) >= 0
         win_execute(wid, "norm! \<c-b>")
@@ -379,6 +385,12 @@ def MenuFilter(wid: number, key: string): number
         moved = 1
     elseif index(keymaps['menu_scroll_down'], key) >= 0
         win_execute(wid, "norm! \<c-d>")
+        moved = 1
+    elseif index(keymaps['menu_shift_up'], key) >= 0
+        win_execute(wid, "norm! 3k")
+        moved = 1
+    elseif index(keymaps['menu_shift_down'], key) >= 0
+        win_execute(wid, "norm! 3j")
         moved = 1
     elseif key ==? "\<LeftMouse>"
         var pos = getmousepos()
@@ -405,13 +417,15 @@ def MenuFilter(wid: number, key: string): number
         if pos.winid != wid
             return 0
         endif
-        win_execute(wid, "norm! 3\<c-y>")
+        win_execute(wid, 'norm! 3k')
+        moved = 1
     elseif key ==? "\<ScrollWheelDown>"
         var pos = getmousepos()
         if pos.winid != wid
             return 0
         endif
-        win_execute(wid, "norm! 3\<c-e>")
+        win_execute(wid, "norm! 3j")
+        moved = 1
     elseif index(keymaps['menu_select'], key) >= 0
         if has_key(popup_wins[wid], 'select_cb')
                 && type(popup_wins[wid].select_cb) == v:t_func

@@ -122,8 +122,10 @@ Fuzzbox will not overwrite mappings from your vimrc when adding default mappings
 - \<CTRL-N> or \<Down> moves down by one line in the menu window
 - \<PageUp> scrolls up half a page in the menu window
 - \<PageDown> scrolls down half a page in the menu window
-- \<CTRL-U> or \<S-Up> scrolls up half a page in the preview window
-- \<CTRL-D> or \<S-Down> scrolls down half a page in the preview window
+- \<S-Up> scrolls up three lines in the menu window
+- \<S-Down> scrolls down three lines in the menu window
+- \<CTRL-U> scrolls up half a page in the preview window
+- \<CTRL-D> scrolls down half a page in the preview window
 - \<CTRL-B> or \<Home> moves the cursor to the start of the prompt
 - \<CTRL-E> or \<End> moves the cursor to the end of the prompt
 - \<CTRL-Left> moves the cursor one word left in the prompt
@@ -387,10 +389,12 @@ let g:fuzzbox_keymaps = {
   \ 'menu_page_down': [],
   \ 'menu_scroll_up': ["\<PageUp>"],
   \ 'menu_scroll_down': ["\<PageDown>"],
+  \ 'menu_shift_up': ["\<S-Up>"],
+  \ 'menu_shift_down': ["\<S-Down>"],
   \ 'preview_page_up': [],
   \ 'preview_page_down': [],
-  \ 'preview_scroll_up': ["\<C-u>","\<S-Up>"],
-  \ 'preview_scroll_down': ["\<C-d>", "\<S-Down>"],
+  \ 'preview_scroll_up': ["\<C-u>"],
+  \ 'preview_scroll_down': ["\<C-d>"],
   \ 'cursor_end': ["\<C-e>", "\<End>"],
   \ 'cursor_begining': ["\<C-b>", "\<Home>"],
   \ 'cursor_word_left': ["\<C-Left>"],
