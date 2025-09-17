@@ -197,7 +197,9 @@ def MenuCursorContentChangeCb()
             # timer to avoid triggering preview unnecessarily during mouse scroll
             timer_stop(preview_tid)
             preview_tid = timer_start(30, (_) => {
-                popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
+                if active # allow for popups to have closed when lambda is invoked
+                    popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
+                endif
             }, { repeat: 0 })
         endif
     endif
