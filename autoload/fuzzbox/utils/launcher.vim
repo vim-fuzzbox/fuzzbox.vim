@@ -34,9 +34,15 @@ export def Resume()
                 function('fuzzbox#_extensions#' .. e.selector .. '#Start')(e.opts)
             endtry
             if popup.GetPrompt() != e.prompt
-                popup.SetPrompt(slice(e.prompt, 0, -1))
+                popup.SetPrompt(e.prompt)
                 timer_start(100, (_) => {
-                    feedkeys(e.prompt[strcharlen(e.prompt) - 1])
+                    # Set prompt again after 100ms if no user input, allows for
+                    # selectors which load the select list via a background job,
+                    # but assumes they update the menu after 100ms or less. This
+                    # is true for builtin selectors that do this, files and grep
+                    if popup.GetPrompt() == e.prompt
+                        popup.SetPrompt(e.prompt)
+                    endif
                 })
             endif
             # trim cache, only save latest with prompt
