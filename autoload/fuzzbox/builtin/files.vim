@@ -44,15 +44,12 @@ def AsyncCb(str_list: list<string>, hl_list: list<list<any>>)
 enddef
 
 def Input(wid: number, result: string)
-    cur_pattern = result
-
-    # when in loading state, files_update_menu will handle the input
+    # when in loading state, UpdateMenu() will handle the input
     if in_loading
         return
     endif
 
-    var file_list = cur_result
-
+    cur_pattern = result
     if cur_pattern != ''
         selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
     else
@@ -105,6 +102,8 @@ def JobExitCb(id: job, status: number)
     timer_stop(update_tid)
     if last_result_len <= 0
         selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
+    elseif !empty(popup.GetPrompt())
+        popup.SetPrompt(popup.GetPrompt())
     endif
     len_total = len(cur_result)
     popup.SetCounter(len_total, len_total)
@@ -119,7 +118,8 @@ def Profiling()
     profile func UpdateMenu
 enddef
 
-def UpdateMenu(...li: list<any>)
+def UpdateMenu(tid: number)
+    cur_pattern = popup.GetPrompt()
     var cur_result_len = len(cur_result)
     if cur_result_len > len_total
         len_total = cur_result_len
@@ -130,14 +130,17 @@ def UpdateMenu(...li: list<any>)
     endif
     last_result_len = cur_result_len
 
-    if cur_pattern != last_pattern
-        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
-        if cur_pattern == ''
-            selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
-            popup.SetCounter(cur_result_len, len_total)
-        endif
-        last_pattern = cur_pattern
+    if cur_pattern == last_pattern
+        return
     endif
+
+    if cur_pattern != ''
+        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
+    else
+        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
+        popup.SetCounter(cur_result_len, len_total)
+    endif
+    last_pattern = cur_pattern
 enddef
 
 def Close(wid: number)

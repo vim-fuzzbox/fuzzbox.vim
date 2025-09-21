@@ -209,6 +209,9 @@ enddef
 # params
 #   - content: string to be set as prompt
 export def SetPrompt(content: string)
+    if wins.prompt == -1
+        return
+    endif
     popup_wins[wins.prompt].prompt.line = []
     popup_wins[wins.prompt].cursor_args.cur_pos = 0
     for i in range(strchars(content))
@@ -217,6 +220,9 @@ export def SetPrompt(content: string)
 enddef
 
 export def GetPrompt(): string
+    if wins.prompt == -1
+        return ''
+    endif
     return popup_wins[wins.prompt].prompt.line->join('')
 enddef
 
