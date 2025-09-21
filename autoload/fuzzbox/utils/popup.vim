@@ -742,8 +742,10 @@ export def SetCounter(count: any, total: any = null)
         prop_type_add(type, {'highlight': type})
     endif
     var text: string
-    if empty(count)
+    if type(count) == v:t_none
         text = ''
+    elseif type(count) == v:t_string
+        text = count
     elseif empty(total)
         text = type(count) == v:t_string ? count : string(count)
     else
