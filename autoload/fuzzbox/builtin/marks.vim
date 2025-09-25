@@ -10,7 +10,7 @@ def Select(wid: number, result: string)
         return
     endif
     var mark = result->matchstr('\v^\s*\zs\S+')
-    exe $"normal! '{mark}"
+    exe $"normal! `{mark}"
 enddef
 
 def ParseResult(result: string): list<any>
@@ -21,7 +21,8 @@ def ParseResult(result: string): list<any>
     })[0]
     var file = fnamemodify(get(markdata, 'file', bufname(bufnr)), ':p')
     var lnum = markdata.pos[1]
-    return [file, lnum]
+    var col = markdata.pos[2]
+    return [file, lnum, col]
 enddef
 
 def Preview(wid: number, result: string)
@@ -32,7 +33,7 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
-    var [file, lnum] = ParseResult(result)
+    var [file, lnum, col] = ParseResult(result)
     if !filereadable(file)
         previewer.PreviewText(wid, 'File not found: ' .. file)
         return
@@ -41,7 +42,7 @@ def Preview(wid: number, result: string)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
     clearmatches(wid)
-    matchaddpos('fuzzboxPreviewLine', [lnum], 9999, -1,  {window: wid})
+    matchaddpos('fuzzboxPreviewMatch', [[lnum, col]], 9999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string)
@@ -49,9 +50,9 @@ def OpenFileTab(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'tabnew ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
+    var [file, lnum, col] = ParseResult(result)
+    exe 'tabnew ' .. fnameescape(file)
+    cursor(lnum, col)
     exe 'norm! zz'
 enddef
 
@@ -60,9 +61,9 @@ def OpenFileVSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'vsplit ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
+    var [file, lnum, col] = ParseResult(result)
+    exe 'vsplit ' .. fnameescape(file)
+    cursor(lnum, col)
     exe 'norm! zz'
 enddef
 
@@ -71,9 +72,9 @@ def OpenFileSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'split ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
+    var [file, lnum, col] = ParseResult(result)
+    exe 'split ' .. fnameescape(file)
+    cursor(lnum, col)
     exe 'norm! zz'
 enddef
 
@@ -82,7 +83,7 @@ export def Start(opts: dict<any> = {})
     bufnr = bufnr()
 
     selector.Start(marks, extend(opts, {
-        prompt_title: 'Mark (mark|line|col|file/text)',
+        prompt_title: 'Marks (mark|line|col|file/text)',
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
