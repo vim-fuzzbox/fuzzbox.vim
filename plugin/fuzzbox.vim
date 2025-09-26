@@ -149,6 +149,7 @@ command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix', windows.quickfix)
 command! -nargs=0 FuzzyTags launcher.Start('tags', windows.tags)
 command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', extendnew(windows.tags, { cwd: helpers.GetRootDir() }))
 command! -nargs=0 FuzzyMarks launcher.Start('marks', windows.marks)
+command! -nargs=0 FuzzyJumps launcher.Start('jumps')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
 # Hack to only show a single line warning when startng the selector
