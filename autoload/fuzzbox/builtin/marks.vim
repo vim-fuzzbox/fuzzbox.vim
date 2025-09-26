@@ -83,7 +83,6 @@ export def Start(opts: dict<any> = {})
     bufnr = bufnr()
 
     selector.Start(marks, extend(opts, {
-        prompt_title: 'Marks (mark|line|col|file/text)',
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {

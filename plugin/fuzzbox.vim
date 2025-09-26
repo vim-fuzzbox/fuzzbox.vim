@@ -107,7 +107,9 @@ var windows: dict<any> = {
     quickfix: {
         prompt_title: 'Quickfix',
     },
-    marks: {},
+    marks: {
+        prompt_title: 'Marks'
+    },
 }
 if exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
     for [key, value] in items(windows)
