@@ -48,7 +48,7 @@ def Build_rg(): string
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-g !" .. file .. " ", "")
     return result .. ' ' .. dir_list_parsed .. file_list_parsed ..
-        ' ' .. join(ripgrep_options, ' ') .. ' %s "%s" "%s"'
+        ' ' .. join(ripgrep_options, ' ') .. ' %s -e "%s" "%s"'
 enddef
 
 def Build_ag(): string
@@ -66,7 +66,7 @@ def Build_ag(): string
         (acc, dir) => acc .. "--ignore " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--ignore " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s "%s" "%s"'
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -- "%s" "%s"'
 enddef
 
 var bsd_grep: any
@@ -91,7 +91,7 @@ def Build_grep(): string
         (acc, dir) => acc .. "--exclude-dir " .. ParseDir(dir) .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s "%s" "%s"'
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -e "%s" "%s"'
 enddef
 
 def Build_git(): string
@@ -102,7 +102,7 @@ def Build_git(): string
     if str2nr(major) > 2 || ( str2nr(major) == 2 && str2nr(minor) >= 38 )
         result ..= ' --max-count=' .. max_count
     endif
-    return result ..  ' %s "%s" "%s"'
+    return result ..  ' %s -e "%s" "%s"'
 enddef
 
 var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" "%s/*"'
