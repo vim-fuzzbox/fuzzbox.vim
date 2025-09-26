@@ -80,6 +80,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyCmdHistory       | search command history
 | FuzzyHighlights       | search highlight groups
 | FuzzyQuickfix         | search items in the current quickfix list
+| FuzzyMarks            | search marks, see `:h :marks` and `:h mark-motions`
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
 | FuzzyTagsRoot         | search tags in the project/vcs root directory
 | FuzzyGitFiles         | search files in output from `git ls-files`
@@ -148,7 +149,8 @@ be used to scroll in both the preview and menu windows.
 - FuzzyMru
   - \<CTRL-K> toggle between all MRU files and CWD only
 
-- FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix, FuzzyTags
+- FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix,
+  FuzzyMarks, FuzzyTags
   - \<CTRL-S> open selected file in horizontal split
   - \<CTRL-V> open selected file in vertical split
   - \<CTRL-T> open selected file in new tab page
@@ -465,6 +467,8 @@ This configuration is also customised per selector, with the following defaults:
 \     preview_ratio': 0.6
 \   },
 \   'inbuffer': {},
+\   'quickfix': {},
+\   'marks': {},
 \ }
 ```
 
@@ -477,11 +481,12 @@ or you change the width of the preview window for FuzzyColors with:
 ```vim
 let g:fuzzbox_window_layout = { 'colors': { 'width': 0.4 } }
 ```
-preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory\
-x and y offsets are by default calculated to center the windows on the screen\
-width, height, and x and y offsets > 0 and < 1 are resolved as percentages\
-width, height, and x and y offsets >= 1 are fixed numbers of lines and cols\
-invalid values for preview_ratio, width, height, and x and y offsets are ignored
+
+- preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory
+- x and y offsets are by default calculated to center the windows on the screen
+- width, height, and x and y offsets > 0 and < 1 are resolved as percentages
+- width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
+- invalid values for preview_ratio, width, height, and x & y offsets are ignored
 
 ### g:fuzzbox_async_step
 Fuzzbox mimics async processing to fuzzy match in batches, which avoids problems
