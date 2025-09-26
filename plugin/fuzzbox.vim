@@ -90,6 +90,7 @@ command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix')
 command! -nargs=0 FuzzyTags launcher.Start('tags')
 command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', { cwd: helpers.GetRootDir() })
 command! -nargs=0 FuzzyMarks launcher.Start('marks')
+command! -nargs=0 FuzzyJumps launcher.Start('jumps')
 command! -nargs=0 FuzzyArglist launcher.Start('arglist')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
