@@ -19,10 +19,13 @@ def ParseResult(result: string): list<any>
     var markdata = marklist->filter((_, dict) => {
        return dict.mark == "'" .. mark
     })[0]
-    var file = fnamemodify(get(markdata, 'file', bufname(bufnr)), ':p')
     var lnum = markdata.pos[1]
     var col = markdata.pos[2]
-    return [file, lnum, col]
+    var file = get(markdata, 'file', bufname(bufnr))
+    if empty(file)
+        return [file, lnum, col]
+    endif
+    return [fnamemodify(file, ':p'), lnum, col]
 enddef
 
 def Preview(wid: number, result: string)
@@ -34,6 +37,10 @@ def Preview(wid: number, result: string)
         return
     endif
     var [file, lnum, col] = ParseResult(result)
+    if empty(file)
+        previewer.PreviewText(wid, '')
+        return
+    endif
     if !filereadable(file)
         previewer.PreviewText(wid, 'File not found: ' .. file)
         return
