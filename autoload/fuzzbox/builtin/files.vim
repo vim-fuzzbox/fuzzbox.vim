@@ -43,6 +43,7 @@ def AsyncCb(str_list: list<string>, hl_list: list<list<any>>)
     popup.SetCounter(selector.len_results, len_total)
 enddef
 
+var async_tid: number
 def Input(wid: number, result: string)
     # when in loading state, UpdateMenu() will handle the input
     if in_loading
@@ -51,10 +52,12 @@ def Input(wid: number, result: string)
 
     cur_pattern = result
     if cur_pattern != ''
-        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
+        async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern,
+            async_limit, function('AsyncCb'))
     else
+        timer_stop(async_tid)
         selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
-        popup.SetCounter(len(cur_result), len_total)
+        popup.SetCounter(len_total, len_total)
     endif
 enddef
 
