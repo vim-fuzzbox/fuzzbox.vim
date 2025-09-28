@@ -20,7 +20,7 @@ endif
 
 if exists('g:loaded_nerd_tree') && !exists('g:fuzzbox_devicons_color_func') &&
         findfile('after/syntax/nerdtree.vim', &rtp) =~ 'nerdtree-syntax-highlight'
-    import '../autoload/fuzzbox/utils/colors.vim'
+    import '../autoload/fuzzbox/internal/colors.vim'
     runtime! after/syntax/nerdtree.vim
     map(colors.DeviconsColorTable(), (key, val) => {
         var ext = fnamemodify(key, ':e')

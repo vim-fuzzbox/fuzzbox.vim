@@ -1,10 +1,10 @@
 vim9script
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/previewer.vim'
-import autoload '../utils/devicons.vim'
-import autoload '../utils/helpers.vim'
-import autoload '../utils/actions.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/previewer.vim'
+import autoload '../internal/devicons.vim'
+import autoload '../internal/helpers.vim'
+import autoload '../internal/actions.vim'
 
 var mru_origin_list: list<string>
 var cwd: string

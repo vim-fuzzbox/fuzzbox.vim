@@ -2,10 +2,10 @@ vim9script
 
 scriptencoding utf-8
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/previewer.vim'
-import autoload '../utils/popup.vim'
-import autoload '../utils/helpers.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/previewer.vim'
+import autoload '../internal/popup.vim'
+import autoload '../internal/helpers.vim'
 
 def Select(wid: number, result: string)
     var nr = str2nr(split(result, '│')[0])

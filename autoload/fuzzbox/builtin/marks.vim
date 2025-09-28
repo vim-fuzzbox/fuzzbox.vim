@@ -1,7 +1,7 @@
 vim9script
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/previewer.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/previewer.vim'
 
 var bufnr: number
 

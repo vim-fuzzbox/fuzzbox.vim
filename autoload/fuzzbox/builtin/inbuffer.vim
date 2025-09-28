@@ -2,8 +2,8 @@ vim9script
 
 scriptencoding utf-8
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/popup.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/popup.vim'
 
 var raw_lines: list<string>
 var file_type: string

@@ -127,8 +127,8 @@ highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Visual
 
-import autoload '../autoload/fuzzbox/utils/launcher.vim'
-import autoload '../autoload/fuzzbox/utils/helpers.vim'
+import autoload '../autoload/fuzzbox/internal/launcher.vim'
+import autoload '../autoload/fuzzbox/internal/helpers.vim'
 
 command! -nargs=? FuzzyGrep launcher.Start('grep', extendnew(windows.grep, { search: <q-args> }))
 command! -nargs=? FuzzyGrepRoot launcher.Start('grep', extendnew(windows.grep, { cwd: helpers.GetRootDir(), 'search': <q-args> }))

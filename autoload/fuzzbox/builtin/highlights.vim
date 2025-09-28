@@ -1,7 +1,7 @@
 
 vim9script
 
-import autoload '../utils/selector.vim'
+import autoload '../internal/selector.vim'
 
 var hl_meta: dict<any>
 var preview_wid: number

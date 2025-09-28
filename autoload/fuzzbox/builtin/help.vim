@@ -1,7 +1,7 @@
 vim9script
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/popup.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/popup.vim'
 
 var tag_table: dict<any>
 var tag_files: list<string>

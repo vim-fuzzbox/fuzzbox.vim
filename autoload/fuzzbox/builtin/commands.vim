@@ -1,6 +1,6 @@
 vim9script
 
-import autoload '../utils/selector.vim'
+import autoload '../internal/selector.vim'
 
 def Select(wid: number, result: string)
     if result =~# '^[A-Z]'

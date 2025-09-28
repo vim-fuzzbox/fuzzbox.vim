@@ -1,7 +1,7 @@
 vim9script
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/popup.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/popup.vim'
 
 def Select(wid: number, result: string)
     if empty(result)

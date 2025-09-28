@@ -1,8 +1,8 @@
 vim9script
 
-import autoload '../utils/selector.vim'
-import autoload '../utils/previewer.vim'
-import autoload '../utils/helpers.vim'
+import autoload '../internal/selector.vim'
+import autoload '../internal/previewer.vim'
+import autoload '../internal/helpers.vim'
 
 var tag_list: list<string>
 var tag_files = []

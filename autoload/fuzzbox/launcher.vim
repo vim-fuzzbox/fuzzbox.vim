@@ -1,6 +1,6 @@
 vim9script
 
-import autoload './utils/launcher.vim'
+import autoload './internal/launcher.vim'
 
 export def Start(selector: string, opts: dict<any> = {})
     launcher.Start(selector, opts)
