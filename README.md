@@ -452,26 +452,26 @@ Window layout configuration. The general defaults for window layout options are:
 ```
 This configuration is also customised per selector, with the following defaults:
 ```vim
-\ #{
-\   files: {},
-\   grep: {},
-\   buffers: {},
-\   mru: {},
-\   tags: {},
-\   highlights: #{
-\     preview_ratio: 0.7,
+\ {
+\   'files': {},
+\   'grep': {},
+\   'buffers': {},
+\   'mru': {},
+\   'tags': {},
+\   'highlights': {
+\     'preview_ratio': 0.7,
 \   },
-\   cmdhistory: {},
-\   colors: #{
-\     compact: v:true,
+\   'cmdhistory': {},
+\   'colors': {
+\     'compact': 1,
 \   },
-\   commands: {},
-\   help: #{
-\     preview_ratio: 0.6
+\   'commands': {},
+\   'help': {
+\     'preview_ratio': 0.6
 \   },
-\   inbuffer: {},
-\   quickfix: {},
-\   marks: {},
+\   'inbuffer': {},
+\   'quickfix': {},
+\   'marks': {},
 \ }
 ```
 
