@@ -113,7 +113,7 @@ nnoremap <silent> <leader>fq :FuzzyQuickfix<CR>
 nnoremap <silent> <leader>fr :FuzzyMruCwd<CR>
 ```
 
-You can set `g:fuzzbox_enable_mappings = 0` to disable these default mappings.
+You can set `g:fuzzbox_mappings = 0` to disable these default mappings.
 
 Fuzzbox will not overwrite mappings from your vimrc when adding default mappings.
 
@@ -164,10 +164,10 @@ what you want, sending thousands of results to the quickfix list is slow).
 
 ## Options
 
-### g:fuzzbox_enable_mappings
-Set to 0 to disable default mappings. Default to 1
+### g:fuzzbox_mappings
+Enable default set of leader mappings (see above for details). Default 1
 ```vim
-let g:fuzzbox_enable_mappings = 1
+let g:fuzzbox_mappings = 1
 ```
 
 ### g:fuzzbox_devicons

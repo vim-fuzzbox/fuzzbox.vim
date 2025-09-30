@@ -41,8 +41,7 @@ if !empty(fuzzyy_options)
     warnings += ['fuzzbox: Fuzzyy has been renamed to Fuzzbox, please update your Vim configuration, see :help fuzzyy.renamed']
 endif
 
-# Options
-g:fuzzbox_enable_mappings = exists('g:fuzzbox_enable_mappings') ? g:fuzzbox_enable_mappings : 1
+# Options referenced from multiple selectors or other scripts
 g:fuzzbox_respect_gitignore = exists('g:fuzzbox_respect_gitignore') ? g:fuzzbox_respect_gitignore : 1
 g:fuzzbox_respect_wildignore = exists('g:fuzzbox_respect_wildignore') ? g:fuzzbox_respect_wildignore : 0
 g:fuzzbox_follow_symlinks = exists('g:fuzzbox_follow_symlinks') ? g:fuzzbox_follow_symlinks : 0
@@ -155,7 +154,13 @@ if len(warnings) > 0
     command! -nargs=0 FuzzyShowWarnings for warning in warnings | echo warning | endfor
 endif
 
-if g:fuzzbox_enable_mappings
+# backwards compatibility
+if exists('g:fuzzbox_enable_mappings') && !exists('g:fuzzbox_mappings')
+    g:fuzzbox_mappings = g:fuzzbox_enable_mappings
+endif
+var enable_mappings = exists('g:fuzzbox_mappings') ? g:fuzzbox_mappings : true
+
+if enable_mappings
     var mappings = {
         '<leader>fb': ':FuzzyBuffers<CR>',
         '<leader>fc': ':FuzzyCommands<CR>',

@@ -15,7 +15,7 @@ CONTENTS                                                      *fuzzbox-contents*
   1.5. Mappings...............................................|fuzzbox-mappings|
   1.6. Navigation...........................................|fuzzbox-navigation|
   1.7. Options.................................................|fuzzbox-options|
-    1.7.1. g:fuzzbox_enable_mappings.........|fuzzbox-g:fuzzbox_enable_mappings|
+    1.7.1. g:fuzzbox_mappings.......................|fuzzbox-g:fuzzbox_mappings|
     1.7.2. g:fuzzbox_devicons.......................|fuzzbox-g:fuzzbox_devicons|
     1.7.3. g:fuzzbox_dropdown.......................|fuzzbox-g:fuzzbox_dropdown|
     1.7.4. g:fuzzbox_preview.........................|fuzzbox-g:fuzzbox_preview|
@@ -168,7 +168,7 @@ MAPPINGS                                                      *fuzzbox-mappings*
   nnoremap <silent> <leader>fr :FuzzyMruCwd<CR>
 <
 
-You can set `g:fuzzbox_enable_mappings = 0` to disable these default mappings.
+You can set `g:fuzzbox_mappings = 0` to disable these default mappings.
 
 Fuzzbox will not overwrite mappings from your vimrc when adding default mappings.
 
@@ -218,11 +218,11 @@ what you want, sending thousands of results to the quickfix list is slow).
 ------------------------------------------------------------------------------
 OPTIONS                                                        *fuzzbox-options*
 
-G:FUZZBOX_ENABLE_MAPPINGS                    *fuzzbox-g:fuzzbox_enable_mappings*
+G:FUZZBOX_MAPPINGS                                  *fuzzbox-g:fuzzbox_mappings*
 
-Set to 0 to disable default mappings. Default to 1
+Enable default set of leader mappings (see above for details). Default 1
 >
-  let g:fuzzbox_enable_mappings = 1
+  let g:fuzzbox_mappings = 1
 <
 
 G:FUZZBOX_DEVICONS                                  *fuzzbox-g:fuzzbox_devicons*
