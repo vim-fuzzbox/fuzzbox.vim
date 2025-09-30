@@ -192,6 +192,12 @@ Enable preview window in supported selectors (e.g. FuzzyFiles). Default 1
 let g:fuzzbox_preview = 1
 ```
 
+### g:fuzzbox_compact
+Enable compact layout, reduces default window dimensions. Default 0
+```vim
+let g:fuzzbox_compact = 0
+```
+
 ### g:fuzzbox_counter
 Show count of matches. Default 1, set to 0 if you don't want a counter to be
 shown for most selectors.
@@ -446,29 +452,26 @@ Window layout configuration. The general defaults for window layout options are:
 ```
 This configuration is also customised per selector, with the following defaults:
 ```vim
-\ {
-\   'files': {},
-\   'grep': {},
-\   'buffers': {},
-\   'mru': {},
-\   'tags': {},
-\   'highlights': {},
-\   'cmdhistory': {
-\     'width': 0.6,
+\ #{
+\   files: {},
+\   grep: {},
+\   buffers: {},
+\   mru: {},
+\   tags: {},
+\   highlights: #{
+\     preview_ratio: 0.7,
 \   },
-\   'colors': {
-\     'width': 0.25,
-\     'xoffset': 0.7,
+\   cmdhistory: {},
+\   colors: #{
+\     compact: v:true,
 \   },
-\     'commands': {
-\     'width': 0.4,
+\   commands: {},
+\   help: #{
+\     preview_ratio: 0.6
 \   },
-\   help: {
-\     preview_ratio': 0.6
-\   },
-\   'inbuffer': {},
-\   'quickfix': {},
-\   'marks': {},
+\   inbuffer: {},
+\   quickfix: {},
+\   marks: {},
 \ }
 ```
 

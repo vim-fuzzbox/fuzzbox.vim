@@ -819,6 +819,10 @@ export def PopupSelection(opts: dict<any>): dict<any>
 
     var width: any = has_preview ? 0.8 : 0.5
     var height: any = has_preview ? 0.8 : 0.5
+    if has_key(opts, 'compact') && opts.compact
+        width = width - 0.1
+        height = height - 0.1
+    endif
     width = has_key(opts, 'width') && opts.width > 0 ? opts.width : width
     height = has_key(opts, 'height') && opts.height > 0 ? opts.height : height
 

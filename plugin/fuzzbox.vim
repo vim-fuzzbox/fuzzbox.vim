@@ -86,16 +86,13 @@ var windows: dict<any> = {
     },
     cmdhistory: {
         prompt_title: 'Command History',
-        width: 0.6,
     },
     colors: {
         prompt_title: 'Color Schemes',
-        width: 0.25,
-        xoffset: 0.6,
+        compact: true,
     },
     commands: {
         prompt_title: 'Commands',
-        width: 0.4,
     },
     help: {
         prompt_title: 'Help',

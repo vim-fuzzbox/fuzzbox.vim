@@ -33,21 +33,20 @@ export def Launch(selector: string, opts: dict<any> = {})
 enddef
 
 export def Select(items: list<any>, opts: dict<any> = {})
-    # TODO: move these options to selector.Start()
+    # Convenience options to simplify invocation
     var callback = has_key(opts, 'callback') ? function(remove(opts, 'callback')) : null
-    var compact = has_key(opts, 'compact') ? remove(opts, 'compact') : true
     var title = has_key(opts, 'title') ? remove(opts, 'title') : null
 
     if type(callback) == v:t_func
         opts.select_cb = callback
     endif
-    if compact
-        opts.width = .33
-        opts.height = .33
-    endif
     if type(title) == v:t_string
         opts.prompt_title = title
     endif
+
+    # Use compact view without a preview by default
+    opts.compact = has_key(opts, 'compact') ? opts.compact : true
     opts.preview = has_key(opts, 'preview') ? opts.preview : false
+
     _selector.Start(items, opts)
 enddef
