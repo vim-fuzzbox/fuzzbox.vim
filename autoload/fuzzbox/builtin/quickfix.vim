@@ -8,6 +8,9 @@ import autoload '../internal/popup.vim'
 import autoload '../internal/helpers.vim'
 
 def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
     var nr = str2nr(split(result, '│')[0])
     helpers.MoveToUsableWindow()
     exe 'cc!' .. nr
