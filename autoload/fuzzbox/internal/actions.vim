@@ -6,28 +6,18 @@ import autoload './helpers.vim'
 
 var enable_devicons = devicons.Enabled()
 
-export def OpenFile(wid: number, result: string, opts: dict<any>)
+export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     if empty(result)
         return
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [buf, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    var bufnr = bufnr(buf)
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     helpers.MoveToUsableWindow()
-    if bufnr > 0 && !filereadable(buf)
-        # for special buffers that cannot be edited
-        if bufwinnr(bufnr) != -1
-            # jump to window if visible in current tab
-            execute ':' .. bufwinnr(bufnr) .. 'wincmd w'
-        else
-            # otherwise open buffer in current window
-            execute 'buffer ' .. bufnr
-        endif
-    elseif cwd ==# getcwd()
-        execute 'edit ' .. fnameescape(buf)
+    if cwd ==# getcwd()
+        execute 'edit ' .. fnameescape(file)
     else
-        var path = cwd .. '/' .. buf
+        var path = cwd .. '/' .. file
         execute 'edit ' .. fnameescape(path)
     endif
     if str2nr(line) > 0
@@ -40,22 +30,17 @@ export def OpenFile(wid: number, result: string, opts: dict<any>)
     endif
 enddef
 
-export def OpenFileTab(wid: number, result: string, opts: dict<any>)
+export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     if empty(result)
         return
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [buf, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    var bufnr = bufnr(buf)
-    if bufnr > 0 && !filereadable(buf)
-        # for special buffers that cannot be edited
-        execute 'tabnew'
-        execute 'buffer ' .. bufnr
-    elseif cwd ==# getcwd()
-        execute 'tabnew ' .. fnameescape(buf)
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    if cwd ==# getcwd()
+        execute 'tabnew ' .. fnameescape(file)
     else
-        var path = cwd .. '/' .. buf
+        var path = cwd .. '/' .. file
         execute 'tabnew ' .. fnameescape(path)
     endif
     if str2nr(line) > 0
@@ -68,23 +53,17 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any>)
     endif
 enddef
 
-export def OpenFileVSplit(wid: number, result: string, opts: dict<any>)
+export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     if empty(result)
         return
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [buf, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    var bufnr = bufnr(buf)
-    if bufnr > 0 && !filereadable(buf)
-        # for special buffers that cannot be edited
-        # avoid :sbuffer to bypass 'switchbuf=useopen'
-        execute 'vnew'
-        execute 'buffer ' .. bufnr
-    elseif cwd ==# getcwd()
-        execute 'vsp ' .. fnameescape(buf)
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    if cwd ==# getcwd()
+        execute 'vsp ' .. fnameescape(file)
     else
-        var path = cwd .. '/' .. buf
+        var path = cwd .. '/' .. file
         execute 'vsp ' .. fnameescape(path)
     endif
     if str2nr(line) > 0
@@ -97,23 +76,17 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any>)
     endif
 enddef
 
-export def OpenFileSplit(wid: number, result: string, opts: dict<any>)
+export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     if empty(result)
         return
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [buf, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    var bufnr = bufnr(buf)
-    if bufnr > 0 && !filereadable(buf)
-        # for special buffers that cannot be edited
-        # avoid :sbuffer to bypass 'switchbuf=useopen'
-        execute 'new'
-        execute 'buffer ' .. bufnr
-    elseif cwd ==# getcwd()
-        execute 'sp ' .. fnameescape(buf)
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    if cwd ==# getcwd()
+        execute 'sp ' .. fnameescape(file)
     else
-        var path = cwd .. '/' .. buf
+        var path = cwd .. '/' .. file
         execute 'sp ' .. fnameescape(path)
     endif
     if str2nr(line) > 0

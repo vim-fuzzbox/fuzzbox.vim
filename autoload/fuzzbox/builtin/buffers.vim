@@ -13,6 +13,19 @@ var buf_dict: dict<any>
 var exclude_buffers = exists('g:fuzzbox_buffers_exclude') ?
     g:fuzzbox_buffers_exclude : []
 
+def Select(wid: number, result: string)
+    if empty(result)
+        return
+    endif
+    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    # for special buffers, jump to window if visible in current tab
+    if !empty(getbufvar(bufnr, '&buftype')) && bufwinnr(bufnr) != -1
+        execute ':' .. bufwinnr(bufnr) .. 'wincmd w'
+    else
+        execute 'buffer ' .. bufnr
+    endif
+enddef
+
 def Preview(wid: number, result: string)
     if wid == -1
         return
@@ -21,21 +34,50 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
-    var file: string
-    var lnum: number
-    file = buf_dict[result][0]
-    lnum = buf_dict[result][2]
+    var [file, bufnr, lnum] = buf_dict[result][0 : 2]
+    if empty(file)
+        previewer.PreviewText(wid, '')
+        popup_settext(wid, getbufline(bufnr, 1, '$'))
+        return
+    endif
     previewer.PreviewFile(wid, file)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
 enddef
 
+def OpenBufTab(wid: number, result: string)
+    if empty(result)
+        return
+    endif
+    popup_close(wid)
+    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    execute 'split'
+    execute 'buffer ' .. bufnr
+enddef
+
+def OpenBufSplit(wid: number, result: string)
+    if empty(result)
+        return
+    endif
+    popup_close(wid)
+    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    execute 'split'
+    execute 'buffer ' .. bufnr
+enddef
+
+def OpenBufVSplit(wid: number, result: string)
+    if empty(result)
+        return
+    endif
+    popup_close(wid)
+    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    execute 'vsplit'
+    execute 'buffer ' .. bufnr
+enddef
+
 def GetBufList(): list<string>
     var buf_data = getbufinfo({buflisted: 1, bufloaded: 0})
     buf_dict = {}
-
-    # skip [No Name] buffers
-    filter(buf_data, (_, buf) => !empty(buf.name))
 
     # skip excluded buffers - case-sensitive match on buftype or tail of file name
     if !empty(exclude_buffers)
@@ -46,24 +88,23 @@ def GetBufList(): list<string>
     endif
 
     reduce(buf_data, (acc, buf) => {
-        var file = fnamemodify(buf.name, ":~:.")
+        var file = empty(buf.name) ? $"{buf.bufnr} [No Name]" : fnamemodify(buf.name, ":~:.")
         acc[file] = [buf.name, buf.bufnr, buf.lnum, buf.lastused]
         return acc
     }, buf_dict)
 
-    var bufs = keys(buf_dict)->sort((a, b) => {
+    return keys(buf_dict)->sort((a, b) => {
         return buf_dict[a][3] == buf_dict[b][3] ? 0 :
                buf_dict[a][3] <  buf_dict[b][3] ? 1 : -1
     })
-    return bufs
 enddef
 
-def DeleteBuffer()
-    var buf = popup.GetCursorItem()
-    if buf == ''
+def DeleteBuffer(wid: number, result: string)
+    if empty(result)
         return
     endif
-    execute ':bdelete ' .. buf
+    var bufnr = buf_dict[result][1]
+    execute ':bdelete ' .. bufnr
     var li = GetBufList()
     selector.UpdateMenu(li, [])
     selector.UpdateList(li)
@@ -73,10 +114,13 @@ enddef
 export def Start(opts: dict<any> = {})
     var wids = selector.Start(GetBufList(), extend(opts, {
         devicons: true,
-        select_cb: actions.OpenFile,
+        select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
-            "\<c-l>": function('DeleteBuffer')
+            "\<c-l>": function('DeleteBuffer'),
+            "\<c-v>": function('OpenBufVSplit'),
+            "\<c-s>": function('OpenBufSplit'),
+            "\<c-t>": function('OpenBufTab'),
         }
     }))
 enddef
