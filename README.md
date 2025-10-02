@@ -429,17 +429,6 @@ Example usage:
 let g:fuzzbox_buffers_exclude = ['terminal']
 ```
 
-### g:fuzzbox_buffers_keymap
-FuzzyBuffer keymap for commands specific to FuzzyBuffers. The following are the
-defaults
-```vim
-let g:fuzzbox_buffers_keymap = {
-  \ 'delete_file': "",
-  \ 'wipe_buffer': "",
-  \ 'close_buffer': "\<c-l>",
-  \ }
-```
-
 ### g:fuzzbox_window_layout
 Window layout configuration. The general defaults for window layout options are:
 ```

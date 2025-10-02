@@ -40,9 +40,8 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.23. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
     1.7.24. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
     1.7.25. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.26. g:fuzzbox_buffers_keymap..........|fuzzbox-g:fuzzbox_buffers_keymap|
-    1.7.27. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
-    1.7.28. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.26. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
+    1.7.27. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -526,18 +525,6 @@ from a badly behaved plugin). The match is on buffer name or type. Default `[]`
 Example usage:
 >
   let g:fuzzbox_buffers_exclude = ['terminal']
-<
-
-G:FUZZBOX_BUFFERS_KEYMAP                      *fuzzbox-g:fuzzbox_buffers_keymap*
-
-FuzzyBuffer keymap for commands specific to FuzzyBuffers. The following are the
-defaults
->
-  let g:fuzzbox_buffers_keymap = {
-    \ 'delete_file': "",
-    \ 'wipe_buffer': "",
-    \ 'close_buffer': "\<c-l>",
-    \ }
 <
 
 G:FUZZBOX_WINDOW_LAYOUT                        *fuzzbox-g:fuzzbox_window_layout*
