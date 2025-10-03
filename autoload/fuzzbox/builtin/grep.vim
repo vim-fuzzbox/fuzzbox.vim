@@ -308,15 +308,8 @@ def Preview(wid: number, result: string)
     var [relative_path, linenr, colnr] = ParseResult(result)
     cur_menu_item = result
 
-    if relative_path == null
-        previewer.PreviewText(preview_wid, '')
-        return
-    endif
+    actions.PreviewFile(wid, result)
 
-    var path = cwd .. '/' .. relative_path
-    previewer.PreviewFile(preview_wid, path)
-    win_execute(preview_wid, 'norm! ' .. linenr .. 'G')
-    win_execute(preview_wid, 'norm! zz')
     UpdatePreviewHl()
 enddef
 

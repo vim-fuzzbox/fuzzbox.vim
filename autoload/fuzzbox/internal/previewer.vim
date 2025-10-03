@@ -101,7 +101,7 @@ export def PreviewFile(wid: number, path: string, opts: dict<any> = {})
     win_execute(wid, 'syntax clear')
     popup.SetTitle(wid, fnamemodify(path, ':t'))
     if !filereadable(path)
-        popup_settext(wid, 'File not found: ' .. path)
+        PreviewText(wid, 'File not found: ' .. path)
         return
     endif
     if IsBinary(path)

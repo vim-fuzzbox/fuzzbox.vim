@@ -108,7 +108,7 @@ export def Start(opts: dict<any> = {})
         async: true,
         devicons: true,
         select_cb: actions.OpenFile,
-        preview_cb: function('Preview'),
+        preview_cb: actions.PreviewFile,
         actions: {
             "\<c-k>": function('ToggleScope'),
         }

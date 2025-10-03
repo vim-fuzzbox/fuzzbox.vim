@@ -61,19 +61,6 @@ def Input(wid: number, result: string)
     endif
 enddef
 
-def Preview(wid: number, result: string)
-    if wid == -1
-        return
-    endif
-    if result == ''
-        previewer.PreviewText(wid, '')
-        return
-    endif
-    var path = cwd .. '/' .. result
-    previewer.PreviewFile(wid, path, { max: 1000 })
-    win_execute(wid, 'norm! gg')
-enddef
-
 def JobStart(path: string, cmd: string)
     if type(jid) == v:t_job && job_status(jid) == 'run'
         job_stop(jid)
@@ -162,7 +149,7 @@ export def Start(opts: dict<any> = {})
     in_loading = 1
     var wids = selector.Start([], extend(opts, {
         select_cb: actions.OpenFile,
-        preview_cb: function('Preview'),
+        preview_cb: actions.PreviewFile,
         input_cb: function('Input'),
         close_cb: function('Close'),
         devicons: enable_devicons,

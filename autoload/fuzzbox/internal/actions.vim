@@ -2,9 +2,30 @@ vim9script
 
 import autoload './devicons.vim'
 import autoload './popup.vim'
+import autoload './previewer.vim'
 import autoload './helpers.vim'
 
 var enable_devicons = devicons.Enabled()
+
+export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
+    if wid == -1
+        return
+    endif
+    if empty(result)
+        previewer.PreviewText(wid, '')
+        return
+    endif
+    var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    previewer.PreviewFile(wid, fnamemodify(path, ':p'))
+    if str2nr(line) > 0
+        win_execute(wid, 'norm! ' .. line .. 'G')
+        win_execute(wid, 'norm! zz')
+    else
+        win_execute(wid, 'norm! gg')
+    endif
+enddef
 
 export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     if empty(result)
