@@ -323,7 +323,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     has_counter = has_key(opts, 'counter') ? opts.counter : enable_counter
 
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : null
-    opts.select_cb = has_key(opts, 'select_cb') ? opts.select_cb : null
+    opts.select_cb = has_key(opts, 'select_cb') ? opts.select_cb : actions.OpenFile
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
         has_key(opts, 'async') && opts.async ? function('InputAsync') : function('Input')
     )
