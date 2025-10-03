@@ -21,20 +21,6 @@ var dir_exclude = exists('g:fuzzbox_mru_exclude_dir')
     && type(g:fuzzbox_mru_exclude_dir) == v:t_list ?
     g:fuzzbox_mru_exclude_dir : g:fuzzbox_exclude_dir
 
-def Preview(wid: number, result: string)
-    if wid == -1
-        return
-    endif
-    if empty(result)
-        previewer.PreviewText(wid, '')
-        return
-    endif
-    var path = cwd_only ? cwd .. '/' .. result : result
-    path = path == '' ? path : fnamemodify(path, ':p')
-    previewer.PreviewFile(wid, path)
-    win_execute(wid, 'norm! gg')
-enddef
-
 def ToggleScope()
     cwd_only = cwd_only ? 0 : 1
     var mru_list: list<string> = copy(mru_origin_list)
