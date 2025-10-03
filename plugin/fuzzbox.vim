@@ -106,6 +106,9 @@ var windows: dict<any> = {
     marks: {
         prompt_title: 'Marks'
     },
+    arglist: {
+        prompt_title: 'Arglist'
+    },
 }
 if exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
     for [key, value] in items(windows)
@@ -145,6 +148,7 @@ command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix', windows.quickfix)
 command! -nargs=0 FuzzyTags launcher.Start('tags', windows.tags)
 command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', extendnew(windows.tags, { cwd: helpers.GetRootDir() }))
 command! -nargs=0 FuzzyMarks launcher.Start('marks', windows.marks)
+command! -nargs=0 FuzzyArglist launcher.Start('arglist', windows.arglist)
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
 # Hack to only show a single line warning when startng the selector

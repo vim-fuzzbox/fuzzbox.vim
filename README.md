@@ -81,6 +81,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyHighlights       | search highlight groups
 | FuzzyQuickfix         | search items in the current quickfix list
 | FuzzyMarks            | search marks, see `:h :marks` and `:h mark-motions`
+| FuzzyArglist          | search items in the argument list, see `:h arglist`
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
 | FuzzyTagsRoot         | search tags in the project/vcs root directory
 | FuzzyGitFiles         | search files in output from `git ls-files`
@@ -461,6 +462,7 @@ This configuration is also customised per selector, with the following defaults:
 \   'inbuffer': {},
 \   'quickfix': {},
 \   'marks': {},
+\   'arglist': {},
 \ }
 ```
 
