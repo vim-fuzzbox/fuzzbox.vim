@@ -126,12 +126,17 @@ export def PreviewFile(wid: number, path: string)
     popup_settext(wid, content)
     setwinvar(wid, '&number', 1)
     setwinvar(wid, '&cursorline', 1)
-    win_execute(wid, 'silent! doautocmd filetypedetect BufNewFile ' .. path)
-    win_execute(wid, 'silent! setlocal nospell nolist')
+    setwinvar(wid, '&synmaxcol', 500) # disable syntax highlight on long lines
+    if getfsize(path) / pow(1024, 2) > 2 # no syntax highlighting files > 2 MiB
+        win_execute(wid, 'set filetype=text')
+    else
+        win_execute(wid, 'silent! doautocmd filetypedetect BufNewFile ' .. path)
+    endif
     if empty(getwinvar(wid, '&filetype')) || getwinvar(wid, '&filetype') == 'conf'
         var modelineft = FTDetectModelines(content)
         if !empty(modelineft)
             win_execute(wid, 'set filetype=' .. modelineft)
         endif
     endif
+    win_execute(wid, 'silent! setlocal nospell nolist')
 enddef
