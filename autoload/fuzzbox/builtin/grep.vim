@@ -293,6 +293,9 @@ def UpdatePreviewHl()
     endif
     var [path, linenr, colnr] = ParseResult(cur_menu_item)
     clearmatches(preview_wid)
+    if !previewer.IsTextFile(preview_wid)
+        return
+    endif
     if colnr > 0
         var hl_list = [cur_dict[cur_menu_item]]
         matchaddpos('fuzzboxPreviewMatch', hl_list, 9999, -1,  {window: preview_wid})

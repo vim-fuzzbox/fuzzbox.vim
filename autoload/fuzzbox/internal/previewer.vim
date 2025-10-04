@@ -52,10 +52,9 @@ def FTDetectModelines(content: list<string>): string
     return ''
 enddef
 
-def PreviewBinary(wid: number)
+def PreviewMessage(wid: number, message: string)
     const pos = popup_getpos(wid)
     const line = repeat('╱', pos.width - 2)
-    const message = 'Binary cannot be previewed'
     const len_message = len(message)
     const size_max = pos.width - 2 - len_message - 4
     const begin_line = repeat('╱', (size_max / 2))
@@ -88,35 +87,45 @@ def PreviewBinary(wid: number)
         add(lines, line)
     endfor
     setwinvar(wid, '&number', 0)
+    setwinvar(wid, '&cursorline', 0)
     popup_settext(wid, lines)
 enddef
 
-export def PreviewText(wid: number, text: string)
+def Reset(wid: number)
     win_execute(wid, 'syntax clear')
+    setwinvar(wid, '&syntax', '')
+    setwinvar(wid, '&filetype', '')
+enddef
+
+export def IsTextFile(wid: number): bool
+    return !empty(getwinvar(wid, '&filetype'))
+enddef
+
+export def PreviewText(wid: number, text: string)
+    Reset(wid)
     popup_setoptions(wid, {title: ''})
     popup_settext(wid, text)
 enddef
 
-export def PreviewFile(wid: number, path: string, opts: dict<any> = {})
-    win_execute(wid, 'syntax clear')
+export def PreviewFile(wid: number, path: string)
+    Reset(wid)
     popup.SetTitle(wid, fnamemodify(path, ':t'))
     if !filereadable(path)
         PreviewText(wid, 'File not found: ' .. path)
         return
     endif
     if IsBinary(path)
-        PreviewBinary(wid)
+        PreviewMessage(wid, 'Binary cannot be previewed')
         return
     endif
-    var content: list<any>
-    if has_key(opts, 'max') && type(opts.max) == v:t_number
-        content = readfile(path, '', opts.max)
-    else
-        content = readfile(path)
+    if getfsize(path) / pow(1024, 2) > 5 # hard-coded 5MiB limit for now
+        PreviewMessage(wid, 'File exceeds preview size limit')
+        return
     endif
+    var content = readfile(path)
     popup_settext(wid, content)
     setwinvar(wid, '&number', 1)
-    setwinvar(wid, '&filetype', '')
+    setwinvar(wid, '&cursorline', 1)
     win_execute(wid, 'silent! doautocmd filetypedetect BufNewFile ' .. path)
     win_execute(wid, 'silent! setlocal nospell nolist')
     if empty(getwinvar(wid, '&filetype')) || getwinvar(wid, '&filetype') == 'conf'

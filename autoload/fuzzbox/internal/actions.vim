@@ -19,6 +19,10 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     previewer.PreviewFile(wid, fnamemodify(path, ':p'))
+    if !previewer.IsTextFile(wid)
+        win_execute(wid, 'norm! gg')
+        return
+    endif
     if str2nr(line) > 0
         win_execute(wid, 'norm! ' .. line .. 'G')
         win_execute(wid, 'norm! zz')
