@@ -11,9 +11,9 @@ programs to handle complex tasks.
 
 ## Screenshot
 
-![screenshot](https://i.imgur.com/rDDSkgu.png)
+![screenshot](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
 
-[](https://i.imgur.com/rDDSkgu.png)
+[](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
 
 ## Requirements
 

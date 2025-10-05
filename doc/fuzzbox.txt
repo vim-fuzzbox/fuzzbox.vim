@@ -63,7 +63,7 @@ SCREENSHOT                                                  *fuzzbox-screenshot*
 
 
 
-[](https://i.imgur.com/rDDSkgu.png)
+[](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
 
 ------------------------------------------------------------------------------
 REQUIREMENTS                                              *fuzzbox-requirements*
