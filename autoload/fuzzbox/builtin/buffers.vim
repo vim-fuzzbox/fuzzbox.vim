@@ -38,9 +38,9 @@ def Preview(wid: number, result: string)
     if empty(file)
         previewer.PreviewText(wid, '')
         popup_settext(wid, getbufline(bufnr, 1, '$'))
-        return
+    else
+        previewer.PreviewFile(wid, file)
     endif
-    previewer.PreviewFile(wid, file)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
 enddef
