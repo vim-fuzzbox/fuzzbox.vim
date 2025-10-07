@@ -2,23 +2,24 @@
 
 **Fuzzyy has been renamed to Fuzzbox, new name, same great taste!**
 
-A fuzzy finder for files, strings, help documents and many other things.
-
-It utilizes Vim's native matchfuzzypos function and popup window feature.
-
-Fuzzbox strives to provide an out-of-box experience by using pre-installed
-programs to handle complex tasks.
+A modern, extensible fuzzy finder for Vim. Written in vim9script using Vim's
+native fuzzing matching, background job, and popup window features, it's pretty
+fast and it just works, out of the box, on Mac, Linux, and Windows.
 
 ## Screenshot
 
 ![screenshot](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
-
 [](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
+Visit the [showcase](https://github.com/vim-fuzzbox/showcase) for other examples
 
 ## Requirements
 
 - Vim >= 9.0 (plugin is written in vim9scipt, Vim 9+ required, Neovim not
   supported)
+
+Fuzzbox uses the programs pre-installed on almost all Mac, Linux, and Windows
+systems for finding files and searching in files by default, but will
+automatically use the faster alternatives listed below if they are available.
 
 ### Suggested dependencies
 
