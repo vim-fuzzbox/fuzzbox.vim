@@ -25,6 +25,9 @@ RUN git clone https://github.com/itchyny/lightline.vim.git /root/.vim/pack/plugi
 # Use a modern colorscheme included with Vim
 RUN echo colorscheme habamax >> /root/.vimrc
 
+# Allow hidden buffers with unsaved changes (for testing FuzzyBuffers)
+RUN echo set hidden >> /root/.vimrc
+
 # docker-run script mounts gitconfig, override editor and pager
 ENV GIT_EDITOR=vim
 ENV GIT_PAGER=less
