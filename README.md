@@ -3,8 +3,8 @@
 **Fuzzyy has been renamed to Fuzzbox, new name, same great taste!**
 
 A modern, extensible fuzzy finder for Vim. Written in vim9script using Vim's
-native fuzzing matching, background job, and popup window features, it's pretty
-fast and it just works, out of the box, on Mac, Linux, and Windows.
+native fuzzing matching, background job, and popup window features, it's
+pretty fast and it just works, on Mac, Linux, and Windows.
 
 ## Screenshot
 
@@ -17,9 +17,9 @@ Visit the [showcase](https://github.com/vim-fuzzbox/showcase) for other examples
 - Vim >= 9.0 (plugin is written in vim9scipt, Vim 9+ required, Neovim not
   supported)
 
-Fuzzbox uses the programs pre-installed on almost all Mac, Linux, and Windows
-systems for finding files and searching in files by default, but will
-automatically use the faster alternatives listed below if they are available.
+Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
+systems for finding files and searching in files by default (e.g. `grep`,
+`findstr`), but uses faster alternatives if they are available.
 
 ### Suggested dependencies
 
@@ -93,7 +93,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
   ```vim
   nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
   ```
-- FuzzyGrep requires one of `rg`, `ag`, `grep` or `FINDSTR` commands. If neither
+- FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
   `rg` or `ag` are installed it will also use `git-grep` when in a git repo.
 - FuzzyFiles requires one of `rg`, `fd`, `find` or `powershell` commands. If
   neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
@@ -289,7 +289,7 @@ This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 
 ### g:fuzzbox_follow_symlinks
 Make FuzzyFiles & FuzzyGrep follow symbolic links. Not applied when using
-git-ls-files, git-grep or FINDSTR. Default 0
+git-ls-files, git-grep or findstr. Default 0
 ```vim
 let g:fuzzbox_follow_symlinks = 0
 ```
@@ -541,4 +541,3 @@ issues to report bugs or suggest new features. Thanks for all the contributions!
 
 The Fuzzbox logo is adapted from an image on [fuzzboxes.org](https://fuzzboxes.org/)
 and is used with kind permission of Nick Sternberg.
-

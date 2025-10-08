@@ -52,8 +52,8 @@ FUZZBOX                                                        *fuzzbox-fuzzbox*
 Fuzzyy has been renamed to Fuzzbox, new name, same great taste!
 
 A modern, extensible fuzzy finder for Vim. Written in vim9script using Vim's
-native fuzzing matching, background job, and popup window features, it's pretty
-fast and it just works, out of the box, on Mac, Linux, and Windows.
+native fuzzing matching, background job, and popup window features, it's
+pretty fast and it just works, on Mac, Linux, and Windows.
 
 ------------------------------------------------------------------------------
 SCREENSHOT                                                  *fuzzbox-screenshot*
@@ -68,9 +68,9 @@ REQUIREMENTS                                              *fuzzbox-requirements*
 * Vim >= 9.0 (plugin is written in vim9scipt, Vim 9+ required, Neovim not
   supported)
 
-Fuzzbox uses the programs pre-installed on almost all Mac, Linux, and Windows
-systems for finding files and searching in files by default, but will
-automatically use the faster alternatives listed below if they are available.
+Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
+systems for finding files and searching in files by default (e.g. `grep`,
+`findstr`), but uses faster alternatives if they are available.
 
 SUGGESTED DEPENDENCIES                          *fuzzbox-suggested_dependencies*
 
@@ -147,7 +147,7 @@ COMMANDS                                                      *fuzzbox-commands*
 >
     nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
 <
-* FuzzyGrep requires one of `rg`, `ag`, `grep` or `FINDSTR` commands. If neither
+* FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
   `rg` or `ag` are installed it will also use `git-grep` when in a git repo.
 * FuzzyFiles requires one of `rg`, `fd`, `find` or `powershell` commands. If
   neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
@@ -366,7 +366,7 @@ This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 G:FUZZBOX_FOLLOW_SYMLINKS                    *fuzzbox-g:fuzzbox_follow_symlinks*
 
 Make FuzzyFiles & FuzzyGrep follow symbolic links. Not applied when using
-git-ls-files, git-grep or FINDSTR. Default 0
+git-ls-files, git-grep or findstr. Default 0
 >
   let g:fuzzbox_follow_symlinks = 0
 <
