@@ -18,7 +18,7 @@ var ripgrep_options = exists('g:fuzzbox_files_ripgrep_options')
     g:fuzzbox_files_ripgrep_options : g:fuzzbox_ripgrep_options
 
 def Build_rg(): string
-    var result = 'rg --files'
+    var result = 'rg --files --no-messages'
     if include_hidden
         result ..= ' --hidden'
     endif
@@ -41,7 +41,7 @@ def Build_rg(): string
 enddef
 
 def Build_fd(): string
-    var result = 'fd --type f'
+    var result = 'fd --type f' # fd suppresses filesytem errors by default
     if include_hidden
         result ..= ' --hidden'
     endif

@@ -31,7 +31,7 @@ var loading = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "�
 var max_count = 1000
 
 def Build_rg(): string
-    var result = 'rg -M200 -S --vimgrep --max-count=' .. max_count .. ' -F'
+    var result = 'rg -M200 -S --vimgrep --no-messages --max-count=' .. max_count .. ' -F'
     if include_hidden
         result ..= ' --hidden'
     endif
@@ -74,7 +74,7 @@ def Build_grep(): string
     if empty(bsd_grep)
         bsd_grep = ( has('mac') || has('bsd') ) && system('grep --version | head -1') =~# 'BSD'
     endif
-    var result = 'grep -n -r -I --max-count=' .. max_count .. ' -F'
+    var result = 'grep -n -r -I -s --max-count=' .. max_count .. ' -F'
     if follow_symlinks
         result = substitute(result, ' -r ', ' -R ', '')
         if bsd_grep
