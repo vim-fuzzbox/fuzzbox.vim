@@ -114,7 +114,11 @@ def UpdateMenu(tid: number)
     if cur_result_len > len_total
         len_total = cur_result_len
     endif
-    popup.SetCounter(cur_result_len, len_total)
+    if cur_pattern != ''
+        popup.SetCounter(selector.len_results, len_total)
+    else
+        popup.SetCounter(cur_result_len, len_total)
+    endif
     if cur_result_len == last_result_len
         return
     endif
