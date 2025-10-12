@@ -8,7 +8,6 @@ import autoload '../internal/helpers.vim'
 import autoload '../internal/actions.vim'
 import autoload '../internal/cmdbuilder.vim'
 
-var last_result_len: number
 var cur_pattern: string
 var last_pattern: string
 var in_loading: number
@@ -18,7 +17,6 @@ var len_total: number
 var jid: job
 var menu_wid: number
 var update_tid: number
-var cache: dict<any>
 var enable_devicons = devicons.Enabled()
 
 var async_limit = selector.async_limit
@@ -39,22 +37,8 @@ def AsyncCb(str_list: list<string>, hl_list: list<list<any>>)
     popup.SetCounter(selector.len_results, len_total)
 enddef
 
-var async_tid: number
 def Input(wid: number, result: string)
-    # when in loading state, UpdateMenu() will handle the input
-    if in_loading
-        return
-    endif
-
-    cur_pattern = result
-    if cur_pattern != ''
-        async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern,
-            async_limit, function('AsyncCb'))
-    else
-        timer_stop(async_tid)
-        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
-        popup.SetCounter(len_total, len_total)
-    endif
+    UpdateMenu(-1)
 enddef
 
 def JobStart(path: string, cmd: string)
@@ -86,13 +70,7 @@ enddef
 def JobExitCb(id: job, status: number)
     in_loading = 0
     timer_stop(update_tid)
-    if last_result_len <= 0
-        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
-    elseif !empty(popup.GetPrompt())
-        popup.SetPrompt(popup.GetPrompt())
-    endif
-    len_total = len(cur_result)
-    popup.SetCounter(len_total, len_total)
+    UpdateMenu(-1)
 enddef
 
 def Profiling()
@@ -104,33 +82,33 @@ def Profiling()
     profile func UpdateMenu
 enddef
 
+var async_tid: number
 def UpdateMenu(tid: number)
     cur_pattern = popup.GetPrompt()
     var cur_result_len = len(cur_result)
     if cur_result_len > len_total
         len_total = cur_result_len
     endif
-    if cur_pattern != ''
-        popup.SetCounter(selector.len_results, len_total)
-    else
-        popup.SetCounter(cur_result_len, len_total)
-    endif
-    if cur_result_len == last_result_len
-        return
-    endif
-    last_result_len = cur_result_len
-
-    if cur_pattern == last_pattern
-        return
+    if in_loading
+        if cur_pattern != ''
+            popup.SetCounter(selector.len_results, len_total)
+        else
+            popup.SetCounter(cur_result_len, len_total)
+        endif
+        if cur_pattern == last_pattern
+            return
+        endif
+        last_pattern = cur_pattern
     endif
 
     if cur_pattern != ''
-        selector.FuzzySearchAsync(cur_result, cur_pattern, async_limit, function('AsyncCb'))
+        async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern,
+            async_limit, function('AsyncCb'))
     else
+        timer_stop(async_tid)
         selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
         popup.SetCounter(cur_result_len, len_total)
     endif
-    last_pattern = cur_pattern
 enddef
 
 def Close(wid: number)
@@ -141,7 +119,7 @@ def Close(wid: number)
 enddef
 
 export def Start(opts: dict<any> = {})
-    last_result_len = -1
+    len_total = 0
     cur_result = []
     cur_pattern = ''
     last_pattern = '@!#-='
