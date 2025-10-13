@@ -31,10 +31,6 @@ def ProcessResult(list_raw: list<string>, ...args: list<any>): list<string>
     else
         li = list_raw
     endif
-    # Hack for Git-Bash / Mingw-w64, Cygwin, and possibly other friends
-    # External commands like rg may return paths with Windows file separator,
-    # but Vim thinks it has a UNIX environment, so needs UNIX file separator
-    map(li, (_, val) => fnamemodify(val, ':.'))
     return li
 enddef
 

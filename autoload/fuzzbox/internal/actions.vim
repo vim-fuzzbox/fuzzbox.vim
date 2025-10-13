@@ -7,6 +7,11 @@ import autoload './helpers.vim'
 
 var enable_devicons = devicons.Enabled()
 
+# Note: for actions that open or preview files, fnamemodify() is used to ensure
+# a readable path. On Unix emulation envinronments like Git-Bash / Mingw-w64,
+# external programs like rg may return file paths with Windows file separators,
+# but Vim thinks it has Unix so needs a Unix file separator to read the file.
+
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     if wid == -1
         return
@@ -40,10 +45,10 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     helpers.MoveToUsableWindow()
     if cwd ==# getcwd()
-        execute 'edit ' .. fnameescape(file)
+        execute 'edit ' .. fnameescape(fnamemodify(file, ':p'))
     else
         var path = cwd .. '/' .. file
-        execute 'edit ' .. fnameescape(path)
+        execute 'edit ' .. fnameescape(fnamemodify(path, ':p'))
     endif
     if str2nr(line) > 0
         if str2nr(col) > 0
@@ -63,10 +68,10 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     if cwd ==# getcwd()
-        execute 'tabnew ' .. fnameescape(file)
+        execute 'tabnew ' .. fnameescape(fnamemodify(file, ':p'))
     else
         var path = cwd .. '/' .. file
-        execute 'tabnew ' .. fnameescape(path)
+        execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p'))
     endif
     if str2nr(line) > 0
         if str2nr(col) > 0
@@ -86,10 +91,10 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     if cwd ==# getcwd()
-        execute 'vsp ' .. fnameescape(file)
+        execute 'vsp ' .. fnameescape(fnamemodify(file, ':p'))
     else
         var path = cwd .. '/' .. file
-        execute 'vsp ' .. fnameescape(path)
+        execute 'vsp ' .. fnameescape(fnamemodify(path, ':p'))
     endif
     if str2nr(line) > 0
         if str2nr(col) > 0
@@ -109,10 +114,10 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     if cwd ==# getcwd()
-        execute 'sp ' .. fnameescape(file)
+        execute 'sp ' .. fnameescape(fnamemodify(file, ':p'))
     else
         var path = cwd .. '/' .. file
-        execute 'sp ' .. fnameescape(path)
+        execute 'sp ' .. fnameescape(fnamemodify(path, ':p'))
     endif
     if str2nr(line) > 0
         if str2nr(col) > 0
