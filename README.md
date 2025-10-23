@@ -1,10 +1,10 @@
-# Fuzzbox
+# fuzzbox.vim
 
 **Fuzzyy has been renamed to Fuzzbox, new name, same great taste!**
 
-A modern, extensible fuzzy finder for Vim. Written in vim9script using Vim's
-native fuzzing matching, background job, and popup window features, it's
-pretty fast and it just works, on Mac, Linux, and Windows.
+A modern, extensible fuzzy finder with minimal dependencies. Written in
+vim9script using Vim's native fuzzing matching, background job, and popup window
+features, it's pretty fast and works on Mac, Linux, and Windows.
 
 ## Screenshot
 
@@ -536,8 +536,8 @@ the resolved properties of Cursor are copied to fuzzboxCursor where possible.
 
 Fuzzbox was originally created as Fuzzyy by Nachuan Tang (@Donaldttt) and is
 currently developed and maintained by Mark Woods (@mmrwoods). Many other people
-have contributed both code to fix bugs and add new features, and by submitting
-issues to report bugs or suggest new features. Thanks for all the contributions!
+have contributed code to fix bugs and add new features, and by submitting issues
+to report bugs or suggest new features. Thanks for all the contributions!
 
 The Fuzzbox logo is adapted from an image on [fuzzboxes.org](https://fuzzboxes.org/)
 and is used with kind permission of Nick Sternberg.
