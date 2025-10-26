@@ -7,11 +7,12 @@ export def Start(selector: string, opts: dict<any> = {})
     if !exists('g:__fuzzbox_launcher_cache')
         g:__fuzzbox_launcher_cache = []
     endif
-    insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: opts, prompt: '' })
+    var merged_opts = extendnew(get(g:__fuzzbox_window_opts, selector, {}), opts)
+    insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: merged_opts, prompt: '' })
     try
-        function('fuzzbox#builtin#' .. selector .. '#Start')(opts)
+        function('fuzzbox#builtin#' .. selector .. '#Start')(merged_opts)
     catch /\v:(E700|E117):/
-        function('fuzzbox#_extensions#' .. selector .. '#Start')(opts)
+        function('fuzzbox#_extensions#' .. selector .. '#Start')(merged_opts)
     endtry
 
     if exists('g:__fuzzbox_warnings_found') && g:__fuzzbox_warnings_found

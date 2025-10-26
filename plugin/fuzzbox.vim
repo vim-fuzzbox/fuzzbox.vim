@@ -111,12 +111,10 @@ var windows: dict<any> = {
     },
 }
 if exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
-    for [key, value] in items(windows)
-        if has_key(g:fuzzbox_window_layout, key)
-            windows[key] = extend(value, g:fuzzbox_window_layout[key])
-        endif
-    endfor
+    extend(windows, g:fuzzbox_window_layout)
 endif
+# Expose as global to reference from launcher
+g:__fuzzbox_window_opts = windows
 
 highlight default link fuzzboxCursor Cursor
 highlight default link fuzzboxNormal Normal
@@ -129,26 +127,26 @@ highlight default link fuzzboxPreviewLine Visual
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
 import autoload '../autoload/fuzzbox/internal/helpers.vim'
 
-command! -nargs=? FuzzyGrep launcher.Start('grep', extendnew(windows.grep, { search: <q-args> }))
-command! -nargs=? FuzzyGrepRoot launcher.Start('grep', extendnew(windows.grep, { cwd: helpers.GetRootDir(), 'search': <q-args> }))
-command! -nargs=0 FuzzyFiles launcher.Start('files', windows.files)
-command! -nargs=? FuzzyFilesRoot launcher.Start('files', extendnew(windows.files, { cwd: helpers.GetRootDir() }))
-command! -nargs=0 FuzzyHelp launcher.Start('help', windows.help)
-command! -nargs=0 FuzzyColors launcher.Start('colors', windows.colors)
-command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', extendnew(windows.inbuffer, { search: <q-args> }))
-command! -nargs=0 FuzzyCommands launcher.Start('commands', windows.commands)
-command! -nargs=0 FuzzyBuffers launcher.Start('buffers', windows.buffers)
-command! -nargs=0 FuzzyHighlights launcher.Start('highlights', windows.highlights)
-command! -nargs=0 FuzzyGitFiles launcher.Start('files', extendnew(windows.files, { command: 'git ls-files' }))
-command! -nargs=0 FuzzyCmdHistory launcher.Start('cmdhistory', windows.cmdhistory)
-command! -nargs=0 FuzzyMru launcher.Start('mru', windows.mru)
-command! -nargs=0 FuzzyMruCwd launcher.Start('mru', extendnew(windows.mru, { cwd: getcwd() }))
-command! -nargs=0 FuzzyMruRoot launcher.Start('mru', extendnew(windows.mru, { cwd: helpers.GetRootDir() }))
-command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix', windows.quickfix)
-command! -nargs=0 FuzzyTags launcher.Start('tags', windows.tags)
-command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', extendnew(windows.tags, { cwd: helpers.GetRootDir() }))
-command! -nargs=0 FuzzyMarks launcher.Start('marks', windows.marks)
-command! -nargs=0 FuzzyArglist launcher.Start('arglist', windows.arglist)
+command! -nargs=? FuzzyGrep launcher.Start('grep', { search: <q-args> })
+command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: helpers.GetRootDir(), 'search': <q-args> })
+command! -nargs=0 FuzzyFiles launcher.Start('files')
+command! -nargs=? FuzzyFilesRoot launcher.Start('files', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyHelp launcher.Start('help')
+command! -nargs=0 FuzzyColors launcher.Start('colors')
+command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { search: <q-args> })
+command! -nargs=0 FuzzyCommands launcher.Start('commands')
+command! -nargs=0 FuzzyBuffers launcher.Start('buffers')
+command! -nargs=0 FuzzyHighlights launcher.Start('highlights')
+command! -nargs=0 FuzzyGitFiles launcher.Start('files', { command: 'git ls-files' })
+command! -nargs=0 FuzzyCmdHistory launcher.Start('cmdhistory')
+command! -nargs=0 FuzzyMru launcher.Start('mru')
+command! -nargs=0 FuzzyMruCwd launcher.Start('mru', { cwd: getcwd() })
+command! -nargs=0 FuzzyMruRoot launcher.Start('mru', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix')
+command! -nargs=0 FuzzyTags launcher.Start('tags')
+command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyMarks launcher.Start('marks')
+command! -nargs=0 FuzzyArglist launcher.Start('arglist')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
 # Hack to only show a single line warning when startng the selector
