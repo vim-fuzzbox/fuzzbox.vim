@@ -431,8 +431,8 @@ Example usage:
 let g:fuzzbox_buffers_exclude = ['terminal']
 ```
 
-### g:fuzzbox_window_layout
-Window layout configuration. The general defaults for window layout options are:
+### g:fuzzbox_window_options
+Window configuration. The general defaults for window configuration options are:
 ```
 'preview': 1,         " 1 means enable preview window, 0 means disable
 'preview_ratio': 0.5, " 0.5 means preview window will take 50% of the layout
@@ -467,14 +467,14 @@ This configuration is also customised per selector, with the following defaults:
 \ }
 ```
 
-Values set in `g:fuzzbox_window_layout` are merged with the defaults above.
+Values set in `g:fuzzbox_window_options` are merged with the defaults above.
 For example, you can disable preview window for FuzzyFiles and friends with:
 ```vim
-let g:fuzzbox_window_layout = { 'files': { 'preview': 0 } }
+let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 ```
 or you change the width of the preview window for FuzzyColors with:
 ```vim
-let g:fuzzbox_window_layout = { 'colors': { 'width': 0.4 } }
+let g:fuzzbox_window_options = { 'colors': { 'width': 0.4 } }
 ```
 
 - preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory

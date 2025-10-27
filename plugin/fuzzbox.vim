@@ -60,9 +60,9 @@ if g:fuzzbox_respect_wildignore
     extend(g:fuzzbox_exclude_dir, wildignore_dir)
 endif
 
-# window layout customization for particular selectors
-# you can override it by setting g:fuzzbox_window_layout
-# e.g. let g:fuzzbox_window_layout = { 'files': { 'preview': 0 } }
+# window option customization for particular selectors
+# you can override it by setting g:fuzzbox_window_options
+# e.g. let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 var windows: dict<any> = {
     files: {
         prompt_title: 'Find Files'
@@ -110,7 +110,10 @@ var windows: dict<any> = {
         prompt_title: 'Arglist'
     },
 }
-if exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
+if exists('g:fuzzbox_window_options') && type(g:fuzzbox_window_options) == v:t_dict
+    extend(windows, g:fuzzbox_window_options)
+elseif exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
+    # backwards compatibilty with old option name
     extend(windows, g:fuzzbox_window_layout)
 endif
 # Expose as global to reference from launcher

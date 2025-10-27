@@ -4,7 +4,7 @@
 ==============================================================================
 CONTENTS                                                      *fuzzbox-contents*
 
-1. Fuzzbox.....................................................|fuzzbox-fuzzbox|
+1. fuzzbox.vim.............................................|fuzzbox-fuzzbox.vim|
   1.1. Screenshot...........................................|fuzzbox-screenshot|
   1.2. Requirements.......................................|fuzzbox-requirements|
     1.2.1. Suggested dependencies...............|fuzzbox-suggested_dependencies|
@@ -40,20 +40,20 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.23. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
     1.7.24. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
     1.7.25. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.26. g:fuzzbox_window_layout............|fuzzbox-g:fuzzbox_window_layout|
+    1.7.26. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
     1.7.27. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
 
 ==============================================================================
-FUZZBOX                                                        *fuzzbox-fuzzbox*
+FUZZBOX.VIM                                                *fuzzbox-fuzzbox.vim*
 
 Fuzzyy has been renamed to Fuzzbox, new name, same great taste!
 
-A modern, extensible fuzzy finder for Vim. Written in vim9script using Vim's
-native fuzzing matching, background job, and popup window features, it's
-pretty fast and it just works, on Mac, Linux, and Windows.
+A modern, extensible fuzzy finder with minimal dependencies. Written in
+vim9script using Vim's native fuzzing matching, background job, and popup window
+features, it's pretty fast and works on Mac, Linux, and Windows.
 
 ------------------------------------------------------------------------------
 SCREENSHOT                                                  *fuzzbox-screenshot*
@@ -529,9 +529,9 @@ Example usage:
   let g:fuzzbox_buffers_exclude = ['terminal']
 <
 
-G:FUZZBOX_WINDOW_LAYOUT                        *fuzzbox-g:fuzzbox_window_layout*
+G:FUZZBOX_WINDOW_OPTIONS                      *fuzzbox-g:fuzzbox_window_options*
 
-Window layout configuration. The general defaults for window layout options are:
+Window configuration. The general defaults for window configuration options are:
 >
   'preview': 1,         " 1 means enable preview window, 0 means disable
   'preview_ratio': 0.5, " 0.5 means preview window will take 50% of the layout
@@ -567,15 +567,15 @@ This configuration is also customised per selector, with the following defaults:
   \ }
 <
 
-Values set in `g:fuzzbox_window_layout` are merged with the defaults above.
+Values set in `g:fuzzbox_window_options` are merged with the defaults above.
 For example, you can disable preview window for FuzzyFiles and friends with:
 >
-  let g:fuzzbox_window_layout = { 'files': { 'preview': 0 } }
+  let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 <
 
 or you change the width of the preview window for FuzzyColors with:
 >
-  let g:fuzzbox_window_layout = { 'colors': { 'width': 0.4 } }
+  let g:fuzzbox_window_options = { 'colors': { 'width': 0.4 } }
 <
 
 * preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory
@@ -639,8 +639,8 @@ CREDITS                                                        *fuzzbox-credits*
 
 Fuzzbox was originally created as Fuzzyy by Nachuan Tang (@Donaldttt) and is
 currently developed and maintained by Mark Woods (@mmrwoods). Many other people
-have contributed both code to fix bugs and add new features, and by submitting
-issues to report bugs or suggest new features. Thanks for all the contributions!
+have contributed code to fix bugs and add new features, and by submitting issues
+to report bugs or suggest new features. Thanks for all the contributions!
 
 The Fuzzbox logo is adapted from an image on fuzzboxes.org (https://fuzzboxes.org/)
 and is used with kind permission of Nick Sternberg.
