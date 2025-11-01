@@ -22,6 +22,7 @@ var devicons_color_table = {
     '*.cs': 'slateblue2',
     '*.css': 'lightblue3',
     '*.dart': 'lightblue4',
+    '*.exs': 'mediumpurple',
     '*.go': 'lightblue3',
     '*.html': 'sandybrown',
     '*.java': 'chocolate2', # similar to nvim-web-devicons, kinda coffee colored
@@ -30,12 +31,15 @@ var devicons_color_table = {
     '*.jsx': 'teal',
     '*.lua': 'slateblue',
     '*.md': 'sandybrown',
+    '*.ml': 'darkorange', # OCaml
     '*.php': 'mediumpurple',
+    '*.pl': 'teal',
     '*.png': 'mediumpurple', # generic image devicon, also used for gif, jpg etc.
     '*.py': 'goldenrod',
     '*.r': 'lightblue3',
     '*.rb': 'red4',
     '*.rs': 'chocolate3',
+    '*.scala': 'indianred',
     '*.scss': 'lightblue3',
     '*.sh': 'darkorchid', # blame O'Reilly books, and UNIX sysadmin 'purple book'
     '*.sql': 'teal',
