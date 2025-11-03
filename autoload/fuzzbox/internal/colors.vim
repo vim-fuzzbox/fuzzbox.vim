@@ -25,7 +25,9 @@ var devicons_color_table = {
     '*.exs': 'mediumpurple',
     '*.go': 'lightblue3',
     '*.html': 'sandybrown',
+    '*.hs': 'mediumorchid',
     '*.java': 'chocolate2', # similar to nvim-web-devicons, kinda coffee colored
+    '*.jl': 'mediumpurple',
     '*.js': 'goldenrod',
     '*.json': 'indianred',
     '*.jsx': 'teal',
@@ -54,7 +56,10 @@ var devicons_color_table = {
 # Additional color table for nerdfonts not supported by default in vim-devicons
 # These are added to the default color table if supported by the glyph function
 var additional_color_table = {
-    '*.kt': 'mediumpurple'
+    '*.kt': 'mediumpurple',
+    '*.lisp': 'darkred',
+    '*.ps1': 'dodgerblue', # same glyph as *.sh by default in vim-devicons
+    '*.zig': 'orange',
 }
 if exists('g:fuzzbox_devicons_glyph_func')
     var glyph_func = g:fuzzbox_devicons_glyph_func
