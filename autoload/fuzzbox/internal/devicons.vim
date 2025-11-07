@@ -52,6 +52,15 @@ export def AddColor(wid: number)
         win_execute(wid, color_func .. '()')
         return
     endif
+    var directories = [
+        '', # nf-custom-folder_open
+        '', # nf-custom-folder
+        '', # seti-folder
+        '', # nf-oct-file_symlink_directory
+        '', # nf-custom-folder_config
+        '', # nf-custom-folder_git
+    ]
+    matchadd('Directory', printf('\%%(%s\)', join(directories, '\|')), 99, -1, { window: wid })
     var added: list<string>
     for ft in reverse(sort(keys(devicons_color_table)))
         var icon = GetDevicon(ft)
