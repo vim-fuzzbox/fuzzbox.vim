@@ -3,11 +3,19 @@ vim9script
 import autoload './popup.vim'
 import autoload './helpers.vim'
 
+var window_opts: dict<any>
+if exists('g:fuzzbox_window_options') && type(g:fuzzbox_window_options) == v:t_dict
+    extend(window_opts, g:fuzzbox_window_options)
+elseif exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
+    # backwards compatibilty with old option name
+    extend(window_opts, g:fuzzbox_window_layout)
+endif
+
 export def Start(selector: string, opts: dict<any> = {})
     if !exists('g:__fuzzbox_launcher_cache')
         g:__fuzzbox_launcher_cache = []
     endif
-    var merged_opts = extendnew(get(g:__fuzzbox_window_opts, selector, {}), opts)
+    var merged_opts = extendnew(get(window_opts, selector, {}), opts)
     insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: merged_opts, prompt: '' })
     try
         function('fuzzbox#builtin#' .. selector .. '#Start')(merged_opts)

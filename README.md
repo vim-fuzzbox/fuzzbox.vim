@@ -433,48 +433,40 @@ let g:fuzzbox_buffers_exclude = ['terminal']
 
 ### g:fuzzbox_window_options
 Window configuration. The general defaults for window configuration options are:
-```
-'preview': 1,         " 1 means enable preview window, 0 means disable
+```vim
+{
+'preview': 1,         " Enable the preview window, set to 0 to disable
 'preview_ratio': 0.5, " 0.5 means preview window will take 50% of the layout
 'width': 0.8,         " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
 'height': 0.8,        " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
+'compact': 0,         " Enable compact layout, reduces default window dimensions
 'xoffset': auto       " x offset of the windows, 0.1 means 10% from left of the screen
 'yoffset': auto       " y offset of the windows, 0.1 means 10% from top of the screen
+}
 ```
-This configuration is also customised per selector, with the following defaults:
+The defaults are customised for some builtin selectors, with the following values:
 ```vim
-\ {
-\   'files': {},
-\   'grep': {},
-\   'buffers': {},
-\   'mru': {},
-\   'tags': {},
-\   'highlights': {
-\     'preview_ratio': 0.7,
-\   },
-\   'cmdhistory': {},
-\   'colors': {
-\     'compact': 1,
-\   },
-\   'commands': {},
-\   'help': {
-\     'preview_ratio': 0.6
-\   },
-\   'inbuffer': {},
-\   'quickfix': {},
-\   'marks': {},
-\   'arglist': {},
-\ }
+{
+  'highlights': {
+    'preview_ratio': 0.7,
+   },
+   'colors': {
+     'compact': 1,
+   },
+   'help': {
+     'preview_ratio': 0.6,
+  },
+}
 ```
 
-Values set in `g:fuzzbox_window_options` are merged with the defaults above.
-For example, you can disable preview window for FuzzyFiles and friends with:
+Values set in `g:fuzzbox_window_options` will override the defaults. For
+example, you can disable preview window for FuzzyFiles and friends with:
 ```vim
 let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 ```
-or you change the width of the preview window for FuzzyColors with:
+or you change the width of the preview window for FuzzyHighlights with:
 ```vim
-let g:fuzzbox_window_options = { 'colors': { 'width': 0.4 } }
+let g:fuzzbox_window_options = { 'highlights': { 'width': 0.5 } }
 ```
 
 - preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory

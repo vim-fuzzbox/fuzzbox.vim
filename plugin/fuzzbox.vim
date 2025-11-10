@@ -60,29 +60,6 @@ if g:fuzzbox_respect_wildignore
     extend(g:fuzzbox_exclude_dir, wildignore_dir)
 endif
 
-# Window option customization for particular selectors
-# Override window options using g:fuzzbox_window_options
-# e.g. let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
-var windows: dict<any> = {
-    highlights: {
-        preview_ratio: 0.7,
-    },
-    colors: {
-        compact: true,
-    },
-    help: {
-        preview_ratio: 0.6,
-    }
-}
-if exists('g:fuzzbox_window_options') && type(g:fuzzbox_window_options) == v:t_dict
-    extend(windows, g:fuzzbox_window_options)
-elseif exists('g:fuzzbox_window_layout') && type(g:fuzzbox_window_layout) == v:t_dict
-    # backwards compatibilty with old option name
-    extend(windows, g:fuzzbox_window_layout)
-endif
-# Expose as global to reference from launcher
-g:__fuzzbox_window_opts = windows
-
 highlight default link fuzzboxCursor Cursor
 highlight default link fuzzboxNormal Normal
 highlight default link fuzzboxBorder Normal

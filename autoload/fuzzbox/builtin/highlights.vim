@@ -35,6 +35,7 @@ hi fuzzboxHighlights_whitebg ctermbg=white ctermfg=black guibg=white guifg=black
 
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Highlight Groups'
+    opts.preview_ratio = has_key(opts, 'preview_ratio') ? opts.preview_ratio : 0.7
 
     var highlights_raw = substitute(execute('hi'), "\n", " ", "g") .. ' fuzzbox_dummyy xxx'
     var highlights: list<any> = []
