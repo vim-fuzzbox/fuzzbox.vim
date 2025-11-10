@@ -817,6 +817,10 @@ export def PopupSelection(opts: dict<any>): dict<any>
     has_devicons = has_key(opts, 'devicons') ? opts.devicons && devicons.Enabled() : 0
     var has_preview = has_key(opts, 'preview') ? opts.preview : 1
 
+    if has_key(opts, 'title') && !has_key(opts, 'prompt_title')
+        opts.prompt_title = opts.title
+    endif
+
     var width: any = has_preview ? 0.8 : 0.5
     var height: any = has_preview ? 0.8 : 0.5
     if has_key(opts, 'compact') && opts.compact
