@@ -101,6 +101,8 @@ def SendToQuickfix(wid: number, result: string, opts: dict<any>)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Quickfix'
+
     if getqflist({nr: '$'}).nr == 0
         echohl ErrorMsg | echo "Quickfix list is empty" | echohl None
         return

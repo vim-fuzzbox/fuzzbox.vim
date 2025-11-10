@@ -125,6 +125,8 @@ def OpenFileSplit(wid: number, result: string, opts: dict<any>)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Tags'
+
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var original_cwd = getcwd()
     exe 'silent lcd ' .. cwd

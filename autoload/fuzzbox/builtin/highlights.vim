@@ -34,6 +34,8 @@ enddef
 hi fuzzboxHighlights_whitebg ctermbg=white ctermfg=black guibg=white guifg=black
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Highlight Groups'
+
     var highlights_raw = substitute(execute('hi'), "\n", " ", "g") .. ' fuzzbox_dummyy xxx'
     var highlights: list<any> = []
     def Helper(s: any): number

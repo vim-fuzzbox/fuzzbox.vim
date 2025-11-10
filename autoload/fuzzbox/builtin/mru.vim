@@ -42,6 +42,8 @@ def ToggleScope()
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Recent Files'
+
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     cwd_only = len(get(opts, 'cwd', '')) > 0
     cwdlen = len(cwd)

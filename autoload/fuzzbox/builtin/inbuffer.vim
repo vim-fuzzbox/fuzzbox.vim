@@ -100,6 +100,8 @@ def SendToQuickfix(wid: number, result: string, opts: dict<any>)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Lines in Buffer'
+
     raw_lines = getline(1, '$')
     file_type = &filetype
     file_name = expand('%')

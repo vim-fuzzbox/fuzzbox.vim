@@ -119,6 +119,8 @@ def Close(wid: number)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Find Files'
+
     len_total = 0
     cur_result = []
     cur_pattern = ''

@@ -11,6 +11,8 @@ def Select(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Command History'
+
     var cmds = split(execute("history"), '\n')[1 : ]
 
     # remove index of command history

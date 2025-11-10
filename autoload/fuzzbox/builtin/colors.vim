@@ -43,6 +43,8 @@ def Close(wid: number)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Color Schemes'
+
     old_color = execute('colo')[1 :]
     old_bg = &bg
     var colors = GetColors()

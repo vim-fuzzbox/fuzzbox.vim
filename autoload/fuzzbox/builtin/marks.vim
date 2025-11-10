@@ -86,6 +86,8 @@ def OpenFileSplit(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Marks'
+
     var marks = execute('marks')->split("\n")->slice(1)
     bufnr = bufnr()
 

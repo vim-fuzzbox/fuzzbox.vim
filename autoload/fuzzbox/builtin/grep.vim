@@ -377,6 +377,8 @@ def Profiling()
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Live Grep'
+
     Build()
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     cwdlen = len(cwd)

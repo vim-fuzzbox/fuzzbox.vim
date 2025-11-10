@@ -49,6 +49,8 @@ def Select(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Help'
+
     tag_files = reverse(split(globpath(&runtimepath, 'doc/tags', 1), '\n'))
     var tab_table: dict<any>
     var file_index = 0

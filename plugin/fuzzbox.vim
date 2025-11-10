@@ -60,55 +60,19 @@ if g:fuzzbox_respect_wildignore
     extend(g:fuzzbox_exclude_dir, wildignore_dir)
 endif
 
-# window option customization for particular selectors
-# you can override it by setting g:fuzzbox_window_options
+# Window option customization for particular selectors
+# Override window options using g:fuzzbox_window_options
 # e.g. let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 var windows: dict<any> = {
-    files: {
-        prompt_title: 'Find Files'
-    },
-    grep: {
-        prompt_title: 'Live Grep'
-    },
-    buffers: {
-        prompt_title: 'Buffers'
-    },
-    mru: {
-        prompt_title: 'Recent Files'
-    },
-    tags: {
-        prompt_title: 'Tags'
-    },
     highlights: {
-        prompt_title: 'Highlight Groups',
         preview_ratio: 0.7,
     },
-    cmdhistory: {
-        prompt_title: 'Command History',
-    },
     colors: {
-        prompt_title: 'Color Schemes',
         compact: true,
     },
-    commands: {
-        prompt_title: 'Commands',
-    },
     help: {
-        prompt_title: 'Help',
         preview_ratio: 0.6,
-    },
-    inbuffer: {
-        prompt_title: 'Lines in Buffer',
-    },
-    quickfix: {
-        prompt_title: 'Quickfix',
-    },
-    marks: {
-        prompt_title: 'Marks'
-    },
-    arglist: {
-        prompt_title: 'Arglist'
-    },
+    }
 }
 if exists('g:fuzzbox_window_options') && type(g:fuzzbox_window_options) == v:t_dict
     extend(windows, g:fuzzbox_window_options)

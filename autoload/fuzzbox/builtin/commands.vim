@@ -18,6 +18,8 @@ def Select(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Commands'
+
     var li: list<string> = getcompletion('', 'command')
     var wids = selector.Start(li, extend(opts, {
         select_cb: function('Select'),

@@ -112,6 +112,8 @@ def DeleteBuffer(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Buffers'
+
     var wids = selector.Start(GetBufList(), extend(opts, {
         devicons: true,
         select_cb: function('Select'),
