@@ -23,7 +23,7 @@ def ParseResult(result: string): list<any>
     var col = markdata.pos[2]
     var file = get(markdata, 'file', bufname(bufnr))
     if empty(file)
-        return [file, lnum, col]
+        return [bufnr, lnum, col]
     endif
     return [fnamemodify(file, ':p'), lnum, col]
 enddef
@@ -37,15 +37,15 @@ def Preview(wid: number, result: string)
         return
     endif
     var [file, lnum, col] = ParseResult(result)
-    if empty(file)
+    if type(file) == v:t_number
         previewer.PreviewText(wid, '')
-        return
-    endif
-    if !filereadable(file)
+        popup_settext(wid, getbufline(file, 1, '$'))
+    elseif !filereadable(file)
         previewer.PreviewText(wid, 'File not found: ' .. file)
         return
+    else
+        previewer.PreviewFile(wid, file)
     endif
-    previewer.PreviewFile(wid, file)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
     clearmatches(wid)
