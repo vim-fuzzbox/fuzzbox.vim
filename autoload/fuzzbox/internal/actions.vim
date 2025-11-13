@@ -135,6 +135,8 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     var lines: list<any>
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
+    setqflist([], ' ', {nr: '$'})
+
     setqflist(map(lines, (_, val) => {
         var [path, line, col] = split(val .. ':1:1', ':')[0 : 2]
         var text = split(val, ':' .. line .. ':' .. col .. ':')[-1]
@@ -150,7 +152,7 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
             col: str2nr(col),
             text: text }
         return dict
-    }))
+    }), 'r')
 
     if has_key(opts, 'prompt_title') && !empty(opts.prompt_title)
         var title = opts.prompt_title
