@@ -133,6 +133,8 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     var lines: list<any>
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
+    setqflist([], ' ', {nr: '$'})
+
     setqflist(map(lines, (_, val) => {
         var [file, line, col] = ParseResult(val)
         line = line > 0 ? line : 1
@@ -150,7 +152,7 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
             col: col,
             text: text }
         return dict
-    }))
+    }), 'r')
 
     if has_key(opts, 'prompt_title') && !empty(opts.prompt_title)
         var title = opts.prompt_title
