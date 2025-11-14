@@ -4,21 +4,17 @@ import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/actions.vim'
 
-def ParseResult(str: string): list<any>
-    var seq = matchstrpos(str, '\:\d\+:\d\+:')
-    if seq[1] == -1
-        return [null, -1, -1]
+var jumplist: list<any>
+var jumplast: number
+
+def ParseResult(result: string): list<any>
+    var idx = str2nr(split(result, '│')[0]) - 1
+    var jump = jumplist[idx]
+    var file = bufname(jump.bufnr)
+    if empty(file)
+        return [jump.bufnr, jump.lnum, jump.col]
     endif
-    var path = strpart(str, 0, seq[1])
-    var linecol = split(seq[0], ':')
-    var line = str2nr(linecol[0])
-    var col: number
-    if len(linecol) == 2
-        col = str2nr(linecol[1])
-    else
-        col = 0
-    endif
-    return [fnamemodify(path, ':p'), line, col]
+    return [file, jump.lnum, jump.col]
 enddef
 
 def Preview(wid: number, result: string)
@@ -29,12 +25,14 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
+    echow ParseResult(result)
     var [file, lnum, col] = ParseResult(result)
-    if empty(file)
-        previewer.PreviewText(wid, '')
-        return
+    if type(file) == v:t_number
+        previewer.PreviewText(wid, 'dfdsf')
+        popup_settext(wid, getbufline(file, 1, '$'))
+    else
+        previewer.PreviewFile(wid, file)
     endif
-    previewer.PreviewFile(wid, file)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
     clearmatches(wid)
@@ -45,23 +43,22 @@ def Preview(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
-    var jumplist = getjumplist()[0]
-    var jumplast = getjumplist()[1]
+    jumplist = getjumplist()[0]
+    jumplast = getjumplist()[1]
 
-    var jumps: list<any>
-    for idx in range(len(jumplist))
-        var jump = jumplist[idx]
-        var loc = expand('#' .. jump.bufnr .. ':p:~:.')
-        if empty(loc)
-            loc = '[No Name]'
+    var size = len(jumplist)
+    var fmt = ' %' ..  len(string(size)) .. 'd │ '
+    var lines = jumplist->mapnew((idx, jump) => {
+        var fname = bufname(jump.bufnr)
+        if empty(fname)
+            fname = "[No Name]"
         endif
-        loc ..= ':' .. jump.lnum .. ':' .. jump.col
-        var line = printf('%s: %s', loc, getbufoneline(jump.bufnr, jump.lnum))
-        add(jumps, line)
-    endfor
-    reverse(jumps)
+        var text = getbufoneline(jump.bufnr, jump.lnum)
+        return printf($"{fmt}%s:%d:%d:%s", idx + 1, fname, jump.lnum, jump.col, text)
+    })
+    reverse(lines) # Reverse list so we start at the end of the jumplist
 
-    var wins = selector.Start(jumps, extend(opts, {
+    var wins = selector.Start(lines, extend(opts, {
         prompt_title: 'Jumps',
         select_cb: actions.OpenFile,
         preview_cb: function('Preview'),
