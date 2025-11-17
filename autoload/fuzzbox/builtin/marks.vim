@@ -3,7 +3,7 @@ vim9script
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 
-var bufnr: number
+var marklist: list<any>
 
 def Select(wid: number, result: string)
     if empty(result)
@@ -15,17 +15,14 @@ enddef
 
 def ParseResult(result: string): list<any>
     var mark = result->matchstr('\v^\s*\zs\S+')
-    var marklist = extend(getmarklist(), getmarklist(bufnr))
-    var markdata = marklist->filter((_, dict) => {
+    var markdata = copy(marklist)->filter((_, dict) => {
        return dict.mark == "'" .. mark
     })[0]
+    var bufnr = markdata.pos[0]
     var lnum = markdata.pos[1]
     var col = markdata.pos[2]
     var file = get(markdata, 'file', bufname(bufnr))
-    if empty(file)
-        return [bufnr, lnum, col]
-    endif
-    return [fnamemodify(file, ':p'), lnum, col]
+    return [file, bufnr, lnum, col]
 enddef
 
 def Preview(wid: number, result: string)
@@ -36,15 +33,12 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
-    var [file, lnum, col] = ParseResult(result)
-    if type(file) == v:t_number
+    var [file, bufnr, lnum, col] = ParseResult(result)
+    if empty(file)
         previewer.PreviewText(wid, '')
-        popup_settext(wid, getbufline(file, 1, '$'))
-    elseif !filereadable(file)
-        previewer.PreviewText(wid, 'File not found: ' .. file)
-        return
+        popup_settext(wid, getbufline(bufnr, 1, '$'))
     else
-        previewer.PreviewFile(wid, file)
+        previewer.PreviewFile(wid, fnamemodify(file, ':p'))
     endif
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
@@ -57,8 +51,13 @@ def OpenFileTab(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [file, lnum, col] = ParseResult(result)
-    exe 'tabnew ' .. fnameescape(file)
+    var [file, bufnr, lnum, col] = ParseResult(result)
+    exe 'tabnew'
+    if empty(file)
+        exe 'buffer ' .. bufnr
+    else
+        exe 'edit ' .. fnameescape(file)
+    endif
     cursor(lnum, col)
     exe 'norm! zz'
 enddef
@@ -68,8 +67,13 @@ def OpenFileVSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [file, lnum, col] = ParseResult(result)
-    exe 'vsplit ' .. fnameescape(file)
+    var [file, bufnr, lnum, col] = ParseResult(result)
+    exe 'vsplit'
+    if empty(file)
+        exe 'buffer ' .. bufnr
+    else
+        exe 'edit ' .. fnameescape(file)
+    endif
     cursor(lnum, col)
     exe 'norm! zz'
 enddef
@@ -79,8 +83,13 @@ def OpenFileSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [file, lnum, col] = ParseResult(result)
-    exe 'split ' .. fnameescape(file)
+    var [file, bufnr, lnum, col] = ParseResult(result)
+    exe 'split'
+    if empty(file)
+        exe 'buffer ' .. bufnr
+    else
+        exe 'edit ' .. fnameescape(file)
+    endif
     cursor(lnum, col)
     exe 'norm! zz'
 enddef
@@ -88,8 +97,9 @@ enddef
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Marks'
 
+    marklist = extend(getmarklist(), getmarklist(bufnr()))
+
     var marks = execute('marks')->split("\n")->slice(1)
-    bufnr = bufnr()
 
     selector.Start(marks, extend(opts, {
         select_cb: function('Select'),
