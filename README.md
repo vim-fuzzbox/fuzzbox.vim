@@ -75,14 +75,15 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyMruCwd           | search most recent used files in CWD
 | FuzzyMruRoot          | search most recent used files in project/vcs root
 | FuzzyInBuffer [str]   | search for string in buffer, use [str] if provided
-| FuzzyHelp             | search subjects/tags in :help documents
+| FuzzyHelp             | search subjects/tags in help documents
 | FuzzyCommands         | search commands
 | FuzzyColors           | search installed color schemes
 | FuzzyCmdHistory       | search command history
 | FuzzyHighlights       | search highlight groups
-| FuzzyQuickfix         | search items in the current quickfix list
-| FuzzyMarks            | search marks, see `:h :marks` and `:h mark-motions`
-| FuzzyArglist          | search items in the argument list, see `:h arglist`
+| FuzzyQuickfix         | search the quickfix list, see `:h quickfix`
+| FuzzyArglist          | search the argument list, see `:h arglist`
+| FuzzyJumps            | search jumps, see `:h jumplist`
+| FuzzyMarks            | search marks, see `:h mark-motions`
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
 | FuzzyTagsRoot         | search tags in the project/vcs root directory
 | FuzzyGitFiles         | search files in output from `git ls-files`
