@@ -3,7 +3,7 @@ vim9script
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 
-var marklist: list<any>
+var markdict: dict<any>
 
 def Select(wid: number, result: string)
     if empty(result)
@@ -15,13 +15,7 @@ enddef
 
 def ParseResult(result: string): list<any>
     var mark = result->matchstr('\v^\s*\zs\S+')
-    var markdata = copy(marklist)->filter((_, dict) => {
-       return dict.mark == "'" .. mark
-    })[0]
-    var bufnr = markdata.pos[0]
-    var lnum = markdata.pos[1]
-    var col = markdata.pos[2]
-    var file = get(markdata, 'file', bufname(bufnr))
+    var [file, bufnr, lnum, col] = markdict[mark]
     return [file, bufnr, lnum, col]
 enddef
 
@@ -97,11 +91,28 @@ enddef
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Marks'
 
-    marklist = extend(getmarklist(), getmarklist(bufnr()))
+    var marklist = extend(getmarklist(), getmarklist(bufnr()))
+    reduce(marklist, (acc, item) => {
+        acc[item.mark[1]] = [
+            get(item, 'file', bufname(item.pos[0])),
+            item.pos[0],
+            item.pos[1],
+            item.pos[2],
+        ]
+        return acc
+    }, markdict)
 
-    var marks = execute('marks')->split("\n")->slice(1)
+    var lines = execute('marks')->split("\n")->slice(1)->map((_, val) => {
+        var mark = val->matchstr('\v^\s*\zs\S+')
+        var [fname, bufnr, lnum, col] = markdict[mark]
+        if empty(fname)
+            fname = "[No Name]"
+        endif
+        var text = getbufoneline(bufnr, lnum)
+        return printf($" %s │ %s:%d:%d:%s", mark, fname, lnum, col, text)
+    })
 
-    selector.Start(marks, extend(opts, {
+    selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
