@@ -70,7 +70,9 @@ enddef
 def JobExitCb(id: job, status: number)
     in_loading = 0
     timer_stop(update_tid)
-    UpdateMenu(-1)
+    if popup.active
+        UpdateMenu(-1)
+    endif
 enddef
 
 def Profiling()
