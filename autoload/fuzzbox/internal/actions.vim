@@ -43,13 +43,9 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     helpers.MoveToUsableWindow()
-    if cwd ==# getcwd()
-        execute 'edit ' .. fnameescape(fnamemodify(file, ':p'))
-    else
-        var path = cwd .. '/' .. file
-        execute 'edit ' .. fnameescape(fnamemodify(path, ':p'))
-    endif
+    execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
         if str2nr(col) > 0
             cursor(str2nr(line), str2nr(col))
@@ -67,12 +63,8 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    if cwd ==# getcwd()
-        execute 'tabnew ' .. fnameescape(fnamemodify(file, ':p'))
-    else
-        var path = cwd .. '/' .. file
-        execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p'))
-    endif
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
         if str2nr(col) > 0
             cursor(str2nr(line), str2nr(col))
@@ -90,12 +82,8 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    if cwd ==# getcwd()
-        execute 'vsp ' .. fnameescape(fnamemodify(file, ':p'))
-    else
-        var path = cwd .. '/' .. file
-        execute 'vsp ' .. fnameescape(fnamemodify(path, ':p'))
-    endif
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
         if str2nr(col) > 0
             cursor(str2nr(line), str2nr(col))
@@ -113,12 +101,8 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    if cwd ==# getcwd()
-        execute 'sp ' .. fnameescape(fnamemodify(file, ':p'))
-    else
-        var path = cwd .. '/' .. file
-        execute 'sp ' .. fnameescape(fnamemodify(path, ':p'))
-    endif
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    execute 'split ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
         if str2nr(col) > 0
             cursor(str2nr(line), str2nr(col))
