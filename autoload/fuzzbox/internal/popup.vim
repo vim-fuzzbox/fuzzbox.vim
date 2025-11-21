@@ -127,11 +127,10 @@ def ShowCursor()
     endif
 enddef
 
-def InvokeAction(Action: func)
+def InvokeAction(Action: func, wid: number = wins.menu)
     if Action == null # allow for null_function
         return
     endif
-    var wid = wins.menu
     var linetext = GetCursorItem()
     try
         try
@@ -198,7 +197,7 @@ def MenuCursorContentChangeCb()
             timer_stop(preview_tid)
             preview_tid = timer_start(30, (_) => {
                 if active # allow for popups to have closed when lambda is invoked
-                    popup_wins[wins.menu].preview_cb(wins.preview, GetCursorItem())
+                    InvokeAction(popup_wins[wins.menu].preview_cb, wins.preview)
                 endif
             }, { repeat: 0 })
         endif

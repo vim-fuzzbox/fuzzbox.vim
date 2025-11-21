@@ -304,14 +304,14 @@ def UpdatePreviewHl()
     endif
 enddef
 
-def Preview(wid: number, result: string)
+def Preview(wid: number, result: string, opts: dict<any>)
     if wid == -1
         return
     endif
     var [relative_path, linenr, colnr] = ParseResult(result)
     cur_menu_item = result
 
-    actions.PreviewFile(wid, result)
+    actions.PreviewFile(wid, result, opts)
 
     UpdatePreviewHl()
 enddef
