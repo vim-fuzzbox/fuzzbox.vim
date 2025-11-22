@@ -58,7 +58,7 @@ export def Start(opts: dict<any> = {})
         })->filter((_, val) => filereadable(val))
     # oldfiles that are not already included in buffers from this session
     var mru_oldfiles = copy(v:oldfiles)->map((_, val) => {
-            return fnamemodify(expand(val), ':p')
+            return fnamemodify(val, ':p')
         })->filter((_, val) => {
             return filereadable(val) && index(mru_buffers, val) == -1
         })
