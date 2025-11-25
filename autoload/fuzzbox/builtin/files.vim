@@ -6,7 +6,7 @@ import autoload '../internal/previewer.vim'
 import autoload '../internal/devicons.vim'
 import autoload '../internal/helpers.vim'
 import autoload '../internal/actions.vim'
-import autoload '../internal/cmdbuilder.vim'
+import autoload './files/cmdbuilder.vim'
 
 var cur_pattern: string
 var last_pattern: string
