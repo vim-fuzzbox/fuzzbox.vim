@@ -1,5 +1,7 @@
 vim9script
 
+scriptencoding utf-8
+
 # v:colornames populated by using the :colorscheme or :highlight commands,
 # so can be empty if vim loaded from a session without setting a colorscheme
 if empty(v:colornames) && filereadable($VIMRUNTIME .. '/colors/lists/default.vim')
