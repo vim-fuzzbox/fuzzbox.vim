@@ -492,7 +492,6 @@ def CreatePopup(args: dict<any>): number
        padding: [0, 0, 0, 0],
        zindex: 1000,
        wrap: 0,
-       buftype: 'popup',
        cursorline: 0,
        callback: function('GeneralPopupCallback'),
        border: [1],
@@ -585,12 +584,7 @@ def NewPopup(args: dict<any>): list<number>
 
     var wid = CreatePopup(opts)
     var bufnr = winbufnr(wid)
-    setbufvar(bufnr, '&buflisted', 0)
     setbufvar(bufnr, '&modeline', 0)
-    setbufvar(bufnr, '&buftype', 'nofile')
-    setbufvar(bufnr, '&swapfile', 0)
-    setbufvar(bufnr, '&undolevels', -1)
-    setbufvar(bufnr, '&modifiable', 1)
 
     popup_wins[wid].bufnr = bufnr
 
