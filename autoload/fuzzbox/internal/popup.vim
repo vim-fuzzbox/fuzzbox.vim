@@ -140,7 +140,13 @@ def InvokeAction(Action: func, wid: number = wins.menu)
                 Action(wid, linetext)
             catch /\v:(E118):/
                 # Experimental: don't rely on this within custom selectors
-                try | Action(wid) | catch /\v:(E118):/ | Action() | endtry
+                try
+                    Action(wid)
+                catch /\v:(E118):/
+                    Action()
+                catch
+                    helpers.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
+                endtry
             endtry
         endtry
     catch /\v:(E1013):/
@@ -150,6 +156,8 @@ def InvokeAction(Action: func, wid: number = wins.menu)
             Action(wid, [linetext], popup_opts)
         catch /\v:(E118):/
             Action(wid, [linetext])
+        catch
+            helpers.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
         endtry
     endtry
 enddef
