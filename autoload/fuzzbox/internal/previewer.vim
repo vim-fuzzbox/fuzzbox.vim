@@ -1,6 +1,7 @@
 vim9script
 
 import autoload './popup.vim'
+import './filetype.vim'
 
 def IsBinary(path: string): bool
     # NUL byte check for binary files, used to avoid showing preview
@@ -24,7 +25,6 @@ function IsBinaryBlob(path)
     return v:false
 endfunction
 
-# Get filetype from modelines, used when not detected via filetypedetect autocmd
 def FTDetectModelines(content: list<string>): string
     if ( !&modeline || &modelines == 0 ) && !exists('g:loaded_securemodelines')
         return ''
@@ -98,6 +98,7 @@ def Reset(wid: number)
 enddef
 
 export def IsTextFile(wid: number): bool
+    # Note: relies on PreviewFile() setting &filetype
     return !empty(getwinvar(wid, '&filetype'))
 enddef
 
@@ -128,15 +129,17 @@ export def PreviewFile(wid: number, path: string)
     setwinvar(wid, '&cursorline', 1)
     setwinvar(wid, '&synmaxcol', 500) # disable syntax highlight on long lines
     if getfsize(path) / pow(1024, 2) > 2 # no syntax highlighting files > 2 MiB
-        win_execute(wid, 'set filetype=text')
+        win_execute(wid, 'noautocmd setlocal filetype=text')
+        return
+    endif
+    var modelineft = FTDetectModelines(content)
+    if empty(modelineft)
+        win_execute(wid, 'silent! doautocmd fuzzboxFiletypeDetect User ' .. path)
     else
-        win_execute(wid, 'silent! doautocmd filetypedetect BufNewFile ' .. path)
+        win_execute(wid, 'noautocmd setlocal filetype=' .. modelineft)
     endif
-    if empty(getwinvar(wid, '&filetype')) || getwinvar(wid, '&filetype') == 'conf'
-        var modelineft = FTDetectModelines(content)
-        if !empty(modelineft)
-            win_execute(wid, 'set filetype=' .. modelineft)
-        endif
+    if empty(getwinvar(wid, '&filetype'))
+        win_execute(wid, 'noautocmd setlocal filetype=text')
     endif
-    win_execute(wid, 'silent! setlocal nospell nolist')
+    win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
 enddef
