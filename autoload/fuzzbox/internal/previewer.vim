@@ -139,4 +139,12 @@ export def PreviewFile(wid: number, path: string)
         win_execute(wid, 'noautocmd setlocal filetype=' .. modelineft)
     endif
     win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
+
+    var re = &re
+    try
+        &re = 2 # workaround for E363: Pattern uses more memory than 'maxmempattern'
+        win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
+    finally
+        &re = re
+    endtry
 enddef
