@@ -127,7 +127,7 @@ export def PreviewFile(wid: number, path: string)
     popup_settext(wid, content)
     setwinvar(wid, '&number', 1)
     setwinvar(wid, '&cursorline', 1)
-    setwinvar(wid, '&synmaxcol', 500) # disable syntax highlight on long lines
+    setwinvar(wid, '&synmaxcol', 1000) # no syntax highlighting very long lines
     win_execute(wid, 'noautocmd setlocal filetype=text')
     if getfsize(path) / pow(1024, 2) > 2 # no syntax highlighting files > 2 MiB
         return
