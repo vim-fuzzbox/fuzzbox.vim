@@ -37,7 +37,7 @@ var filetype_patterns = {
     make:       '[Mm]akefile',
     markdown:   '*.markdown,*.mdown,*.mkd,*.mkdn,*.mdwn,*.md',
     matlab:     '*.m',
-    perl:       '*.pl',
+    perl:       '*.pl,*.pm',
     php:        '*.inc',
     r:          '*.R,*.r',
     sh:         '*.sh',
