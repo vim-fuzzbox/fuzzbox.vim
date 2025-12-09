@@ -2,12 +2,12 @@ vim9script
 
 # Detect filetype without triggering FileType autocmds
 
-# Copy simple filetypedetect autocmds patterns to run setf with noautocmd
+# Copy simple filetypedetect autocmds patterns to detect ft with noautocmd
 # Works for many file types, but not all, hence additional patterns below
 for item in autocmd_get({
         group: 'filetypedetect', event: 'BufNewFile'
     })->filter((_, val) => {
-        return val.cmd =~ '\M^setf\s\+\w\+$' #|| val.cmd =~ '\M^call\s\+dist#ft#\w\+'
+        return val.cmd =~ '\M^setf\s\+\w\+$' || val.cmd =~ '\M^call\s\+dist#ft#\w\+'
     })
 
     autocmd_add([{
@@ -20,19 +20,17 @@ endfor
 
 # Filetypes that are not handled by copying simple filetypedetect autocmds above
 # No allowance for precedence, only one pattern expected to match each filetype
+# Note that this needs to allow for older versions of $VIMRUNTIME/filetype.vim
 var filetype_patterns = {
-    bash:       '*.bash,.bashrc,bashrc,bash.bashrc,.bash_profile,.bash_logout,.bash_aliases,.bash_history,',
     c:          '*.c,*.h',
     cfg:        '*.cfg',
     cpp:        '*.hpp',
-    csh:        '.cshrc,csh.cshrc,csh.login,csh.logout,*.csh',
     d:          '*.d',
     eiffel:     '*.e',
     elixir:     '*.ex',
     fortran:    '*.f',
     fsharp:     '*.fs',
     html:       '*.html,*.htm',
-    ksh:        '.kshrc,*.ksh',
     lisp:       '*.cl',
     make:       '[Mm]akefile',
     markdown:   '*.markdown,*.mdown,*.mkd,*.mkdn,*.mdwn,*.md',
@@ -44,7 +42,6 @@ var filetype_patterns = {
     sql:        '*.sql',
     terraform:  '*.tf',
     tex:        '*.tex',
-    tcsh:       '.tcshrc,*.tcsh,tcsh.tcshrc,tcsh.login',
     typescript: '*.ts',
     vim:        '*vimrc*',
     xml:        '*.xml',
