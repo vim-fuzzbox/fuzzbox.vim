@@ -128,8 +128,8 @@ export def PreviewFile(wid: number, path: string)
     setwinvar(wid, '&number', 1)
     setwinvar(wid, '&cursorline', 1)
     setwinvar(wid, '&synmaxcol', 1000) # no syntax highlighting very long lines
-    win_execute(wid, 'noautocmd setlocal filetype=text')
     if getfsize(path) / pow(1024, 2) > 2 # no syntax highlighting files > 2 MiB
+        win_execute(wid, 'noautocmd setlocal filetype=text')
         return
     endif
     var modelineft = FTDetectModelines(content)
@@ -137,6 +137,9 @@ export def PreviewFile(wid: number, path: string)
         win_execute(wid, 'silent! doautocmd fuzzboxFiletypeDetect User ' .. path)
     else
         win_execute(wid, 'noautocmd setlocal filetype=' .. modelineft)
+    endif
+    if empty(getwinvar(wid, '&filetype'))
+        win_execute(wid, 'noautocmd setlocal filetype=text')
     endif
     win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
 
