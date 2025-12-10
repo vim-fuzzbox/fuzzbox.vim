@@ -490,17 +490,13 @@ let g:fuzzbox_async_step = 10000
 
 Fuzzbox adds two `User` autocommands which you can use to run custom commands
 when Fuzzbox is opened and closed. This can be helpful to aid compatibility with
-other plugins, e.g. [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
-
-By default vim-lsp will automatically start configured language servers when the
-filetype of a buffer changes. To avoid starting language servers unnecessarily
-when you preview a file in Fuzzbox you can disable vim-lsp while Fuzzbox is open:
+other plugins, or maybe update your statusline, e.g.
 
 ```vim
 augroup LspFuzzbox
   autocmd!
-  autocmd User FuzzboxOpened call lsp#disable()
-  autocmd User FuzzboxClosed call lsp#enable()
+  autocmd User FuzzboxOpened call MyStatusLine(#{fuzzbox: true})
+  autocmd User FuzzboxClosed call MyStatusLine(#{fuzzbox: false})
 augroup END
 ```
 
