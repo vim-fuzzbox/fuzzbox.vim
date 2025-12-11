@@ -495,8 +495,8 @@ other plugins, or maybe update your statusline, e.g.
 ```vim
 augroup LspFuzzbox
   autocmd!
-  autocmd User FuzzboxOpened call MyStatusLine(#{fuzzbox: true})
-  autocmd User FuzzboxClosed call MyStatusLine(#{fuzzbox: false})
+  autocmd User FuzzboxOpened call MyStatusLine(#{fuzzbox: v:true})
+  autocmd User FuzzboxClosed call MyStatusLine(#{fuzzbox: v:false})
 augroup END
 ```
 
