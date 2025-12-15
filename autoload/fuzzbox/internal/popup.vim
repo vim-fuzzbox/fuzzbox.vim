@@ -689,7 +689,7 @@ def PopupPrompt(args: dict<any>): number
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
     var prompt_prefix = has_key(args, 'prompt_prefix') ? args.prompt_prefix : '> '
-    var prompt_prefix_len = strcharlen(prompt_prefix)
+    const prompt_prefix_len = len(prompt_prefix)
     var prompt_opt = {
      line: [],
      prefix: prompt_prefix,
