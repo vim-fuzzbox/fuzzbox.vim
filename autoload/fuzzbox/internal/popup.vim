@@ -321,7 +321,7 @@ def PromptFilter(wid: number, key: string): number
         if pos.winid != wid
             return 0
         endif
-        var prefix_len = popup_wins[wid].cursor_args.prefix_len
+        var prefix_len = popup_wins[wid].cursor_args.prefix_charlen
         cur_pos = pos.wincol - prefix_len - 2
         if cur_pos > max_pos
             cur_pos = max_pos
@@ -689,7 +689,8 @@ def PopupPrompt(args: dict<any>): number
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
     var prompt_prefix = has_key(args, 'prompt_prefix') ? args.prompt_prefix : '> '
-    var prompt_prefix_len = strcharlen(prompt_prefix)
+    const prompt_prefix_len = len(prompt_prefix)
+    const prompt_prefix_charlen = strcharlen(prompt_prefix)
     var prompt_opt = {
      line: [],
      prefix: prompt_prefix,
@@ -700,6 +701,7 @@ def PopupPrompt(args: dict<any>): number
      min_pos: 0,
      max_pos: 0,
      prefix_len: prompt_prefix_len,
+     prefix_charlen: prompt_prefix_charlen,
      cur_pos: 0,
      highlight: 'fuzzboxCursor',
      mid: -1,
