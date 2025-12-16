@@ -7,7 +7,7 @@ vim9script
 for item in autocmd_get({
         group: 'filetypedetect', event: 'BufNewFile'
     })->filter((_, val) => {
-        return val.cmd =~ '\M^setf\s\+\w\+$' || val.cmd =~ '\M^call\s\+dist#ft#\w\+'
+        return val.cmd =~ '\M^setf\(iletype\)\?\s\+\w\+$' || val.cmd =~ '\M^call\s\+dist#ft#\w\+'
     })
 
     autocmd_add([{
