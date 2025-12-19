@@ -129,7 +129,6 @@ export def PreviewFile(wid: number, path: string)
     setwinvar(wid, '&cursorline', 1)
     setwinvar(wid, '&synmaxcol', 1000) # no syntax highlighting very long lines
     if getfsize(path) / pow(1024, 2) > 2 # no syntax highlighting files > 2 MiB
-        win_execute(wid, 'noautocmd setlocal filetype=text')
         return
     endif
     var modelineft = FTDetectModelines(content)
