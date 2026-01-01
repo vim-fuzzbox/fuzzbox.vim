@@ -15,10 +15,10 @@ var iswin = helpers.IsWin()
 
 def ParseResult(result: string): list<any>
     if iswin && result =~ '^\a:'
-        var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
+        var [drive, path, line, col] = split(result .. ':1:1', ':')[0 : 3]
         return [drive .. ':' .. path, line, col]
     endif
-    return split(result .. ':0:0', ':')[0 : 2]
+    return split(result .. ':1:1', ':')[0 : 2]
 enddef
 
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
@@ -129,16 +129,16 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var [path, line, col] = split(val .. ':1:1', ':')[0 : 2]
+        var [file, line, col] = ParseResult(val)
         var text = split(val, ':' .. line .. ':' .. col .. ':')[-1]
         if has_devicons
-            if path == text
+            if file == text
                 text = devicons.RemoveDevicon(text)
             endif
-            path = devicons.RemoveDevicon(path)
+            file = devicons.RemoveDevicon(file)
         endif
         var dict = {
-            filename: path,
+            filename: file,
             lnum: str2nr(line),
             col: str2nr(col),
             text: text }
