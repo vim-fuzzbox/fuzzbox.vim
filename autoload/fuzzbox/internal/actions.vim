@@ -6,11 +6,20 @@ import autoload './previewer.vim'
 import autoload './helpers.vim'
 
 var enable_devicons = devicons.Enabled()
+var iswin = helpers.IsWin()
 
 # Note: for actions that open or preview files, fnamemodify() is used to ensure
 # a readable path. On Unix emulation envinronments like Git-Bash / Mingw-w64,
 # external programs like rg may return file paths with Windows file separators,
 # but Vim thinks it has Unix so needs a Unix file separator to read the file.
+
+def ParseResult(result: string): list<any>
+    if iswin && result =~ '^\a:'
+        var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
+        return [drive .. ':' .. path, line, col]
+    endif
+    return split(result .. ':0:0', ':')[0 : 2]
+enddef
 
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     if wid == -1
@@ -21,7 +30,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
         return
     endif
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     previewer.PreviewFile(wid, fnamemodify(path, ':p'))
     if !previewer.IsTextFile(wid)
@@ -42,7 +51,7 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     helpers.MoveToUsableWindow()
     execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
@@ -62,7 +71,7 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
@@ -81,7 +90,7 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
@@ -100,7 +109,7 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'split ' .. fnameescape(fnamemodify(path, ':p:~:.'))
     if str2nr(line) > 0
