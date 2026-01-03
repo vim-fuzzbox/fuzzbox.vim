@@ -44,37 +44,36 @@ def Preview(wid: number, result: string)
     win_execute(wid, 'norm! zz')
 enddef
 
-def OpenFileTab(wid: number, result: string)
+def OpenTab(wid: number, result: string)
     if empty(result)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'tabnew ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
-    exe 'norm! zz'
+    var nr = str2nr(split(result, '│')[0])
+    execute 'tabnew'
+    execute 'cc!' .. nr
 enddef
 
-def OpenFileVSplit(wid: number, result: string)
+def OpenSplit(wid: number, result: string)
     if empty(result)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'vsplit ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
-    exe 'norm! zz'
+    var nr = str2nr(split(result, '│')[0])
+    helpers.MoveToUsableWindow()
+    execute 'split'
+    execute 'cc!' .. nr
 enddef
 
-def OpenFileSplit(wid: number, result: string)
+def OpenVSplit(wid: number, result: string)
     if empty(result)
         return
     endif
     popup_close(wid)
-    var [fname, lnum] = ParseResult(result)
-    exe 'split ' .. fnameescape(fname)
-    exe 'norm! ' .. lnum .. 'G'
-    exe 'norm! zz'
+    var nr = str2nr(split(result, '│')[0])
+    helpers.MoveToUsableWindow()
+    execute 'vsplit'
+    execute 'cc!' .. nr
 enddef
 
 def SendToQuickfix(wid: number, result: string, opts: dict<any>)
@@ -134,14 +133,25 @@ export def Start(opts: dict<any> = {})
 
     echo getqflist({title: 0}).title
 
-    selector.Start(lines, extend(opts, {
+    var wins = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
-            "\<c-v>": function('OpenFileVSplit'),
-            "\<c-s>": function('OpenFileSplit'),
-            "\<c-t>": function('OpenFileTab'),
+            "\<c-v>": function('OpenVSplit'),
+            "\<c-s>": function('OpenSplit'),
+            "\<c-t>": function('OpenTab'),
             "\<c-q>": function('SendToQuickfix'),
         }
     }))
+
+    # Move cursor to the current item in the quickfix list
+    var nr = getqflist({idx: 0}).idx
+    var move = nr - 1
+    if move > 0
+        if opts.dropdown
+            win_execute(wins.menu, "norm! " .. move .. "j")
+        else
+            win_execute(wins.menu, "norm! " .. move .. "k")
+        endif
+    endif
 enddef
