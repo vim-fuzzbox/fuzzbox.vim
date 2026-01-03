@@ -51,7 +51,7 @@ def OpenBufTab(wid: number, result: string)
     endif
     popup_close(wid)
     var [bufnr, lnum] = buf_dict[result][1 : 2]
-    execute 'split'
+    execute 'tabnew'
     execute 'buffer ' .. bufnr
 enddef
 
