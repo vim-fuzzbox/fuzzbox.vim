@@ -2,6 +2,11 @@ vim9script
 
 # Detect filetype without triggering FileType autocmds
 
+# Skip if filetype detection not enabled, see $VIMRUNTIME/filetype.vim
+if !exists("g:did_load_filetypes")
+  finish
+endif
+
 # Copy simple filetypedetect autocmds patterns to detect ft with noautocmd
 # Works for many file types, but not all, hence additional patterns below
 for item in autocmd_get({
