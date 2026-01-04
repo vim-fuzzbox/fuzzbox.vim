@@ -7,19 +7,20 @@ import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/helpers.vim'
 
+var loclist: list<any>
+
 def Select(wid: number, result: string)
     if empty(result)
         return
     endif
     var nr = str2nr(split(result, '│')[0])
-    helpers.MoveToUsableWindow()
-    echo '' # clear qflist title message
-    exe 'cc!' .. nr
+    echo '' # clear loclist title message
+    exe 'll!' .. nr
 enddef
 
 def ParseResult(result: string): list<any>
     var idx = str2nr(split(result, '│')[0]) - 1
-    var item = getqflist()[idx]
+    var item = loclist[idx]
     var fname: string
     var bufnr = item->get('bufnr', 0)
     if bufnr == 0
@@ -50,9 +51,10 @@ def OpenTab(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
-    execute 'tabnew'
-    execute 'cc!' .. nr
+    var [fname, lnum] = ParseResult(result)
+    exe 'tabnew ' .. fnameescape(fname)
+    exe 'norm! ' .. lnum .. 'G'
+    exe 'norm! zz'
 enddef
 
 def OpenSplit(wid: number, result: string)
@@ -60,10 +62,11 @@ def OpenSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
+    var [fname, lnum] = ParseResult(result)
     helpers.MoveToUsableWindow()
-    execute 'split'
-    execute 'cc!' .. nr
+    exe 'split ' .. fnameescape(fname)
+    exe 'norm! ' .. lnum .. 'G'
+    exe 'norm! zz'
 enddef
 
 def OpenVSplit(wid: number, result: string)
@@ -71,47 +74,27 @@ def OpenVSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
+    var [fname, lnum] = ParseResult(result)
     helpers.MoveToUsableWindow()
-    execute 'vsplit'
-    execute 'cc!' .. nr
-enddef
-
-def SendToQuickfix(wid: number, result: string, opts: dict<any>)
-    var bufnr = winbufnr(wid)
-    var lines: list<any>
-    lines = reverse(getbufline(bufnr, 1, "$"))
-    filter(lines, (_, val) => !empty(val))
-    setqflist(map(lines, (_, val) => {
-        var idx = str2nr(split(val, '│')[0]) - 1
-        return getqflist()[idx]
-    }))
-
-    if has_key(opts, 'prompt_title') && !empty(opts.prompt_title)
-        var title = opts.prompt_title
-        var input = popup.GetPrompt()
-        if !empty(input)
-            title = title .. ' (' .. input .. ')'
-        endif
-        setqflist([], 'a', {title: title})
-    endif
-
-    popup_close(wid)
-    exe 'copen'
+    exe 'vsplit ' .. fnameescape(fname)
+    exe 'norm! ' .. lnum .. 'G'
+    exe 'norm! zz'
 enddef
 
 export def Start(opts: dict<any> = {})
-    opts.title = has_key(opts, 'title') ? opts.title : 'Quickfix'
+    opts.title = has_key(opts, 'title') ? opts.title : 'Loclist'
 
-    if getqflist({nr: '$'}).nr == 0
-        echohl ErrorMsg | echo "Quickfix list is empty" | echohl None
+    loclist = getloclist(winnr())
+
+    if empty(loclist)
+        echohl ErrorMsg | echo "Location list is empty" | echohl None
         return
     endif
 
     # mostly copied from scope.vim, thanks @girishji
-    var size = getqflist({size: 0}).size
+    var size = getloclist(winnr(), {size: 0}).size
     var fmt = ' %' ..  len(string(size)) .. 'd │ '
-    var lines = getqflist()->mapnew((idx, v) => {
+    var lines = loclist->mapnew((idx, v) => {
         var fname: string
         var bufnr = v->get('bufnr', 0)
         if bufnr == 0
@@ -132,7 +115,9 @@ export def Start(opts: dict<any> = {})
         return printf($"{fmt}%s:%s", idx + 1, fname, text)
     })
 
-    echo getqflist({title: 0}).title
+    echo getloclist(winnr(), {title: 0}).title
+
+    var opener = winnr()
 
     var wins = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
@@ -141,12 +126,12 @@ export def Start(opts: dict<any> = {})
             "\<c-v>": function('OpenVSplit'),
             "\<c-s>": function('OpenSplit'),
             "\<c-t>": function('OpenTab'),
-            "\<c-q>": function('SendToQuickfix'),
+            "\<c-q>": null_function,
         }
     }))
 
-    # Move cursor to the current item in the quickfix list
-    var nr = getqflist({idx: 0}).idx
+    # Move cursor to the current item in the location list
+    var nr = getloclist(opener, {idx: 0}).idx
     var move = nr - 1
     if move > 0
         if opts.dropdown
