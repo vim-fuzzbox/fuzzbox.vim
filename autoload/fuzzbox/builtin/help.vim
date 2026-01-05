@@ -5,7 +5,6 @@ import autoload '../internal/popup.vim'
 
 var tag_table: dict<any>
 var tag_files: list<string>
-var menu_wid: number
 
 def EscQuotes(str: string): string
     return substitute(str, "'", "''", 'g')
@@ -53,7 +52,6 @@ export def Start(opts: dict<any> = {})
     opts.preview_ratio = has_key(opts, 'preview_ratio') ? opts.preview_ratio : 0.6
 
     tag_files = reverse(split(globpath(&runtimepath, 'doc/tags', 1), '\n'))
-    var tab_table: dict<any>
     var file_index = 0
     for file in tag_files
         for line in readfile(file)
@@ -63,10 +61,9 @@ export def Start(opts: dict<any> = {})
         file_index += 1
     endfor
 
-    var wids = selector.Start(keys(tag_table), extend(opts, {
+    selector.Start(keys(tag_table), extend(opts, {
         async: true,
         preview_cb: function('Preview'),
         select_cb: function('Select'),
     }))
-    menu_wid = wids.menu
 enddef
