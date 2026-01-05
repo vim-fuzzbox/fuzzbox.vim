@@ -6,10 +6,6 @@ import autoload '../internal/popup.vim'
 var tag_table: dict<any>
 var tag_files: list<string>
 
-def EscQuotes(str: string): string
-    return substitute(str, "'", "''", 'g')
-enddef
-
 def Preview(wid: number, result: string)
     if wid == -1
         return
@@ -26,7 +22,7 @@ def Preview(wid: number, result: string)
     popup_settext(wid, readfile(doc_file))
     popup.SetTitle(wid, fnamemodify(doc_file, ':t'))
     var tag_name = substitute(tag_table[result][1], '\v^(\/\*)(.*)(\*)$', '\2', '')
-    win_execute(wid, "exec 'norm! ' .. search('\\m\\*" .. EscQuotes(tag_name) .. "\\*\\C', 'w')")
+    win_execute(wid, "exec 'norm! ' .. search('\\V*" .. tag_name .. "*', 'w')")
     win_execute(wid, 'norm! zz')
 enddef
 
