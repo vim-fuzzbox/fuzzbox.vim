@@ -12,6 +12,7 @@ def Preview(wid: number, result: string)
     endif
     if empty(result)
         popup_settext(wid, '')
+        popup_setoptions(wid, {title: ''})
         return
     endif
     var bufnr = winbufnr(wid)
