@@ -13,12 +13,16 @@ var iswin = helpers.IsWin()
 # external programs like rg may return file paths with Windows file separators,
 # but Vim thinks it has Unix so needs a Unix file separator to read the file.
 
+# Parse result and return a list with file, line number and column number
+# Line and column are set to 0 when they are not included in the result
+# Do not change these defaults without updating any callers relying on them
 def ParseResult(result: string): list<any>
     if iswin && result =~ '^\a:'
-        var [drive, path, line, col] = split(result .. ':1:1', ':')[0 : 3]
-        return [drive .. ':' .. path, line, col]
+        var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
+        return [drive .. ':' .. path, str2nr(line), str2nr(col)]
     endif
-    return split(result .. ':1:1', ':')[0 : 2]
+    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    return [file, str2nr(line), str2nr(col)]
 enddef
 
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
@@ -37,7 +41,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
         win_execute(wid, 'norm! gg')
         return
     endif
-    if str2nr(line) > 0
+    if line > 0
         win_execute(wid, 'norm! ' .. line .. 'G')
         win_execute(wid, 'norm! zz')
     else
@@ -55,9 +59,9 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     helpers.MoveToUsableWindow()
     execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
-    if str2nr(line) > 0
-        if str2nr(col) > 0
-            cursor(str2nr(line), str2nr(col))
+    if line > 0
+        if col > 0
+            cursor(line, col)
         else
             exe 'norm! ' .. line .. 'G'
         endif
@@ -74,9 +78,9 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~:.'))
-    if str2nr(line) > 0
-        if str2nr(col) > 0
-            cursor(str2nr(line), str2nr(col))
+    if line > 0
+        if col > 0
+            cursor(line, col)
         else
             exe 'norm! ' .. line .. 'G'
         endif
@@ -93,9 +97,9 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
-    if str2nr(line) > 0
-        if str2nr(col) > 0
-            cursor(str2nr(line), str2nr(col))
+    if line > 0
+        if col > 0
+            cursor(line, col)
         else
             exe 'norm! ' .. line .. 'G'
         endif
@@ -112,9 +116,9 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     execute 'split ' .. fnameescape(fnamemodify(path, ':p:~:.'))
-    if str2nr(line) > 0
-        if str2nr(col) > 0
-            cursor(str2nr(line), str2nr(col))
+    if line > 0
+        if col > 0
+            cursor(line, col)
         else
             exe 'norm! ' .. line .. 'G'
         endif
@@ -130,6 +134,8 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
         var [file, line, col] = ParseResult(val)
+        line = line > 0 ? line : 1
+        col = col > 0 ? col : 1
         var text = split(val, ':' .. line .. ':' .. col .. ':')[-1]
         if has_devicons
             if file == text
@@ -139,8 +145,8 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
         endif
         var dict = {
             filename: file,
-            lnum: str2nr(line),
-            col: str2nr(col),
+            lnum: line,
+            col: col,
             text: text }
         return dict
     }))
