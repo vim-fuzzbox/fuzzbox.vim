@@ -120,11 +120,12 @@ def Build_gci(): string
     endif
     build_filter ..= "} "
 
-    var cmd = "Get-ChildItem . -Name -Force -File -Recurse"
+    var cmd = "Get-ChildItem . -Name -File -Recurse"
     if include_hidden
-        cmd ..= ' -Hidden'
+        cmd ..= ' -Force'
     endif
     if follow_symlinks
+        # Warning: requires PowerShell 6.0
         cmd ..= ' -FollowSymlink'
     endif
     if len(dir_exclude) > 0 || len(file_exclude) > 0
