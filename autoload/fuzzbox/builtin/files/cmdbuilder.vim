@@ -124,10 +124,10 @@ def Build_gci(): string
     if include_hidden
         cmd ..= ' -Force'
     endif
-    if follow_symlinks
-        # Warning: requires PowerShell 6.0
-        cmd ..= ' -FollowSymlink'
-    endif
+    # disabling as requires PowerShell 6.0, i.e. pwsh.exe, not powershell.exe
+    # if follow_symlinks
+    #     cmd ..= ' -FollowSymlink'
+    # endif
     if len(dir_exclude) > 0 || len(file_exclude) > 0
         cmd ..= build_filter
     endif

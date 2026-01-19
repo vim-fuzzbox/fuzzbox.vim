@@ -291,7 +291,7 @@ This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 
 ### g:fuzzbox_follow_symlinks
 Make FuzzyFiles & FuzzyGrep follow symbolic links. Not applied when using
-git-ls-files, git-grep or findstr. Default 0
+git-ls-files, PowerShell Get-ChildItem, git-grep or findstr. Default 0
 ```vim
 let g:fuzzbox_follow_symlinks = 0
 ```
