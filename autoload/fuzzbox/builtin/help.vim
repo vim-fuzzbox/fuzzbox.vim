@@ -48,6 +48,11 @@ def Select(wid: number, result: string)
     endtry
 enddef
 
+def Close(wid: number)
+    # release memory
+    tag_table = {}
+enddef
+
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Help'
     opts.preview_ratio = has_key(opts, 'preview_ratio') ? opts.preview_ratio : 0.6
@@ -66,5 +71,6 @@ export def Start(opts: dict<any> = {})
         async: true,
         preview_cb: function('Preview'),
         select_cb: function('Select'),
+        close_cb: function('Close')
     }))
 enddef

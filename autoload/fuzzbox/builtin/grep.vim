@@ -86,8 +86,8 @@ def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
 enddef
 
 def JobStart(pattern: string)
-    if type(jid) == v:t_job
-        try | job_stop(jid) | catch | endtry
+    if type(jid) == v:t_job && job_status(jid) == 'run'
+        job_stop(jid)
     endif
     cur_result = []
     if pattern == ''
@@ -189,7 +189,14 @@ def UpdateMenu(...li: list<any>)
         return
     endif
 
-    if job_running
+    # limit results to prevent ballooning memory usage
+    var max_results = 10000
+    if cur_result_len > max_results
+        if type(jid) == v:t_job && job_status(jid) == 'run'
+            job_stop(jid)
+        endif
+        popup.SetCounter('> ' .. max_results)
+    elseif job_running
         var time = float2nr(str2float(reltime()->reltimestr()[4 : ]) * 1000)
         var speed = 100
         var loadidx = (time % speed) / len(loading)
@@ -226,6 +233,9 @@ def Close(wid: number)
     if type(jid) == v:t_job && job_status(jid) == 'run'
         job_stop(jid)
     endif
+    # release memory
+    # cur_result = []
+    # last_result = []
 enddef
 
 def Profiling()

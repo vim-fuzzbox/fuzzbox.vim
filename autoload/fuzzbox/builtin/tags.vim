@@ -85,6 +85,11 @@ def Preview(wid: number, result: string)
     win_execute(wid, 'norm! zz')
 enddef
 
+def Close(wid: number)
+    # release memory
+    tag_list = []
+enddef
+
 def OpenFileTab(wid: number, result: string, opts: dict<any>)
     if empty(result)
         return
@@ -186,6 +191,7 @@ export def Start(opts: dict<any> = {})
         counter: true,
         select_cb: function('Select'),
         preview_cb: function('Preview'),
+        close_cb: function('Close'),
         actions: {
             "\<c-v>": function('OpenFileVSplit'),
             "\<c-s>": function('OpenFileSplit'),

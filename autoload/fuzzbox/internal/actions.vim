@@ -12,6 +12,7 @@ var iswin = helpers.IsWin()
 # a readable path. On Unix emulation envinronments like Git-Bash / Mingw-w64,
 # external programs like rg may return file paths with Windows file separators,
 # but Vim thinks it has Unix so needs a Unix file separator to read the file.
+# FIXME: might also be addressed using --path-separator option with rg and fd
 
 # Parse result and return a list with file, line number and column number
 # Line and column are set to 0 when they are not included in the result

@@ -118,6 +118,8 @@ def Close(wid: number)
         job_stop(jid)
     endif
     timer_stop(update_tid)
+    # release memory
+    cur_result = []
 enddef
 
 export def Start(opts: dict<any> = {})
