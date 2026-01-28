@@ -234,8 +234,8 @@ def Close(wid: number)
         job_stop(jid)
     endif
     # release memory
-    # cur_result = []
-    # last_result = []
+    cur_result = []
+    last_result = []
 enddef
 
 def Profiling()
