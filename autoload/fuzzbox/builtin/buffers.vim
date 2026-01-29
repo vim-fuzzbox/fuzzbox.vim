@@ -13,11 +13,17 @@ var buf_dict: dict<any>
 var exclude_buffers = exists('g:fuzzbox_buffers_exclude') ?
     g:fuzzbox_buffers_exclude : []
 
+def ParseResult(result: string): list<any>
+    var bufnr = result->matchstr('\v^\s*\zs\S+')->str2nr()
+    var binfo = getbufinfo(bufnr)[0]
+    return [binfo.name, binfo.bufnr, binfo.lnum]
+enddef
+
 def Select(wid: number, result: string)
     if empty(result)
         return
     endif
-    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    var [file, bufnr, lnum] = ParseResult(result)
     # for special buffers, jump to window if visible in current tab
     if !empty(getbufvar(bufnr, '&buftype')) && bufwinnr(bufnr) != -1
         execute ':' .. bufwinnr(bufnr) .. 'wincmd w'
@@ -34,7 +40,7 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
-    var [file, bufnr, lnum] = buf_dict[result][0 : 2]
+    var [file, bufnr, lnum] = ParseResult(result)
     if empty(file)
         previewer.PreviewText(wid, '')
         popup_settext(wid, getbufline(bufnr, 1, '$'))
@@ -50,7 +56,7 @@ def OpenBufTab(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    var [file, bufnr, lnum] = ParseResult(result)
     execute 'tabnew'
     execute 'buffer ' .. bufnr
 enddef
@@ -60,7 +66,7 @@ def OpenBufSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    var [file, bufnr, lnum] = ParseResult(result)
     execute 'split'
     execute 'buffer ' .. bufnr
 enddef
@@ -70,13 +76,14 @@ def OpenBufVSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var [bufnr, lnum] = buf_dict[result][1 : 2]
+    var [file, bufnr, lnum] = ParseResult(result)
     execute 'vsplit'
     execute 'buffer ' .. bufnr
 enddef
 
 def GetBufList(): list<string>
-    var buf_data = getbufinfo({buflisted: 1, bufloaded: 0})
+    var buf_data: list<any>
+    buf_data = getbufinfo({buflisted: 1, bufloaded: 0})
     buf_dict = {}
 
     # skip excluded buffers - case-sensitive match on buftype or tail of file name
@@ -87,15 +94,20 @@ def GetBufList(): list<string>
         })
     endif
 
-    reduce(buf_data, (acc, buf) => {
-        var file = empty(buf.name) ? $"{buf.bufnr} [No Name]" : fnamemodify(buf.name, ":~:.")
-        acc[file] = [buf.name, buf.bufnr, buf.lnum, buf.lastused]
-        return acc
-    }, buf_dict)
+    sort(buf_data, (a, b) => {
+        return a.lastused == b.lastused ? 0 :
+               a.lastused <  b.lastused ? 1 : -1
+    })
+    return buf_data->map((_, val) => {
+        var file = empty(val.name) ? '[No Name]' : fnamemodify(val.name, ":~:.")
+        var bufnr = val.bufnr
+        var flags = val.listed ? ' ' : 'u' # allow for possible toggle to include unlisted
+        flags ..= bufnr == bufnr('')  ? '%' : (bufnr == bufnr('#') ? '#' : ' ')
+        flags ..= val.hidden ? 'h' : 'a'
+        flags ..= val.changed ? '+' : ' '
 
-    return keys(buf_dict)->sort((a, b) => {
-        return buf_dict[a][3] == buf_dict[b][3] ? 0 :
-               buf_dict[a][3] <  buf_dict[b][3] ? 1 : -1
+        # note: pipe separator included for consistency with other selectors
+        return printf($" %s%s │ %s", bufnr, flags, file)
     })
 enddef
 
@@ -103,7 +115,7 @@ def DeleteBuffer(wid: number, result: string)
     if empty(result)
         return
     endif
-    var bufnr = buf_dict[result][1]
+    var [file, bufnr, lnum] = ParseResult(result)
     execute ':bdelete ' .. bufnr
     var li = GetBufList()
     selector.UpdateMenu(li, [])
@@ -115,7 +127,6 @@ export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Buffers'
 
     var wids = selector.Start(GetBufList(), extend(opts, {
-        devicons: true,
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
