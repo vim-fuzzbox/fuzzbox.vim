@@ -7,8 +7,6 @@ import autoload '../internal/devicons.vim'
 import autoload '../internal/helpers.vim'
 import autoload '../internal/actions.vim'
 
-var buf_dict: dict<any>
-
 # Options
 var exclude_buffers = exists('g:fuzzbox_buffers_exclude') ?
     g:fuzzbox_buffers_exclude : []
@@ -84,7 +82,6 @@ enddef
 def GetBufList(): list<string>
     var buf_data: list<any>
     buf_data = getbufinfo({buflisted: 1, bufloaded: 0})
-    buf_dict = {}
 
     # skip excluded buffers - case-sensitive match on buftype or tail of file name
     if !empty(exclude_buffers)
@@ -98,6 +95,7 @@ def GetBufList(): list<string>
         return a.lastused == b.lastused ? 0 :
                a.lastused <  b.lastused ? 1 : -1
     })
+
     return buf_data->map((_, val) => {
         var file = empty(val.name) ? '[No Name]' : fnamemodify(val.name, ":~:.")
         var bufnr = val.bufnr
