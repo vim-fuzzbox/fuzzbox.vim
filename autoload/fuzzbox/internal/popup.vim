@@ -52,6 +52,19 @@ var borderchars = exists('g:fuzzbox_borderchars') &&
     g:fuzzbox_borderchars :
     ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
 
+var selection_sign = exists('g:fuzzbox_selection_sign')
+    && type(g:fuzzbox_selection_sign) == v:t_string ?
+    g:fuzzbox_selection_sign : '>'
+
+# unlikely, signs are included in normal Vim, but just in case
+if !has('signs')
+    selection_sign = ''
+endif
+
+if !empty(selection_sign)
+    sign_define('FuzzboxSelection', {text: selection_sign, texthl: 'fuzzboxSelectionSign'})
+endif
+
 export def SetPopupWinProp(wid: number, key: string, val: any)
     if has_key(popup_wins, wid) && has_key(popup_wins[wid], key)
         popup_wins[wid][key] = val
@@ -199,6 +212,12 @@ enddef
 # Handle situation when Text under cursor in menu window is changed
 var preview_tid: number
 def MenuCursorContentChangeCb()
+    if !empty(selection_sign)
+        var bufnr = popup_wins[wins.menu].bufnr
+        var lnum = line('.', wins.menu)
+        sign_unplace('PopUpFuzzbox', {buffer: bufnr, id: 1})
+        sign_place(1, 'PopUpFuzzbox', 'FuzzboxSelection', bufnr, {lnum: lnum})
+    endif
     if has_key(popup_wins[wins.menu], 'preview_cb')
         if type(popup_wins[wins.menu].preview_cb) == v:t_func
             # timer to avoid triggering preview unnecessarily during mouse scroll
@@ -237,6 +256,7 @@ enddef
 export def GetCursorItem(): string
     var bufnr = popup_wins[wins.menu].bufnr
     var cursorlinepos = line('.', wins.menu)
+    # note: getbufoneline() only added in vim 9.1.0916, neovim 0.9.0
     var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
     if has_devicons
         linetext = devicons.RemoveDevicon(linetext)
@@ -777,6 +797,10 @@ def PopupMenu(args: dict<any>): number
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
+    endif
+
+    if !empty(selection_sign)
+        setwinvar(wid, '&signcolumn', 'yes')
     endif
 
     return wid
