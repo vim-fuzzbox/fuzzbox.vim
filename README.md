@@ -225,6 +225,14 @@ string, but an empty string is valid.
 let g:fuzzbox_prompt_prefix = '> '
 ```
 
+### g:fuzzbox_selection_sign
+Sign used to indicate the current selection in the menu window. Default '>',
+must be a string, but an empty string is valid if you want to disable this.
+```vim
+let g:fuzzbox_selection_sign = '>'
+```
+This option requires Vim to have been compiled with +signs, see `:h signs`
+
 ### g:fuzzbox_menu_wrap
 Enable text wrap in the menu window. Default 0
 ```vim
@@ -515,6 +523,7 @@ highlight default link fuzzboxCounter NonText
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Visual
+highlight default link fuzzboxSelectionSign Normal
 ```
 
 Note: when the popup is open, Fuzzbox will technically hide the terminal cursor

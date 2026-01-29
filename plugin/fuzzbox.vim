@@ -67,6 +67,7 @@ highlight default link fuzzboxCounter NonText
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Visual
+highlight default link fuzzboxSelectionSign Normal
 
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
 import autoload '../autoload/fuzzbox/internal/helpers.vim'
