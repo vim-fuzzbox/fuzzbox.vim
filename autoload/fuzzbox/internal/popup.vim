@@ -658,7 +658,14 @@ export def MenuSetText(text_list: list<string>)
         win_execute(wins.menu, 'normal! ' .. cursor_pos .. 'G')
     endif
 
-    MenuCursorContentChangeCb()
+    # Delay triggering content changed callback to allow selectors to move the
+    # cursorline after starting, see jumps and quickfix selectors for examples.
+    # Without this the selection sign would not be moved to the new cursorline
+    timer_start(10, (_) => {
+        if active # allow for popups to have closed when lambda is invoked
+            MenuCursorContentChangeCb()
+        endif
+    }, { repeat: 0 })
 enddef
 
 # Set Highlight for menu window
