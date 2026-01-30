@@ -12,6 +12,7 @@ var wins = { menu: -1, prompt: -1, preview: -1, info: -1 }
 var popup_opts: dict<any>
 var t_ve: string
 var hlcursor: dict<any>
+var hlsigncolumn: dict<any>
 var has_devicons: bool
 export var active = false
 
@@ -126,6 +127,10 @@ def HideCursor()
         hlcursor = hlget('Cursor')[0]
         hlset([{name: 'Cursor', cleared: true}])
     endif
+    if len(hlget('SignColumn')) > 0
+        hlsigncolumn = hlget('SignColumn')[0]
+        hlset([{name: 'SignColumn', cleared: true}])
+    endif
 enddef
 
 # Use to restore cursor when closing popups
@@ -137,6 +142,9 @@ def ShowCursor()
     # gui cursor
     if len(hlget('Cursor')) > 0 && get(hlget('Cursor')[0], 'cleared', false)
         hlset([hlcursor])
+    endif
+    if len(hlget('SignColumn')) > 0 && get(hlget('SignColumn')[0], 'cleared', false)
+        hlset([hlsigncolumn])
     endif
 enddef
 
