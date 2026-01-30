@@ -523,7 +523,7 @@ highlight default link fuzzboxCounter NonText
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Visual
-highlight default link fuzzboxSelectionSign Normal
+highlight default link fuzzboxSelectionSign CursorLine
 ```
 
 Note: when the popup is open, Fuzzbox will technically hide the terminal cursor
