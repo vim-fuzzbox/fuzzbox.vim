@@ -56,11 +56,6 @@ var selection_sign = exists('g:fuzzbox_selection_sign')
     && type(g:fuzzbox_selection_sign) == v:t_string ?
     g:fuzzbox_selection_sign : '>'
 
-# unlikely, signs are included in normal Vim, but just in case
-if !has('signs')
-    selection_sign = ''
-endif
-
 if !empty(selection_sign)
     sign_define('FuzzboxSelection', {text: selection_sign, texthl: 'fuzzboxSelectionSign'})
 endif

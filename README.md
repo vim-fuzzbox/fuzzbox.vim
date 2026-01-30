@@ -231,7 +231,12 @@ must be a string, but an empty string is valid if you want to disable this.
 ```vim
 let g:fuzzbox_selection_sign = '>'
 ```
-This option requires Vim to have been compiled with +signs, see `:h signs`
+This option uses Vim's signcolumn feature. Most color schemes don't set a
+background for the sign column, so it is seamless. If your sign column has
+a background color, you might want to remove signcolumn highlighting, e.g.
+```vim
+highlight clear SignColumn
+```
 
 ### g:fuzzbox_menu_wrap
 Enable text wrap in the menu window. Default 0
