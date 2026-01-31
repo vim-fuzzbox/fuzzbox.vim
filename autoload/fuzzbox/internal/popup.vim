@@ -48,9 +48,12 @@ keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
 
 var borderchars = exists('g:fuzzbox_borderchars') &&
     type(g:fuzzbox_borderchars) == v:t_list &&
-    len(g:fuzzbox_borderchars) == 8 ?
-    g:fuzzbox_borderchars :
-    ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
+    [4, 8]->index(len(g:fuzzbox_borderchars)) != -1 ?
+    g:fuzzbox_borderchars : (
+        &encoding == 'utf-8' ?
+            ['─', '│', '─', '│', '╭', '╮', '╯', '╰'] :
+            ['-', '|', '-', '|']
+    )
 
 var selection_sign = exists('g:fuzzbox_selection_sign')
     && type(g:fuzzbox_selection_sign) == v:t_string ?
@@ -521,10 +524,6 @@ def CreatePopup(args: dict<any>): number
        borderchars: borderchars,
        borderhighlight: ['fuzzboxBorder'],
        highlight: 'fuzzboxNormal', }
-
-    if &encoding != 'utf-8'
-        remove(opts, 'borderchars')
-    endif
 
     if has_key(args, 'enable_border') && !args.enable_border
         remove(opts, 'border')

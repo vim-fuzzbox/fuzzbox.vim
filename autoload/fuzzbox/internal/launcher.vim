@@ -24,15 +24,13 @@ export def Start(selector: string, opts: dict<any> = {})
     endtry
 
     if exists('g:__fuzzbox_warnings_found') && g:__fuzzbox_warnings_found
-        echohl WarningMsg
-        echo 'Fuzzbox started with warnings, use :FuzzyShowWarnings command to see details'
-        echohl None
+        helpers.Warn('Fuzzbox started with warnings, use :FuzzyShowWarnings command to see details')
     endif
 enddef
 
 export def Resume()
     if !exists('g:__fuzzbox_launcher_cache') || empty(g:__fuzzbox_launcher_cache)
-        helpers.Warn( 'fuzzbox: no previous search to resume')
+        helpers.Warn('fuzzbox: no previous search to resume')
         return
     endif
     for e in g:__fuzzbox_launcher_cache
