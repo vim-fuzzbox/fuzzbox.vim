@@ -94,7 +94,11 @@ export def Start(opts: dict<any> = {})
         if empty(fname)
             fname = "[No Name]"
         endif
-        var text = getbufoneline(jump.bufnr, jump.lnum)
+        var text: string
+        if bufloaded(jump.bufnr)
+            # note: getbufoneline() only added in vim 9.1.0916
+            text = getbufline(jump.bufnr, jump.lnum)[0]
+        endif
         return printf($"{fmt}%s:%d:%d:%s", idx + 1, fname, jump.lnum, jump.col, text)
     })
     reverse(lines) # Reverse list so we start at the end of the jumplist

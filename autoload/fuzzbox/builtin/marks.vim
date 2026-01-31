@@ -108,7 +108,11 @@ export def Start(opts: dict<any> = {})
         if empty(fname)
             fname = "[No Name]"
         endif
-        var text = getbufoneline(bufnr, lnum)
+        var text: string
+        if bufloaded(bufnr)
+            # note: getbufoneline() only added in vim 9.1.0916
+            text = getbufline(bufnr, lnum)[0]
+        endif
         return printf($" %s │ %s:%d:%d:%s", mark, fname, lnum, col, text)
     })
 
