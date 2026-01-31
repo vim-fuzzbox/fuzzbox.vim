@@ -17,11 +17,11 @@ export def Start(selector: string, opts: dict<any> = {})
     endif
     var merged_opts = extendnew(get(window_opts, selector, {}), opts)
     insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: merged_opts, prompt: '' })
-    try
+    if filereadable(expand('<script>:p:h') .. '/../builtin/' .. selector .. '.vim')
         function('fuzzbox#builtin#' .. selector .. '#Start')(merged_opts)
-    catch /\v:(E700|E117):/
+    else
         function('fuzzbox#_extensions#' .. selector .. '#Start')(merged_opts)
-    endtry
+    endif
 
     if exists('g:__fuzzbox_warnings_found') && g:__fuzzbox_warnings_found
         helpers.Warn('Fuzzbox started with warnings, use :FuzzyShowWarnings command to see details')
@@ -35,11 +35,11 @@ export def Resume()
     endif
     for e in g:__fuzzbox_launcher_cache
         if !empty(e.prompt)
-            try
+            if filereadable(expand('<script>:p:h') .. '/../builtin/' .. e.selector .. '.vim')
                 function('fuzzbox#builtin#' .. e.selector .. '#Start')(e.opts)
-            catch /\v:(E700|E117):/
+            else
                 function('fuzzbox#_extensions#' .. e.selector .. '#Start')(e.opts)
-            endtry
+            endif
             if popup.GetPrompt() != e.prompt
                 popup.SetPrompt(e.prompt)
             endif
