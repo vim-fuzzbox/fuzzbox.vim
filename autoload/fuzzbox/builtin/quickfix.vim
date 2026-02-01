@@ -7,18 +7,20 @@ import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/helpers.vim'
 
+var separator = g:fuzzbox_menu_separator
+
 def Select(wid: number, result: string)
     if empty(result)
         return
     endif
-    var nr = str2nr(split(result, '│')[0])
+    var nr = str2nr(split(result, separator)[0])
     helpers.MoveToUsableWindow()
     echo '' # clear qflist title message
     exe 'cc!' .. nr
 enddef
 
 def ParseResult(result: string): list<any>
-    var idx = str2nr(split(result, '│')[0]) - 1
+    var idx = str2nr(split(result, separator)[0]) - 1
     var item = getqflist()[idx]
     var fname: string
     var bufnr = item->get('bufnr', 0)
@@ -50,7 +52,7 @@ def OpenTab(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
+    var nr = str2nr(split(result, separator)[0])
     execute 'tabnew'
     execute 'cc!' .. nr
 enddef
@@ -60,7 +62,7 @@ def OpenSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
+    var nr = str2nr(split(result, separator)[0])
     helpers.MoveToUsableWindow()
     execute 'split'
     execute 'cc!' .. nr
@@ -71,7 +73,7 @@ def OpenVSplit(wid: number, result: string)
         return
     endif
     popup_close(wid)
-    var nr = str2nr(split(result, '│')[0])
+    var nr = str2nr(split(result, separator)[0])
     helpers.MoveToUsableWindow()
     execute 'vsplit'
     execute 'cc!' .. nr
@@ -83,7 +85,7 @@ def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var idx = str2nr(split(val, '│')[0]) - 1
+        var idx = str2nr(split(val, separator)[0]) - 1
         return getqflist()[idx]
     }))
 
@@ -110,7 +112,7 @@ export def Start(opts: dict<any> = {})
 
     # mostly copied from scope.vim, thanks @girishji
     var size = getqflist({size: 0}).size
-    var fmt = ' %' ..  len(string(size)) .. 'd │ '
+    var fmt = ' %' ..  len(string(size)) .. 'd ' .. separator .. ' '
     var lines = getqflist()->mapnew((idx, v) => {
         var fname: string
         var bufnr = v->get('bufnr', 0)

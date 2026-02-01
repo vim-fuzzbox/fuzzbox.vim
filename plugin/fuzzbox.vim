@@ -52,6 +52,9 @@ g:fuzzbox_exclude_dir = exists('g:fuzzbox_exclude_dir')
     && type(g:fuzzbox_exclude_dir) == v:t_list ? g:fuzzbox_exclude_dir : ['.git', '.hg', '.svn']
 g:fuzzbox_ripgrep_options = exists('g:fuzzbox_ripgrep_options')
     && type(g:fuzzbox_ripgrep_options) == v:t_list ? g:fuzzbox_ripgrep_options : []
+g:fuzzbox_menu_separator = exists('g:fuzzbox_menu_separator') ? g:fuzzbox_menu_separator : (
+    &encoding == 'utf-8' ? '│' : '|'
+)
 
 if g:fuzzbox_respect_wildignore
     var wildignore_dir = copy(split(&wildignore, ','))->filter('v:val =~ "[\\/]"')

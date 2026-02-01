@@ -10,6 +10,8 @@ var file_type: string
 var file_name: string
 var menu_wid: number
 
+var separator = g:fuzzbox_menu_separator
+
 def Select(wid: number, result: string)
     if empty(result)
         return
@@ -43,7 +45,7 @@ def OpenFileTab(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, '│')[0])
+    var line = str2nr(split(result, separator)[0])
     exe 'tabnew ' .. fnameescape(file_name)
     exe 'norm! ' .. line .. 'G'
     exe 'norm! zz'
@@ -54,7 +56,7 @@ def OpenFileVSplit(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, '│')[0])
+    var line = str2nr(split(result, separator)[0])
     exe 'vsplit ' .. fnameescape(file_name)
     exe 'norm! ' .. line .. 'G'
     exe 'norm! zz'
@@ -65,7 +67,7 @@ def OpenFileSplit(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, '│')[0])
+    var line = str2nr(split(result, separator)[0])
     exe 'split ' .. fnameescape(file_name)
     exe 'norm! ' .. line .. 'G'
     exe 'norm! zz'
@@ -77,7 +79,7 @@ def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var [line, text] = split(val, '│')
+        var [line, text] = split(val, separator)
         var dict = {
             filename: file_name,
             lnum: str2nr(line),
@@ -107,7 +109,7 @@ export def Start(opts: dict<any> = {})
     file_name = expand('%')
     var max_line_len = len(string(line('$')))
     var lines = reduce(raw_lines,
-       (a, v) => add(a, printf(' %' .. max_line_len .. 'd │ %s', len(a) + 1,  v)), [])
+       (a, v) => add(a, printf(' %' .. max_line_len .. 'd ' .. separator .. ' %s', len(a) + 1,  v)), [])
 
     var wids = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),

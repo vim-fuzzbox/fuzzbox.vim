@@ -11,6 +11,8 @@ import autoload '../internal/actions.vim'
 var exclude_buffers = exists('g:fuzzbox_buffers_exclude') ?
     g:fuzzbox_buffers_exclude : []
 
+var separator = g:fuzzbox_menu_separator
+
 def ParseResult(result: string): list<any>
     var bufnr = result->matchstr('\v^\s*\zs\S+')->str2nr()
     var binfo = getbufinfo(bufnr)[0]
@@ -104,8 +106,8 @@ def GetBufList(): list<string>
         flags ..= val.hidden ? 'h' : 'a'
         flags ..= val.changed ? '+' : ' '
 
-        # note: pipe separator included for consistency with other selectors
-        return printf($" %s%s │ %s", bufnr, flags, file)
+        # note: separator included for consistency with other selectors
+        return printf($" %s%s %s %s", bufnr, flags, separator, file)
     })
 enddef
 

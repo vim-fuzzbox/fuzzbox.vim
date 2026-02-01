@@ -5,6 +5,8 @@ import autoload '../internal/previewer.vim'
 
 var markdict: dict<any>
 
+var separator = g:fuzzbox_menu_separator
+
 def Select(wid: number, result: string)
     if empty(result)
         return
@@ -113,7 +115,7 @@ export def Start(opts: dict<any> = {})
             # note: getbufoneline() only added in vim 9.1.0916
             text = getbufline(bufnr, lnum)[0]
         endif
-        return printf($" %s │ %s:%d:%d:%s", mark, fname, lnum, col, text)
+        return printf($" %s %s %s:%d:%d:%s", mark, separator, fname, lnum, col, text)
     })
 
     selector.Start(lines, extend(opts, {

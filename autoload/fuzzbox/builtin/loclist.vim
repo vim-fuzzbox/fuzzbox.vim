@@ -9,17 +9,19 @@ import autoload '../internal/helpers.vim'
 
 var loclist: list<any>
 
+var separator = g:fuzzbox_menu_separator
+
 def Select(wid: number, result: string)
     if empty(result)
         return
     endif
-    var nr = str2nr(split(result, '│')[0])
+    var nr = str2nr(split(result, separator)[0])
     echo '' # clear loclist title message
     exe 'll!' .. nr
 enddef
 
 def ParseResult(result: string): list<any>
-    var idx = str2nr(split(result, '│')[0]) - 1
+    var idx = str2nr(split(result, separator)[0]) - 1
     var item = loclist[idx]
     var fname: string
     var bufnr = item->get('bufnr', 0)
@@ -93,7 +95,7 @@ export def Start(opts: dict<any> = {})
 
     # mostly copied from scope.vim, thanks @girishji
     var size = getloclist(winnr(), {size: 0}).size
-    var fmt = ' %' ..  len(string(size)) .. 'd │ '
+    var fmt = ' %' ..  len(string(size)) .. 'd ' .. separator .. ' '
     var lines = loclist->mapnew((idx, v) => {
         var fname: string
         var bufnr = v->get('bufnr', 0)

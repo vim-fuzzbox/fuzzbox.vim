@@ -6,8 +6,10 @@ import autoload '../internal/previewer.vim'
 var jumplist: list<any>
 var jumplast: number
 
+var separator = g:fuzzbox_menu_separator
+
 def ParseResult(result: string): list<any>
-    var idx = str2nr(split(result, '│')[0]) - 1
+    var idx = str2nr(split(result, separator)[0]) - 1
     var jump = jumplist[idx]
     return [jump.bufnr, jump.lnum, jump.col]
 enddef
@@ -88,7 +90,7 @@ export def Start(opts: dict<any> = {})
     jumplast = getjumplist()[1]
 
     var size = len(jumplist)
-    var fmt = ' %' ..  len(string(size)) .. 'd │ '
+    var fmt = ' %' ..  len(string(size)) .. 'd ' .. separator .. ' '
     var lines = jumplist->mapnew((idx, jump) => {
         var fname = bufname(jump.bufnr)
         if empty(fname)
