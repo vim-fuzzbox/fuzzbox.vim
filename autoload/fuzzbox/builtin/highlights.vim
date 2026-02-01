@@ -5,6 +5,7 @@ import autoload '../internal/selector.vim'
 
 var hl_meta: dict<any>
 var preview_wid: number
+var preview_mid: number
 
 def Preview(wid: number, result: string)
     if wid == -1
@@ -16,6 +17,10 @@ def Preview(wid: number, result: string)
     var line = hl_meta[result][0]
     win_execute(wid, 'normal! ' .. line .. 'G')
     win_execute(wid, 'normal! zz')
+    if preview_mid > 0
+        matchdelete(preview_mid, preview_wid)
+    endif
+    preview_mid = matchaddpos('fuzzboxPreviewMatch', [[line, 1, len(result)]], 999, -1,  {window: preview_wid})
 enddef
 
 def Select(wid: number, result: string)
@@ -29,6 +34,11 @@ def TogglePreviewBg()
     else
         setwinvar(preview_wid, '&wincolor', 'fuzzboxHighlights_whitebg')
     endif
+enddef
+
+def Close(wid: number)
+    # release memory
+    hl_meta = {}
 enddef
 
 hi fuzzboxHighlights_whitebg ctermbg=white ctermfg=black guibg=white guifg=black
