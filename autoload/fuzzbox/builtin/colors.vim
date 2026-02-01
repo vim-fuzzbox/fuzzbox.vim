@@ -46,6 +46,7 @@ export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Color Schemes'
     opts.compact = has_key(opts, 'compact') ? opts.compact : true
 
+    changed = false
     old_color = execute('colo')[1 :]
     old_bg = &bg
     var colors = GetColors()
