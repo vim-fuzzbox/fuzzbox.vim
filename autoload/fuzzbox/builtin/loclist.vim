@@ -46,6 +46,8 @@ def Preview(wid: number, result: string)
     previewer.PreviewFile(wid, fname)
     win_execute(wid, 'norm! ' ..  lnum .. 'G')
     win_execute(wid, 'norm! zz')
+    clearmatches(wid)
+    matchaddpos('fuzzboxPreviewLine', [lnum], 999, -1,  {window: wid})
 enddef
 
 def OpenTab(wid: number, result: string)

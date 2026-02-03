@@ -30,7 +30,7 @@ def Preview(wid: number, result: string)
         return
     endif
     var preview_bufnr = winbufnr(wid)
-    var lnum = split(trim(result[0 : 10]), ' ')[0]
+    var lnum = str2nr(split(trim(result[0 : 10]), ' ')[0])
     if popup_getpos(wid).lastline == 1
         popup.SetTitle(wid, fnamemodify(file_name, ':t'))
         popup_settext(wid, raw_lines)
@@ -38,6 +38,8 @@ def Preview(wid: number, result: string)
     endif
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
+    clearmatches(wid)
+    matchaddpos('fuzzboxPreviewLine', [lnum], 999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string, opts: dict<any>)

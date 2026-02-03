@@ -39,7 +39,8 @@ def Preview(wid: number, result: string)
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
     clearmatches(wid)
-    matchaddpos('fuzzboxPreviewMatch', [[lnum, col]], 9999, -1,  {window: wid})
+    matchaddpos('fuzzboxPreviewLine', [lnum], 999, -1,  {window: wid})
+    matchaddpos('fuzzboxPreviewCol', [[lnum, col]], 9999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string)

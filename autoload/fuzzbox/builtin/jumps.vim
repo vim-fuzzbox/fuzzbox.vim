@@ -46,7 +46,8 @@ def Preview(wid: number, result: string)
     if col == 0
         col = 1
     endif
-    matchaddpos('fuzzboxPreviewMatch', [[lnum, col]], 9999, -1,  {window: wid})
+    matchaddpos('fuzzboxPreviewLine', [lnum], 999, -1,  {window: wid})
+    matchaddpos('fuzzboxPreviewCol', [[lnum, col]], 9999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string)
