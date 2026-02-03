@@ -137,6 +137,7 @@ export def Start(opts: dict<any> = {})
     echo getqflist({title: 0}).title
 
     var wins = selector.Start(lines, extend(opts, {
+        async: true,
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
