@@ -37,17 +37,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    previewer.PreviewFile(wid, fnamemodify(path, ':p'))
-    if !previewer.IsTextFile(wid)
-        win_execute(wid, 'norm! gg')
-        return
-    endif
-    if line > 0
-        win_execute(wid, 'norm! ' .. line .. 'G')
-        win_execute(wid, 'norm! zz')
-    else
-        win_execute(wid, 'norm! gg')
-    endif
+    previewer.PreviewFile(wid, fnamemodify(path, ':p'), line)
 enddef
 
 export def OpenFile(wid: number, result: string, opts: dict<any> = {})

@@ -42,13 +42,10 @@ def Preview(wid: number, result: string)
     endif
     var [file, bufnr, lnum] = ParseResult(result)
     if empty(file)
-        previewer.PreviewText(wid, '')
-        popup_settext(wid, getbufline(bufnr, 1, '$'))
+        previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum)
     else
-        previewer.PreviewFile(wid, file)
+        previewer.PreviewFile(wid, file, lnum)
     endif
-    win_execute(wid, 'norm! ' .. lnum .. 'G')
-    win_execute(wid, 'norm! zz')
 enddef
 
 def OpenBufTab(wid: number, result: string)

@@ -43,9 +43,7 @@ def Preview(wid: number, result: string)
         return
     endif
     var [fname, lnum] = ParseResult(result)
-    previewer.PreviewFile(wid, fname)
-    win_execute(wid, 'norm! ' ..  lnum .. 'G')
-    win_execute(wid, 'norm! zz')
+    previewer.PreviewFile(wid, fname, lnum)
 enddef
 
 def OpenTab(wid: number, result: string)

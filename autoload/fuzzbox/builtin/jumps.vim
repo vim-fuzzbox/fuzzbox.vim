@@ -35,13 +35,10 @@ def Preview(wid: number, result: string)
     var [bufnr, lnum, col] = ParseResult(result)
     var file = bufname(bufnr)
     if empty(file)
-        previewer.PreviewText(wid, '')
-        popup_settext(wid, getbufline(bufnr, 1, '$'))
+        previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum)
     else
-        previewer.PreviewFile(wid, fnamemodify(file, ':p'))
+        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum)
     endif
-    win_execute(wid, 'norm! ' .. lnum .. 'G')
-    win_execute(wid, 'norm! zz')
     clearmatches(wid)
     if col == 0
         col = 1

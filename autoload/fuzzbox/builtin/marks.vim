@@ -31,13 +31,10 @@ def Preview(wid: number, result: string)
     endif
     var [file, bufnr, lnum, col] = ParseResult(result)
     if empty(file)
-        previewer.PreviewText(wid, '')
-        popup_settext(wid, getbufline(bufnr, 1, '$'))
+        previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum)
     else
-        previewer.PreviewFile(wid, fnamemodify(file, ':p'))
+        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum)
     endif
-    win_execute(wid, 'norm! ' .. lnum .. 'G')
-    win_execute(wid, 'norm! zz')
     clearmatches(wid)
     matchaddpos('fuzzboxPreviewMatch', [[lnum, col]], 9999, -1,  {window: wid})
 enddef

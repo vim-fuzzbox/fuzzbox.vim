@@ -89,6 +89,7 @@ def PreviewMessage(wid: number, message: string)
     setwinvar(wid, '&number', 0)
     setwinvar(wid, '&cursorline', 0)
     popup_settext(wid, lines)
+    win_execute(wid, 'norm! gg')
 enddef
 
 def Reset(wid: number)
@@ -102,13 +103,20 @@ export def IsTextFile(wid: number): bool
     return !empty(getwinvar(wid, '&filetype'))
 enddef
 
-export def PreviewText(wid: number, text: string)
+# Note: text can be any type to allow array of lines or string
+export def PreviewText(wid: number, text: any, lnum: number = 0)
     Reset(wid)
     popup_setoptions(wid, {title: ''})
     popup_settext(wid, text)
+    if lnum > 0
+        win_execute(wid, 'norm! ' .. lnum .. 'G')
+        win_execute(wid, 'norm! zz')
+    else
+        win_execute(wid, 'norm! gg')
+    endif
 enddef
 
-export def PreviewFile(wid: number, path: string)
+export def PreviewFile(wid: number, path: string, lnum: number = 0)
     Reset(wid)
     popup.SetTitle(wid, fnamemodify(path, ':t'))
     if !filereadable(path)
@@ -149,4 +157,11 @@ export def PreviewFile(wid: number, path: string)
     finally
         &re = re
     endtry
+
+    if lnum > 0
+        win_execute(wid, 'norm! ' .. lnum .. 'G')
+        win_execute(wid, 'norm! zz')
+    else
+        win_execute(wid, 'norm! gg')
+    endif
 enddef
