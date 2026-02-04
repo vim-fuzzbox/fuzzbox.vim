@@ -527,7 +527,8 @@ highlight default link fuzzboxBorder Normal
 highlight default link fuzzboxCounter NonText
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
-highlight default link fuzzboxPreviewLine Visual
+highlight default link fuzzboxPreviewLine Search
+highlight default link fuzzboxPreviewCol CurSearch
 highlight default link fuzzboxSelectionSign CursorLine
 ```
 

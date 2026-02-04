@@ -30,7 +30,9 @@ def ParseResult(result: string): list<any>
         fname = bufname(bufnr)
     endif
     var lnum = item->get('lnum', 0)
-    return [fname, lnum]
+    var col = item->get('col', 0)
+    var end_col = item->get('end_col', 0)
+    return [fname, lnum, col, end_col]
 enddef
 
 def Preview(wid: number, result: string)
@@ -41,8 +43,8 @@ def Preview(wid: number, result: string)
         previewer.PreviewText(wid, '')
         return
     endif
-    var [fname, lnum] = ParseResult(result)
-    previewer.PreviewFile(wid, fname, lnum)
+    var [fname, lnum, col, end_col] = ParseResult(result)
+    previewer.PreviewFile(wid, fname, lnum, col, end_col)
 enddef
 
 def OpenTab(wid: number, result: string)

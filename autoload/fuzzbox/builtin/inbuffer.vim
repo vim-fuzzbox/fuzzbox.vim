@@ -16,8 +16,8 @@ def Select(wid: number, result: string)
     if empty(result)
         return
     endif
-    var linenr = str2nr(split(result, ':')[0])
-    exe 'norm! ' .. linenr .. 'G'
+    var lnum = str2nr(split(result, separator)[0])
+    exe 'norm! ' .. lnum .. 'G'
     norm! zz
 enddef
 
@@ -30,7 +30,7 @@ def Preview(wid: number, result: string)
         return
     endif
     var preview_bufnr = winbufnr(wid)
-    var lnum = split(trim(result[0 : 10]), ' ')[0]
+    var lnum = str2nr(split(result, separator)[0])
     if popup_getpos(wid).lastline == 1
         popup.SetTitle(wid, fnamemodify(file_name, ':t'))
         popup_settext(wid, raw_lines)
@@ -38,6 +38,8 @@ def Preview(wid: number, result: string)
     endif
     win_execute(wid, 'norm! ' .. lnum .. 'G')
     win_execute(wid, 'norm! zz')
+    clearmatches(wid)
+    matchaddpos('fuzzboxPreviewLine', [lnum], 999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string, opts: dict<any>)
@@ -45,9 +47,9 @@ def OpenFileTab(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, separator)[0])
+    var lnum = str2nr(split(result, separator)[0])
     exe 'tabnew ' .. fnameescape(file_name)
-    exe 'norm! ' .. line .. 'G'
+    exe 'norm! ' .. lnum .. 'G'
     exe 'norm! zz'
 enddef
 
@@ -56,9 +58,9 @@ def OpenFileVSplit(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, separator)[0])
+    var lnum = str2nr(split(result, separator)[0])
     exe 'vsplit ' .. fnameescape(file_name)
-    exe 'norm! ' .. line .. 'G'
+    exe 'norm! ' .. lnum .. 'G'
     exe 'norm! zz'
 enddef
 
@@ -67,9 +69,9 @@ def OpenFileSplit(wid: number, result: string, opts: dict<any>)
         return
     endif
     popup_close(wid)
-    var line = str2nr(split(result, separator)[0])
+    var lnum = str2nr(split(result, separator)[0])
     exe 'split ' .. fnameescape(file_name)
-    exe 'norm! ' .. line .. 'G'
+    exe 'norm! ' .. lnum .. 'G'
     exe 'norm! zz'
 enddef
 
@@ -79,10 +81,10 @@ def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var [line, text] = split(val, separator)
+        var [lnum, text] = split(val, separator)
         var dict = {
             filename: file_name,
-            lnum: str2nr(line),
+            lnum: str2nr(lnum),
             col: 1,
             text: text }
         return dict

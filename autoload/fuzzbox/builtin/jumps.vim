@@ -35,15 +35,10 @@ def Preview(wid: number, result: string)
     var [bufnr, lnum, col] = ParseResult(result)
     var file = bufname(bufnr)
     if empty(file)
-        previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum)
+        previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum, col)
     else
-        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum)
+        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum, col)
     endif
-    clearmatches(wid)
-    if col == 0
-        col = 1
-    endif
-    matchaddpos('fuzzboxPreviewMatch', [[lnum, col]], 9999, -1,  {window: wid})
 enddef
 
 def OpenFileTab(wid: number, result: string)
