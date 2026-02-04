@@ -98,6 +98,7 @@ def GetBufList(): list<string>
                a.lastused <  b.lastused ? 1 : -1
     })
 
+    var fmt = ' %' .. len(string(bufnr('$'))) .. 'd %s' .. separator .. ' %s'
     return buf_data->map((_, val) => {
         var file = empty(val.name) ? '[No Name]' : fnamemodify(val.name, ":~:.")
         var bufnr = val.bufnr
@@ -107,7 +108,7 @@ def GetBufList(): list<string>
         flags ..= val.changed ? '+' : ' '
 
         # note: separator included for consistency with other selectors
-        return printf($" %s%s %s %s", bufnr, flags, separator, file)
+        return printf(fmt, bufnr, flags, file)
     })
 enddef
 
