@@ -98,6 +98,7 @@ command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', { cwd: helpers.GetRootDir
 command! -nargs=0 FuzzyMarks launcher.Start('marks')
 command! -nargs=0 FuzzyJumps launcher.Start('jumps')
 command! -nargs=0 FuzzyArglist launcher.Start('arglist')
+command! -nargs=0 FuzzyRegisters launcher.Start('registers')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
 # Hack to only show a single line warning when startng the selector

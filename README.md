@@ -80,6 +80,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyColors           | search installed color schemes
 | FuzzyCmdHistory       | search command history
 | FuzzyHighlights       | search highlight groups
+| FuzzyRegisters        | search registers, paste contents on `<cr>`
 | FuzzyQuickfix         | search the quickfix list, see `:h quickfix`
 | FuzzyLoclist          | search the location list, see `:h location-list`
 | FuzzyArglist          | search the argument list, see `:h arglist`
