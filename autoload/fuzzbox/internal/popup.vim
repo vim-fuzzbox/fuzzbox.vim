@@ -46,6 +46,14 @@ var keymaps: dict<any> = {
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
     extend(keymaps, g:fuzzbox_keymaps) : keymaps
 
+var preview_cutoff = exists('g:fuzzbox_preview_cutoff')
+    && type(g:fuzzbox_preview_cutoff) == v:t_number ?
+    g:fuzzbox_preview_cutoff : 120
+
+var compact_after = exists('g:fuzzbox_compact_after')
+    && type(g:fuzzbox_compact_after) == v:t_number
+    ? g:fuzzbox_compact_after : 420
+
 var borderchars = exists('g:fuzzbox_borderchars') &&
     type(g:fuzzbox_borderchars) == v:t_list &&
     [4, 8]->index(len(g:fuzzbox_borderchars)) != -1 ?
@@ -833,11 +841,18 @@ enddef
 
 def PopupWinOpts(opts: dict<any>): list<any>
     var preview = has_key(opts, 'preview') ? opts.preview : true
+    var compact = has_key(opts, 'compact') ? opts.compact : false
     var width: any = preview ? 0.8 : 0.5
     var height: any = preview ? 0.8 : 0.5
     width = has_key(opts, 'width') ? opts.width : width
     height = has_key(opts, 'height') ? opts.height : height
-    if has_key(opts, 'compact') && opts.compact
+    if preview_cutoff > &columns
+        preview = false
+    endif
+    if compact_after < &columns
+        compact = true
+    endif
+    if compact
         width = type(width) == v:t_float ? width - 0.1 : width
         height = type(height) == v:t_float ? height - 0.1 : height
     endif
