@@ -196,10 +196,22 @@ Enable preview window in supported selectors (e.g. FuzzyFiles). Default 1
 let g:fuzzbox_preview = 1
 ```
 
+### g:fuzzbox_preview_cutoff
+Disable preview window when columns are less than this value. Default 120
+```vim
+let g:fuzzbox_preview_cutoff = 120
+```
+
 ### g:fuzzbox_compact
 Enable compact layout, reduces default window dimensions. Default 0
 ```vim
 let g:fuzzbox_compact = 0
+```
+
+### g:fuzzbox_compact_after
+Enable compact layout when columns are greater then this value. Default 900
+```vim
+let g:fuzzbox_compact_after = 900
 ```
 
 ### g:fuzzbox_counter
