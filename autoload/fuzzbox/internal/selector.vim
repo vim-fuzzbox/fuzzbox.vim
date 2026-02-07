@@ -27,13 +27,6 @@ export var async_limit = exists('g:fuzzbox_async_limit')
 
 var wins: dict<any>
 
-var enable_devicons = devicons.Enabled()
-var enable_dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
-var enable_counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
-var enable_preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
-var enable_compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
-var enable_scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
-
 # track whether options are endbled for the current selector
 var has_devicons: bool
 var has_counter: bool
@@ -286,6 +279,19 @@ default_actions = {
     "\<c-\>": actions.MenuToggleWrap,
 }
 
+def GetDefaultOpts(): dict<any>
+    var opts: dict<any>
+    opts.devicons = devicons.Enabled()
+    opts.dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
+    opts.counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
+    opts.preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
+    opts.compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
+    opts.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
+
+    var defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
+    return extendnew(opts, defaults)
+enddef
+
 # This function spawn a popup picker for user to select an item from a list.
 # params:
 #   - list: list of string to be selected. can be empty at init state
@@ -319,25 +325,27 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     prompt_str = ''
 
-    has_devicons = enable_devicons && has_key(opts, 'devicons') && opts.devicons
-    has_counter = has_key(opts, 'counter') ? opts.counter : enable_counter
+    var defaults = GetDefaultOpts()
+
+    has_devicons = defaults.devicons && has_key(opts, 'devicons') && opts.devicons
+    has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
 
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : actions.PreviewFile
     opts.select_cb = has_key(opts, 'select_cb') ? opts.select_cb : actions.OpenFile
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
         has_key(opts, 'async') && opts.async ? function('InputAsync') : function('Input')
     )
-    opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : enable_dropdown
-    opts.preview = has_key(opts, 'preview') ? opts.preview : enable_preview
-    opts.compact = has_key(opts, 'compact') ? opts.compact : enable_compact
-    opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : enable_scrollbar
+    opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : defaults.dropdown
+    opts.preview = has_key(opts, 'preview') ? opts.preview : defaults.preview
+    opts.compact = has_key(opts, 'compact') ? opts.compact : defaults.compact
+    opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : defaults.scrollbar
     opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : prompt_prefix
     opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : menu_wrap
     opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : preview_wrap
 
-    opts.actions = has_key(opts, 'actions') ? extend(default_actions, opts.actions) : default_actions
+    opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
 
-    wins = popup.PopupSelection(opts)
+    wins = popup.PopupSelection(extendnew(defaults, opts))
     menu_wid = wins.menu
     raw_list = li_raw
     len_list = len(raw_list)

@@ -447,8 +447,10 @@ Example usage:
 let g:fuzzbox_buffers_exclude = ['terminal']
 ```
 
-### g:fuzzbox_window_options
-Window configuration. The general defaults for window configuration options are:
+### g:fuzzbox_window_defaults
+Window configuration defaults for all selectors. The Fuzzbox defaults are listed
+below and vary depending on whether preview is enabled. If you override these,
+there is no automatic adjustment when preview is enabled.
 ```vim
 {
 'preview': 1,         " Enable the preview window, set to 0 to disable
@@ -460,7 +462,29 @@ Window configuration. The general defaults for window configuration options are:
 'yoffset': auto       " y offset of the windows, 0.1 means 10% from top of the screen
 }
 ```
-The defaults are customised for some builtin selectors, with the following values:
+
+- preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory
+- x and y offsets are by default calculated to center the windows on the screen
+- width, height, and x and y offsets > 0 and < 1 are resolved as percentages
+- width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
+- invalid values for preview_ratio, width, height, and x & y offsets are ignored
+  
+Note: you can use this to change the default Fuzzbox window dimensions when the
+Vim window is resized, e.g.
+
+```vim
+augroup FuzzboxResize
+  autocmd!
+  autocmd VimEnter,VimResized *
+    \ let g:fuzzbox_window_defaults = &columns > 160 ?
+    \   {} : { 'width': 0.9, 'height': 0.7, 'preview': 0 }
+augroup END
+```
+
+### g:fuzzbox_window_options
+Selector specific window configuration options. Allows the window configuration
+to vary for different selectors. The following defaults are set by Fuzzbox:
+
 ```vim
 {
   'highlights': {
@@ -484,12 +508,6 @@ or you change the width of the preview window for FuzzyHighlights with:
 ```vim
 let g:fuzzbox_window_options = { 'highlights': { 'width': 0.5 } }
 ```
-
-- preview is ignored by commands that do not support it, e.g. FuzzyCmdHistory
-- x and y offsets are by default calculated to center the windows on the screen
-- width, height, and x and y offsets > 0 and < 1 are resolved as percentages
-- width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
-- invalid values for preview_ratio, width, height, and x & y offsets are ignored
 
 ### g:fuzzbox_async_step
 Fuzzbox mimics async processing to fuzzy match in batches, which avoids problems

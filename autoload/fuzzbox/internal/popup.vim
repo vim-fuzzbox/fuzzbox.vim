@@ -823,6 +823,29 @@ def PopupPreview(args: dict<any>): number
     return wid
 enddef
 
+def PopupWinOpts(opts: dict<any>): list<any>
+    var preview = has_key(opts, 'preview') ? opts.preview : true
+    var width: any = preview ? 0.8 : 0.5
+    var height: any = preview ? 0.8 : 0.5
+    width = has_key(opts, 'width') ? opts.width : width
+    height = has_key(opts, 'height') ? opts.height : height
+    if has_key(opts, 'compact') && opts.compact
+        width = type(width) == v:t_float ? width - 0.1 : width
+        height = type(height) == v:t_float ? height - 0.1 : height
+    endif
+
+    var preview_ratio = 0.5
+    preview_ratio = has_key(opts, 'preview_ratio') && opts.preview_ratio > 0 &&
+        opts.preview_ratio < 1 ? opts.preview_ratio : preview_ratio
+
+    var xoffset = width < 1 ? (1 - width) / 2 : (&columns  - width) / 2
+    var yoffset = height < 1 ? (1 - height) / 2 : (&lines - height) / 2
+    xoffset = has_key(opts, 'xoffset') && opts.xoffset > 0 ? opts.xoffset : xoffset
+    yoffset = has_key(opts, 'yoffset') && opts.yoffset > 0 ? opts.yoffset : yoffset
+
+    return [preview, preview_ratio, width, height, xoffset, yoffset]
+enddef
+
 # params:
 #   - opts: options: dictonary contains following keys:
 #       - select_cb: callback function when a value is selected(press enter)
@@ -843,29 +866,12 @@ export def PopupSelection(opts: dict<any>): dict<any>
     active = true
     actions = has_key(opts, 'actions') ? opts.actions : {}
     has_devicons = has_key(opts, 'devicons') ? opts.devicons && devicons.Enabled() : 0
-    var has_preview = has_key(opts, 'preview') ? opts.preview : 1
 
     if has_key(opts, 'title') && !has_key(opts, 'prompt_title')
         opts.prompt_title = opts.title
     endif
 
-    var width: any = has_preview ? 0.8 : 0.5
-    var height: any = has_preview ? 0.8 : 0.5
-    if has_key(opts, 'compact') && opts.compact
-        width = width - 0.1
-        height = height - 0.1
-    endif
-    width = has_key(opts, 'width') && opts.width > 0 ? opts.width : width
-    height = has_key(opts, 'height') && opts.height > 0 ? opts.height : height
-
-    var preview_ratio = 0.5
-    preview_ratio = has_key(opts, 'preview_ratio') && opts.preview_ratio > 0 &&
-        opts.preview_ratio < 1 ? opts.preview_ratio : preview_ratio
-
-    var xoffset = width < 1 ? (1 - width) / 2 : (&columns  - width) / 2
-    var yoffset = height < 1 ? (1 - height) / 2 : (&lines - height) / 2
-    xoffset = has_key(opts, 'xoffset') && opts.xoffset > 0 ? opts.xoffset : xoffset
-    yoffset = has_key(opts, 'yoffset') && opts.yoffset > 0 ? opts.yoffset : yoffset
+    var [preview, preview_ratio, width, height, xoffset, yoffset] = PopupWinOpts(opts)
 
     # convert all pos to number
     yoffset = yoffset < 1 ? float2nr(yoffset * &lines) : float2nr(yoffset)
@@ -875,7 +881,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
 
     var preview_width = 0
     var menu_width = 0
-    if has_preview
+    if preview
         preview_width = float2nr(width * preview_ratio)
         menu_width = width - preview_width
     else
@@ -939,7 +945,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
     endif
     wins.prompt = PopupPrompt(prompt_opts)
 
-    if has_preview
+    if preview
         var preview_xoffset = popup_wins[wins.menu].col + popup_wins[wins.menu].width
         var menu_row = popup_wins[wins.menu].line
         var prompt_row = popup_wins[wins.prompt].line
