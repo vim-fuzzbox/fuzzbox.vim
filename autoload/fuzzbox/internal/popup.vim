@@ -747,6 +747,10 @@ def PopupPrompt(args: dict<any>): number
 enddef
 
 export def SetTitle(wid: number, str: string)
+    if empty(str)
+        popup_setoptions(wid, {title: ''})
+        return
+    endif
     # var title = substitute(prompt_prefix, '\m.', borderchars[0], 'g') .. args.title
     var title = ' ' .. str .. ' '
     var padding = ( popup_getoptions(wid).maxwidth / 2 ) - ( len(title) / 2 )
@@ -818,6 +822,10 @@ def PopupPreview(args: dict<any>): number
 
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
+
+    if has_key(args, 'title') && !empty(args.title)
+        SetTitle(wid, args.title)
+    endif
 
     setwinvar(wid, '&number', 1)
     return wid
@@ -962,6 +970,9 @@ export def PopupSelection(opts: dict<any>): dict<any>
         }
         if has_key(opts, 'preview_wrap')
             preview_opts['wrap'] = opts.preview_wrap
+        endif
+        if has_key(opts, 'preview_title')
+            preview_opts['title'] = opts.preview_title
         endif
         wins.preview = PopupPreview(preview_opts)
         wins.preview = wins.preview
