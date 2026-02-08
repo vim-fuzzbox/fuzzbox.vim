@@ -258,6 +258,12 @@ Set the borderchars of popup windows. Must be a list of 8 characters.
 let g:fuzzbox_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
 ```
 
+### g:fuzzbox_dynamic_preview_title
+Change the title of the preview window dynamically where supported. Default 1
+```vim
+let g:fuzzbox_dynamic_preview_title = 1
+```
+
 ### g:fuzzbox_reuse_windows
 Fuzzbox avoids opening files in windows containing special buffers, like buffers
 created by file explorer plugins or help and quickfix buffers. Use this to add
