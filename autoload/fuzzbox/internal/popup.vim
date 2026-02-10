@@ -861,7 +861,7 @@ def PopupWinOpts(opts: dict<any>): list<any>
     preview_ratio = has_key(opts, 'preview_ratio') && opts.preview_ratio > 0 &&
         opts.preview_ratio < 1 ? opts.preview_ratio : preview_ratio
 
-    var xoffset = width < 1 ? (1 - width) / 2 : (&columns  - width) / 2
+    var xoffset = width < 1 ? (1 - width) / 2 : (&columns - width) / 2
     var yoffset = height < 1 ? (1 - height) / 2 : (&lines - height) / 2
     xoffset = has_key(opts, 'xoffset') && opts.xoffset > 0 ? opts.xoffset : xoffset
     yoffset = has_key(opts, 'yoffset') && opts.yoffset > 0 ? opts.yoffset : yoffset
@@ -909,6 +909,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
         menu_width = width - preview_width
     else
         menu_width = width
+        xoffset = xoffset + 1
     endif
 
     var dropdown = has_key(opts, 'dropdown') && opts.dropdown
