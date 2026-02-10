@@ -842,8 +842,16 @@ enddef
 def PopupWinOpts(opts: dict<any>): list<any>
     var preview = has_key(opts, 'preview') ? opts.preview : true
     var compact = has_key(opts, 'compact') ? opts.compact : false
-    var width: any = preview ? 0.8 : 0.5
-    var height: any = preview ? 0.8 : 0.5
+    var minwidth = has_key(opts, 'minwidth')
+        && type(opts.minwidth) == v:t_float ? opts.minwidth : 0.5
+    var maxwidth = has_key(opts, 'maxwidth')
+        && type(opts.maxwidth) == v:t_float ? opts.maxwidth : 0.8
+    var minheight = has_key(opts, 'minheight')
+        && type(opts.minheight) == v:t_float ? opts.minheight : 0.5
+    var maxheight = has_key(opts, 'maxheight')
+        && type(opts.maxheight) == v:t_float ? opts.maxheight : 0.8
+    var width: any = preview ? maxwidth : minwidth
+    var height: any = preview ? maxwidth : minheight
     width = has_key(opts, 'width') ? opts.width : width
     height = has_key(opts, 'height') ? opts.height : height
     if preview_cutoff > &columns

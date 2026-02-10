@@ -19,32 +19,34 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.2. g:fuzzbox_devicons.......................|fuzzbox-g:fuzzbox_devicons|
     1.7.3. g:fuzzbox_dropdown.......................|fuzzbox-g:fuzzbox_dropdown|
     1.7.4. g:fuzzbox_preview.........................|fuzzbox-g:fuzzbox_preview|
-    1.7.5. g:fuzzbox_compact.........................|fuzzbox-g:fuzzbox_compact|
-    1.7.6. g:fuzzbox_counter.........................|fuzzbox-g:fuzzbox_counter|
-    1.7.7. g:fuzzbox_scrollbar.....................|fuzzbox-g:fuzzbox_scrollbar|
-    1.7.8. g:fuzzbox_prompt_prefix.............|fuzzbox-g:fuzzbox_prompt_prefix|
-    1.7.9. g:fuzzbox_selection_sign...........|fuzzbox-g:fuzzbox_selection_sign|
-    1.7.10. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
-    1.7.11. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
-    1.7.12. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
-    1.7.13. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
-    1.7.14. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
-    1.7.15. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
-    1.7.16. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
-    1.7.17. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
-    1.7.18. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
-    1.7.19. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
-    1.7.20. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
-    1.7.21. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
-    1.7.22. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.23. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.24. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.25. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.26. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.27. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.28. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
-    1.7.29. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
-    1.7.30. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.5. g:fuzzbox_preview_cutoff...........|fuzzbox-g:fuzzbox_preview_cutoff|
+    1.7.6. g:fuzzbox_compact.........................|fuzzbox-g:fuzzbox_compact|
+    1.7.7. g:fuzzbox_compact_after.............|fuzzbox-g:fuzzbox_compact_after|
+    1.7.8. g:fuzzbox_counter.........................|fuzzbox-g:fuzzbox_counter|
+    1.7.9. g:fuzzbox_scrollbar.....................|fuzzbox-g:fuzzbox_scrollbar|
+    1.7.10. g:fuzzbox_prompt_prefix............|fuzzbox-g:fuzzbox_prompt_prefix|
+    1.7.11. g:fuzzbox_selection_sign..........|fuzzbox-g:fuzzbox_selection_sign|
+    1.7.12. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
+    1.7.13. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
+    1.7.14. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
+    1.7.15. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
+    1.7.16. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
+    1.7.17. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
+    1.7.18. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
+    1.7.19. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
+    1.7.20. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
+    1.7.21. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
+    1.7.22. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
+    1.7.23. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
+    1.7.24. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
+    1.7.25. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.26. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.27. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.28. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.29. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.30. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
+    1.7.31. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
+    1.7.32. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -258,11 +260,25 @@ Enable preview window in supported selectors (e.g. FuzzyFiles). Default 1
   let g:fuzzbox_preview = 1
 <
 
+G:FUZZBOX_PREVIEW_CUTOFF                      *fuzzbox-g:fuzzbox_preview_cutoff*
+
+Disable preview window when columns are less than this value. Default 120
+>
+  let g:fuzzbox_preview_cutoff = 120
+<
+
 G:FUZZBOX_COMPACT                                    *fuzzbox-g:fuzzbox_compact*
 
 Enable compact layout, reduces default window dimensions. Default 0
 >
   let g:fuzzbox_compact = 0
+<
+
+G:FUZZBOX_COMPACT_AFTER                        *fuzzbox-g:fuzzbox_compact_after*
+
+Enable compact layout when columns are greater then this value. Default 420
+>
+  let g:fuzzbox_compact_after = 420
 <
 
 G:FUZZBOX_COUNTER                                    *fuzzbox-g:fuzzbox_counter*
@@ -566,11 +582,15 @@ there is no automatic adjustment when preview is enabled.
   {
   'preview': 1,         " Enable the preview window, set to 0 to disable
   'preview_ratio': 0.5, " 0.5 means preview window will take 50% of the layout
-  'width': 0.8,         " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
-  'height': 0.8,        " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
-  'compact': 0,         " Enable compact layout, reduces default window dimensions
-  'xoffset': auto       " x offset of the windows, 0.1 means 10% from left of the screen
-  'yoffset': auto       " y offset of the windows, 0.1 means 10% from top of the screen
+  'maxwidth': 0.8,      " Width when preview is enabled, default 80%
+  'minwidth': 0.5,      " Width when preview not enabled, default 50%
+  'maxheight': 0.8,     " Height when preview is enabled, default 80%
+  'minheight': 0.5,     " Height when preview not enabled, default 50%
+  'compact': 0,         " Enable compact layout, reduce dimensions by 10%
+  'width': auto,        " Width applied whether preview enabled or not
+  'height': auto,       " Height applied whether preview enabled or not
+  'xoffset': auto       " x offset of the windows, centered by default
+  'yoffset': auto       " y offset of the windows, centered by default
   }
 <
 
@@ -579,6 +599,7 @@ there is no automatic adjustment when preview is enabled.
 * width, height, and x and y offsets > 0 and < 1 are resolved as percentages
 * width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
 * invalid values for preview_ratio, width, height, and x & y offsets are ignored
+* min and max width and height values are always resolved as percentages
 
 Note: you can use this to change the default Fuzzbox window dimensions when the
 Vim window is resized, e.g.

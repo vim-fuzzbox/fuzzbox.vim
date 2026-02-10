@@ -473,11 +473,15 @@ there is no automatic adjustment when preview is enabled.
 {
 'preview': 1,         " Enable the preview window, set to 0 to disable
 'preview_ratio': 0.5, " 0.5 means preview window will take 50% of the layout
-'width': 0.8,         " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
-'height': 0.8,        " 0.8 (80%) when preview is enabled, 0.5 (50%) otherwise
-'compact': 0,         " Enable compact layout, reduces default window dimensions
-'xoffset': auto       " x offset of the windows, 0.1 means 10% from left of the screen
-'yoffset': auto       " y offset of the windows, 0.1 means 10% from top of the screen
+'maxwidth': 0.8,      " Width when preview is enabled, default 80%
+'minwidth': 0.5,      " Width when preview not enabled, default 50%
+'maxheight': 0.8,     " Height when preview is enabled, default 80%
+'minheight': 0.5,     " Height when preview not enabled, default 50%
+'compact': 0,         " Enable compact layout, reduce dimensions by 10%
+'width': auto,        " Width applied whether preview enabled or not
+'height': auto,       " Height applied whether preview enabled or not
+'xoffset': auto       " x offset of the windows, centered by default
+'yoffset': auto       " y offset of the windows, centered by default
 }
 ```
 
@@ -486,6 +490,7 @@ there is no automatic adjustment when preview is enabled.
 - width, height, and x and y offsets > 0 and < 1 are resolved as percentages
 - width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
 - invalid values for preview_ratio, width, height, and x & y offsets are ignored
+- min and max width and height values are always resolved as percentages
   
 Note: you can use this to change the default Fuzzbox window dimensions when the
 Vim window is resized, e.g.
