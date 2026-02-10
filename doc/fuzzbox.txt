@@ -576,8 +576,8 @@ Example usage:
 G:FUZZBOX_WINDOW_DEFAULTS                    *fuzzbox-g:fuzzbox_window_defaults*
 
 Window configuration defaults for all selectors. The Fuzzbox defaults are listed
-below and vary depending on whether preview is enabled. If you override these,
-there is no automatic adjustment when preview is enabled.
+below. Options set here are merged into the Fuzzbox defaults, so you only need to
+include those you wish to change.
 >
   {
   'preview': 1,         " Enable the preview window, set to 0 to disable
