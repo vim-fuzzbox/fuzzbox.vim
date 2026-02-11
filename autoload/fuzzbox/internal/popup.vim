@@ -8,7 +8,7 @@ import autoload './launcher.vim'
 import autoload './helpers.vim'
 
 var popup_wins: dict<any>
-var wins = { menu: -1, prompt: -1, preview: -1, info: -1 }
+var wins = { menu: -1, prompt: -1, preview: -1 }
 var popup_opts: dict<any>
 var t_ve: string
 var hlcursor: dict<any>
@@ -533,10 +533,6 @@ def CreatePopup(args: dict<any>): number
        borderhighlight: ['fuzzboxBorder'],
        highlight: 'fuzzboxNormal', }
 
-    if has_key(args, 'enable_border') && !args.enable_border
-        remove(opts, 'border')
-    endif
-
     for key in ['filter', 'border', 'borderhighlight', 'highlight', 'borderchars',
     'scrollbar', 'padding', 'wrap', 'zindex', 'title']
         if has_key(args, key)
@@ -938,7 +934,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
         prompt_yoffset = yoffset + menu_height + 2
         reverse_menu = 1
     endif
-    reverse_menu = has_key(opts, 'reverse_menu') ? opts.reverse_menu : reverse_menu
 
     var menu_opts = {
         select_cb: has_key(opts, 'select_cb') ? opts.select_cb : null,
@@ -1001,21 +996,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
         wins.preview = PopupPreview(preview_opts)
         wins.preview = wins.preview
         popup_wins[wins.preview].partids = wins
-    endif
-
-    if has_key(opts, 'infowin') && opts.infowin
-        var info_bufnr: number
-        [wins.info, info_bufnr] = NewPopup({
-            width: menu_width - 1,
-            height: 1,
-            yoffset: yoffset + 1,
-            xoffset: xoffset + 1,
-            padding: [0, 0, 0, 1],
-            zindex: 2000,
-            enable_border: 0,
-        })
-        wins.info = wins.info
-        popup_wins[wins.info].partids = wins
     endif
 
     popup_wins[wins.menu].partids = wins
