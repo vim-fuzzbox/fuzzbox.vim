@@ -191,6 +191,11 @@ def GeneralPopupCallback(wid: number, select: any)
         return
     endif
     launcher.Save(wins)
+
+    # we need to redraw if the windows overlap the statusline and cmdline
+    var total_height = popup_wins[wins.menu].height + popup_wins[wins.prompt].height + 4 # 4 = borderchars
+    var redraw_required = total_height >= &lines - &cmdheight
+
     for key in keys(wins)
         if len(getwininfo(wins[key])) > 0 && wins[key] != wid
             popup_close(wins[key])
@@ -211,6 +216,10 @@ def GeneralPopupCallback(wid: number, select: any)
     doautocmd <nomodeline> User __FuzzboxCleanup
 
     popup_wins = {}
+
+    if redraw_required
+        redraw
+    endif
 
     silent doautocmd <nomodeline> User FuzzboxClosed
 enddef
@@ -850,6 +859,8 @@ def PopupWinOpts(opts: dict<any>): list<any>
     var height: any = preview ? maxwidth : minheight
     width = has_key(opts, 'width') ? opts.width : width
     height = has_key(opts, 'height') ? opts.height : height
+    width = width > &columns ? &columns : width
+    height = height > &lines ? &lines : height
     if preview_cutoff > &columns
         preview = false
     endif
@@ -865,10 +876,20 @@ def PopupWinOpts(opts: dict<any>): list<any>
     preview_ratio = has_key(opts, 'preview_ratio') && opts.preview_ratio > 0 &&
         opts.preview_ratio < 1 ? opts.preview_ratio : preview_ratio
 
+    # total width and height including borderchars
+    height = height < 1 ? float2nr(height * &lines) : float2nr(height)
+    width = width < 1 ? float2nr(width * &columns) : float2nr(width)
+
+    # deduct borderchars from total width and height before calculating offsets
+    width = width - 2
+    height = height - 2
+
     var xoffset = width < 1 ? (1 - width) / 2 : (&columns - width) / 2
     var yoffset = height < 1 ? (1 - height) / 2 : (&lines - height) / 2
     xoffset = has_key(opts, 'xoffset') && opts.xoffset > 0 ? opts.xoffset : xoffset
     yoffset = has_key(opts, 'yoffset') && opts.yoffset > 0 ? opts.yoffset : yoffset
+    yoffset = yoffset < 1 ? float2nr(yoffset * &lines) : float2nr(yoffset)
+    xoffset = xoffset < 1 ? float2nr(xoffset * &columns) : float2nr(xoffset)
 
     return [preview, preview_ratio, width, height, xoffset, yoffset]
 enddef
@@ -900,25 +921,19 @@ export def PopupSelection(opts: dict<any>): dict<any>
 
     var [preview, preview_ratio, width, height, xoffset, yoffset] = PopupWinOpts(opts)
 
-    # convert all pos to number
-    yoffset = yoffset < 1 ? float2nr(yoffset * &lines) : float2nr(yoffset)
-    xoffset = xoffset < 1 ? float2nr(xoffset * &columns) : float2nr(xoffset)
-    height = height < 1 ? float2nr(height * &lines) : float2nr(height)
-    width = width < 1 ? float2nr(width * &columns) : float2nr(width)
-
     var preview_width = 0
     var menu_width = 0
     if preview
+        width = width - 2 # additional borderchars
         preview_width = float2nr(width * preview_ratio)
         menu_width = width - preview_width
     else
         menu_width = width
-        xoffset = xoffset + 1
     endif
 
     var dropdown = has_key(opts, 'dropdown') && opts.dropdown
 
-    var prompt_height = 3
+    var prompt_height = 3 # 1 row of text plus borderchars
     var menu_height = height - prompt_height
 
     var prompt_yoffset: number
