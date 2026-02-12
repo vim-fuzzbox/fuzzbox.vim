@@ -8,7 +8,6 @@ import autoload '../internal/popup.vim'
 var raw_lines: list<string>
 var file_type: string
 var file_name: string
-var menu_wid: number
 
 var separator = g:fuzzbox_menu_separator
 
@@ -123,7 +122,20 @@ export def Start(opts: dict<any> = {})
             "\<c-q>": function('SendToQuickfix'),
         }
     }))
-    menu_wid = wids.menu
+
+    var nr = line('.')
+    win_execute(wids.menu, $'syn match Number "^\s\+{nr}\s"')
+
+    # Move cursor to the current line in the buffer
+    var move = nr - 1
+    if move > 0
+        if opts.dropdown
+            win_execute(wids.menu, "norm! " .. move .. "j")
+        else
+            win_execute(wids.menu, "norm! " .. move .. "k")
+        endif
+        win_execute(wids.menu, 'norm! zz')
+    endif
 
     if len(get(opts, 'search', '')) > 0
         popup.SetPrompt(opts.search)
