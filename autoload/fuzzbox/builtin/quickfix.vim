@@ -148,8 +148,10 @@ export def Start(opts: dict<any> = {})
         }
     }))
 
-    # Move cursor to the current item in the quickfix list
     var nr = getqflist({idx: 0}).idx
+    win_execute(wins.menu, $'syn match Number "^\s\+{nr}\s"')
+
+    # Move cursor to the current item in the quickfix list
     var move = nr - 1
     if move > 0
         if opts.dropdown

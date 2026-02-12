@@ -132,8 +132,10 @@ export def Start(opts: dict<any> = {})
         }
     }))
 
-    # Move cursor to the current item in the location list
     var nr = getloclist(opener, {idx: 0}).idx
+    win_execute(wins.menu, $'syn match Number "^\s\+{nr}\s"')
+
+    # Move cursor to the current item in the location list
     var move = nr - 1
     if move > 0
         if opts.dropdown

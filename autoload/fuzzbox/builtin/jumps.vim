@@ -108,6 +108,10 @@ export def Start(opts: dict<any> = {})
         }
     }))
 
+    if jumplast != len(jumplist)
+        win_execute(wins.menu, $'syn match Number "^\s\+{jumplast + 1}\s"')
+    endif
+
     # Move cursor to the current item in the jump list
     if jumplast != len(jumplist)
         var move = len(jumplist) - jumplast - 1
