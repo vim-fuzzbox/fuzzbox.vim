@@ -134,7 +134,6 @@ export def Start(opts: dict<any> = {})
         else
             win_execute(wids.menu, "norm! " .. move .. "k")
         endif
-        win_execute(wids.menu, 'norm! zz')
     endif
 
     if len(get(opts, 'search', '')) > 0
