@@ -136,7 +136,7 @@ export def Start(opts: dict<any> = {})
 
     echo getqflist({title: 0}).title
 
-    var wins = selector.Start(lines, extend(opts, {
+    var wids = selector.Start(lines, extend(opts, {
         async: true,
         select_cb: function('Select'),
         preview_cb: function('Preview'),
@@ -149,15 +149,15 @@ export def Start(opts: dict<any> = {})
     }))
 
     var nr = getqflist({idx: 0}).idx
-    win_execute(wins.menu, $'syn match Number "^\s\+{nr}\s"')
+    win_execute(wids.menu, $'syn match Number "^\s\+{nr}\s"')
 
     # Move cursor to the current item in the quickfix list
     var move = nr - 1
-    if move > 0
+    if move > 0 && move < selector.async_limit
         if opts.dropdown
-            win_execute(wins.menu, "norm! " .. move .. "j")
+            win_execute(wids.menu, "norm! " .. move .. "j")
         else
-            win_execute(wins.menu, "norm! " .. move .. "k")
+            win_execute(wids.menu, "norm! " .. move .. "k")
         endif
     endif
 enddef
