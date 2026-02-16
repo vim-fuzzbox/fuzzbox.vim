@@ -3,9 +3,6 @@ vim9script
 import autoload './popup.vim'
 import './filetype.vim'
 
-var dynamic_preview_title = exists('g:fuzzbox_dynamic_preview_title') ?
-    g:fuzzbox_dynamic_preview_title : true
-
 def IsBinary(path: string): bool
     # NUL byte check for binary files, used to avoid showing preview
     # Assumes a file encoding that does not allow NUL bytes, so will
@@ -101,12 +98,6 @@ def Reset(wid: number)
     setwinvar(wid, '&filetype', '')
 enddef
 
-def SetTitle(wid: number, str: string)
-    if dynamic_preview_title
-        popup.SetTitle(wid, str)
-    endif
-enddef
-
 export def IsTextFile(wid: number): bool
     # Note: relies on PreviewFile() setting &filetype
     return !empty(getwinvar(wid, '&filetype'))
@@ -115,7 +106,7 @@ enddef
 # Note: text can be any type to allow array of lines or string
 export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
-    SetTitle(wid, '')
+    popup.SetPreviewTitle('')
     popup_settext(wid, text)
     if lnum > 0
         win_execute(wid, 'norm! ' .. lnum .. 'G')
@@ -136,7 +127,7 @@ enddef
 
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
-    SetTitle(wid, fnamemodify(path, ':t'))
+    popup.SetPreviewTitle(fnamemodify(path, ':t'))
     if !filereadable(path)
         PreviewText(wid, 'File not found: ' .. path)
         return

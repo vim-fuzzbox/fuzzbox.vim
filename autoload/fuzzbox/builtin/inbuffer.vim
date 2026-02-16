@@ -31,7 +31,7 @@ def Preview(wid: number, result: string)
     var preview_bufnr = winbufnr(wid)
     var lnum = str2nr(split(result, separator)[0])
     if popup_getpos(wid).lastline == 1
-        popup.SetTitle(wid, fnamemodify(file_name, ':t'))
+        popup.SetPreviewTitle(fnamemodify(file_name, ':t'))
         popup_settext(wid, raw_lines)
         setbufvar(preview_bufnr, '&syntax', file_type)
     endif

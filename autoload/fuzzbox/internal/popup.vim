@@ -46,6 +46,9 @@ var keymaps: dict<any> = {
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
     extend(keymaps, g:fuzzbox_keymaps) : keymaps
 
+var dynamic_preview_title = exists('g:fuzzbox_dynamic_preview_title') ?
+    g:fuzzbox_dynamic_preview_title : true
+
 var preview_cutoff = exists('g:fuzzbox_preview_cutoff')
     && type(g:fuzzbox_preview_cutoff) == v:t_number ?
     g:fuzzbox_preview_cutoff : 120
@@ -769,6 +772,12 @@ export def SetTitle(wid: number, str: string)
     var padding = ( popup_getoptions(wid).maxwidth / 2 ) - ( len(title) / 2 )
     title = repeat([borderchars[0]], padding)->join('') .. title
     popup_setoptions(wid, {title: title})
+enddef
+
+export def SetPreviewTitle(str: string)
+    if dynamic_preview_title
+        SetTitle(wins.preview, str)
+    endif
 enddef
 
 export def SetCounter(count: any, total: any = null)

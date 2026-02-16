@@ -50,7 +50,7 @@ def Preview(wid: number, result: string)
     # Note: forward slash path separator tested on Windows, works fine
     var doc_file = fnamemodify(tag_file, ':h') .. '/' .. tag_table[helptag][0]
     popup_settext(wid, readfile(doc_file))
-    popup.SetTitle(wid, fnamemodify(doc_file, ':t'))
+    popup.SetPreviewTitle(fnamemodify(doc_file, ':t'))
     var tag_name = substitute(tag_table[helptag][1], '\v^(\/\*)(.*)(\*)$', '\2', '')
     win_execute(wid, "exec 'norm! ' .. search('\\V*" .. tag_name .. "*', 'w')")
     win_execute(wid, 'norm! zz')
