@@ -135,8 +135,4 @@ export def Start(opts: dict<any> = {})
             win_execute(wids.menu, "norm! " .. move .. "k")
         endif
     endif
-
-    if len(get(opts, 'search', '')) > 0
-        popup.SetPrompt(opts.search)
-    endif
 enddef

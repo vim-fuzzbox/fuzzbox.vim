@@ -35,13 +35,11 @@ export def Resume()
     endif
     for e in g:__fuzzbox_launcher_cache
         if !empty(e.prompt)
+            e.opts['prompt_text'] = e.prompt
             if filereadable(expand('<script>:p:h') .. '/../builtin/' .. e.selector .. '.vim')
                 function('fuzzbox#builtin#' .. e.selector .. '#Start')(e.opts)
             else
                 function('fuzzbox#_extensions#' .. e.selector .. '#Start')(e.opts)
-            endif
-            if popup.GetPrompt() != e.prompt
-                popup.SetPrompt(e.prompt)
             endif
             # trim cache, only save latest with prompt
             g:__fuzzbox_launcher_cache = [e]

@@ -290,8 +290,5 @@ export def Start(opts: dict<any> = {})
     endif
     preview_wid = wids.preview
     update_tid = timer_start(100, function('UpdateMenu'), {repeat: -1})
-    if len(get(opts, 'search', '')) > 0
-        popup.SetPrompt(opts.search)
-    endif
     # Profiling()
 enddef

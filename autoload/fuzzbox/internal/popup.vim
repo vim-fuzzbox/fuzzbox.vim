@@ -759,6 +759,12 @@ def PopupPrompt(args: dict<any>): number
     var mid = matchaddpos(cursor_args.highlight,
     [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
     popup_wins[wid].cursor_args.mid = mid
+
+    if has_key(args, 'text') && !empty(args.text)
+        for i in range(strchars(args.text))
+            PromptFilter(wid, strcharpart(args.text, i, 1, 1))
+        endfor
+    endif
     return wid
 enddef
 
@@ -992,6 +998,9 @@ export def PopupSelection(opts: dict<any>): dict<any>
     endif
     if has_key(opts, 'prompt_prefix')
         prompt_opts['prefix'] = opts.prompt_prefix
+    endif
+    if has_key(opts, 'prompt_text')
+        prompt_opts['text'] = opts.prompt_text
     endif
     wins.prompt = PopupPrompt(prompt_opts)
 

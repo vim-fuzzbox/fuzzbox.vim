@@ -76,13 +76,13 @@ highlight default link fuzzboxSelectionSign CursorLine
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
 import autoload '../autoload/fuzzbox/internal/helpers.vim'
 
-command! -nargs=? FuzzyGrep launcher.Start('grep', { search: <q-args> })
-command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: helpers.GetRootDir(), 'search': <q-args> })
+command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
+command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: helpers.GetRootDir(), prompt_text: <q-args> })
 command! -nargs=0 FuzzyFiles launcher.Start('files')
 command! -nargs=? FuzzyFilesRoot launcher.Start('files', { cwd: helpers.GetRootDir() })
 command! -nargs=0 FuzzyHelp launcher.Start('help')
 command! -nargs=0 FuzzyColors launcher.Start('colors')
-command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { search: <q-args> })
+command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { prompt_text: <q-args> })
 command! -nargs=0 FuzzyCommands launcher.Start('commands')
 command! -nargs=0 FuzzyBuffers launcher.Start('buffers')
 command! -nargs=0 FuzzyHighlights launcher.Start('highlights')
