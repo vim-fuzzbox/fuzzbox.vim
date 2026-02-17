@@ -725,20 +725,20 @@ def PopupPrompt(args: dict<any>): number
      }
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
-    var prompt_prefix = has_key(args, 'prompt_prefix') ? args.prompt_prefix : '> '
-    const prompt_prefix_len = len(prompt_prefix)
-    const prompt_prefix_charlen = strcharlen(prompt_prefix)
+    var prefix = has_key(args, 'prefix') ? args.prefix : '> '
+    const prefix_len = len(prefix)
+    const prefix_charlen = strcharlen(prefix)
     var prompt_opt = {
      line: [],
-     prefix: prompt_prefix,
-     displayed_line: prompt_prefix .. " ",
+     prefix: prefix,
+     displayed_line: prefix .. " ",
      }
 
     var cursor_args = {
      min_pos: 0,
      max_pos: 0,
-     prefix_len: prompt_prefix_len,
-     prefix_charlen: prompt_prefix_charlen,
+     prefix_len: prefix_len,
+     prefix_charlen: prefix_charlen,
      cur_pos: 0,
      highlight: 'fuzzboxCursor',
      mid: -1,
@@ -757,7 +757,7 @@ def PopupPrompt(args: dict<any>): number
 
     # set cursor
     var mid = matchaddpos(cursor_args.highlight,
-    [[1, prompt_prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
+    [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
     popup_wins[wid].cursor_args.mid = mid
     return wid
 enddef
@@ -985,14 +985,13 @@ export def PopupSelection(opts: dict<any>): dict<any>
         width: menu_width,
         dropdown: dropdown,
         input_cb: has_key(opts, 'input_cb') ? opts.input_cb : null,
-        prompt: has_key(opts, 'prompt') ? opts.prompt : '> ',
         zindex: 1010,
     }
     if has_key(opts, 'prompt_title')
         prompt_opts['title'] = opts.prompt_title
     endif
     if has_key(opts, 'prompt_prefix')
-        prompt_opts['prompt_prefix'] = opts.prompt_prefix
+        prompt_opts['prefix'] = opts.prompt_prefix
     endif
     wins.prompt = PopupPrompt(prompt_opts)
 
