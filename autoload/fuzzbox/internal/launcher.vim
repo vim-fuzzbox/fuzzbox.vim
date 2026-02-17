@@ -19,6 +19,8 @@ export def Start(selector: string, opts: dict<any> = {})
     insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: merged_opts, prompt: '' })
     if filereadable(expand('<script>:p:h') .. '/../builtin/' .. selector .. '.vim')
         function('fuzzbox#builtin#' .. selector .. '#Start')(merged_opts)
+    elseif filereadable(expand('<script>:p:h') .. '/../extensions/' .. selector .. '.vim')
+        function('fuzzbox#extensions#' .. selector .. '#Start')(merged_opts)
     else
         function('fuzzbox#_extensions#' .. selector .. '#Start')(merged_opts)
     endif
@@ -38,6 +40,8 @@ export def Resume()
             e.opts['prompt_text'] = e.prompt
             if filereadable(expand('<script>:p:h') .. '/../builtin/' .. e.selector .. '.vim')
                 function('fuzzbox#builtin#' .. e.selector .. '#Start')(e.opts)
+            elseif filereadable(expand('<script>:p:h') .. '/../extensions/' .. e.selector .. '.vim')
+                function('fuzzbox#extensions#' .. e.selector .. '#Start')(e.opts)
             else
                 function('fuzzbox#_extensions#' .. e.selector .. '#Start')(e.opts)
             endif

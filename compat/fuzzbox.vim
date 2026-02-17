@@ -33,3 +33,8 @@ if exists('g:loaded_nerd_tree') && !exists('g:fuzzbox_devicons_color_func') &&
         endif
     })->filter((key, val) => key != '__default__')
 endif
+
+# Experimental support for yegappan/lsp (aka vim9lsp)
+if exists('g:loaded_lsp')
+    command! -nargs=0 FuzzyDocumentSymbols fuzzbox#Launch('lsp_document_symbols')
+endif
