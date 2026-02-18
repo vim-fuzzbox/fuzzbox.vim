@@ -36,5 +36,6 @@ endif
 
 # Experimental support for yegappan/lsp (aka vim9lsp)
 if exists('g:loaded_lsp')
-    command! -nargs=0 FuzzyDocumentSymbols fuzzbox#Launch('lsp_document_symbols')
+    command! -nargs=0 FuzzyLspDocumentSymbols fuzzbox#Launch('lsp_document_symbols')
+    command! -nargs=0 FuzzyLspWorkspaceSymbols fuzzbox#Launch('lsp_workspace_symbols')
 endif
