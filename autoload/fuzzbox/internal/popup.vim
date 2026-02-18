@@ -769,6 +769,12 @@ def PopupPrompt(args: dict<any>): number
 enddef
 
 export def SetTitle(wid: number, str: string)
+    # Preview title cannot be changed unless dynamic preview titles are allowed
+    # An update can be forced by using popup_setoptions() to clear the title first
+    if wid == wins.preview && !dynamic_preview_title
+            && !empty(popup_getoptions(wid).title)
+        return
+    endif
     if empty(str)
         popup_setoptions(wid, {title: ''})
         return
@@ -778,12 +784,6 @@ export def SetTitle(wid: number, str: string)
     var padding = ( popup_getoptions(wid).maxwidth / 2 ) - ( len(title) / 2 )
     title = repeat([borderchars[0]], padding)->join('') .. title
     popup_setoptions(wid, {title: title})
-enddef
-
-export def SetPreviewTitle(str: string)
-    if dynamic_preview_title
-        SetTitle(wins.preview, str)
-    endif
 enddef
 
 export def SetCounter(count: any, total: any = null)
@@ -851,9 +851,10 @@ def PopupPreview(args: dict<any>): number
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
 
-    if has_key(args, 'title') && !empty(args.title)
-        SetTitle(wid, args.title)
-    endif
+    # hack to respect g:dynamic_preview_title - setting the title to some
+    # value here prevents it being changed by calls to SetTitle() later
+    var title = has_key(args, 'title') && !empty(args.title) ? args.title : borderchars[0]
+    SetTitle(wid, title)
 
     setwinvar(wid, '&number', 1)
     return wid

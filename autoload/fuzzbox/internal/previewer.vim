@@ -106,7 +106,7 @@ enddef
 # Note: text can be any type to allow array of lines or string
 export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
-    popup.SetPreviewTitle('')
+    popup.SetTitle(wid, '')
     popup_settext(wid, text)
     if lnum > 0
         win_execute(wid, 'norm! ' .. lnum .. 'G')
@@ -127,7 +127,7 @@ enddef
 
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
-    popup.SetPreviewTitle(fnamemodify(path, ':t'))
+    popup.SetTitle(wid, fnamemodify(path, ':t'))
     if !filereadable(path)
         PreviewText(wid, 'File not found: ' .. path)
         return
