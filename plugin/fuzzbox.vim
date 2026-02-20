@@ -4,6 +4,8 @@ endif
 
 vim9script noclear
 
+scriptencoding utf-8
+
 if exists("g:loaded_fuzzbox")
     finish
 endif

@@ -1,7 +1,5 @@
 vim9script
 
-scriptencoding utf-8
-
 import autoload '../internal/selector.vim'
 import autoload '../internal/popup.vim'
 
