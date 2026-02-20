@@ -14,7 +14,7 @@ Visit the [showcase](https://github.com/vim-fuzzbox/showcase) for other examples
 
 ## Requirements
 
-- Vim >= 9.0 (plugin is written in vim9scipt, Vim 9+ required, Neovim not
+- Vim >= 9.0 (plugin is written in vim9script, Vim 9+ required, Neovim not
   supported)
 
 Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
