@@ -184,10 +184,12 @@ export def Start(opts: dict<any> = {})
         # sort the symbols by line number
         symtable->sort((a, b) => a.lnum - b.lnum)
 
-        var fmt = ' %' .. len(string(line('$'))) .. 'd ' .. separator .. ' %s'
-        var lines = symtable->mapnew((_, v) => printf(fmt, v.lnum, v.text))
+        # var fmt = ' %' .. len(string(line('$'))) .. 'd ' .. separator .. ' %s'
+        var fmt = '%s (%d)'
+        var lines = symtable->mapnew((_, v) => printf(fmt, v.text, v.lnum))
 
         var wids = selector.Start(lines, extend(opts, {
+            preview: false,
             select_cb: function('Select'),
             preview_cb: function('Preview'),
             close_cb: function('Close'),
@@ -199,6 +201,7 @@ export def Start(opts: dict<any> = {})
         }))
 
         win_execute(wids.menu, $'syn match NonText "<\w\+>"')
+        win_execute(wids.menu, $'syn match NonText "(\d\+)"')
     enddef
 
     var params = {textDocument: {uri: util.LspFileToUri(filename)}}
