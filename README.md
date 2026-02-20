@@ -544,15 +544,16 @@ let g:fuzzbox_async_step = 10000
 
 ## User autocommands
 
-Fuzzbox adds two `User` autocommands which you can use to run custom commands
-when Fuzzbox is opened and closed. This can be helpful to aid compatibility with
-other plugins, or maybe update your statusline, e.g.
+Fuzzbox adds three `User` autocmd events which can be used to run arbitrary
+commands when Fuzzbox is opening, opened, and closed. This can help aid
+compatibility with other plugins, or customise behaviour, e.g.
 
 ```vim
-augroup LspFuzzbox
+augroup MyFuzzbox
   autocmd!
-  autocmd User FuzzboxOpened call MyStatusLine(#{fuzzbox: v:true})
-  autocmd User FuzzboxClosed call MyStatusLine(#{fuzzbox: v:false})
+  autocmd User FuzzboxOpening windo set nocursorline
+  autocmd User FuzzboxOpened echow 'Fuzzbox opened!'
+  autocmd User FuzzboxClosed windo set cursorline
 augroup END
 ```
 

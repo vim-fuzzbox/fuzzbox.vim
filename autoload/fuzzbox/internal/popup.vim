@@ -224,7 +224,9 @@ def GeneralPopupCallback(wid: number, select: any)
         redraw
     endif
 
-    silent doautocmd <nomodeline> User FuzzboxClosed
+    if exists('#User#FuzzboxClosed')
+        doautocmd <nomodeline> User FuzzboxClosed
+    endif
 enddef
 
 # Handle situation when Text under cursor in menu window is changed
@@ -927,6 +929,11 @@ export def PopupSelection(opts: dict<any>): dict<any>
     if active
         return { menu: -1, prompt: -1, preview: -1 }
     endif
+
+    if exists('#User#FuzzboxOpening')
+        doautocmd <nomodeline> User FuzzboxOpening
+    endif
+
     active = true
     actions = has_key(opts, 'actions') ? opts.actions : {}
     has_devicons = has_key(opts, 'devicons') ? opts.devicons && devicons.Enabled() : 0
@@ -1036,7 +1043,9 @@ export def PopupSelection(opts: dict<any>): dict<any>
 
     HideCursor()
 
-    silent doautocmd <nomodeline> User FuzzboxOpened
+    if exists('#User#FuzzboxOpened')
+        doautocmd <nomodeline> User FuzzboxOpened
+    endif
 
     return wins
 enddef
