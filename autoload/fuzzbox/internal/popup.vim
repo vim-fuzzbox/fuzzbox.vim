@@ -853,10 +853,13 @@ def PopupPreview(args: dict<any>): number
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
 
-    # hack to respect g:dynamic_preview_title - setting the title to some
-    # value here prevents it being changed by calls to SetTitle() later
-    var title = has_key(args, 'title') && !empty(args.title) ? args.title : borderchars[0]
-    SetTitle(wid, title)
+    if has_key(args, 'title') && !empty(args.title)
+        SetTitle(wid, args.title)
+    else
+        # hack to respect g:dynamic_preview_title - setting the title to some
+        # value here prevents it being changed by calls to SetTitle() later
+        popup_setoptions(wid, {title: borderchars[0]})
+    endif
 
     setwinvar(wid, '&number', 1)
     return wid
