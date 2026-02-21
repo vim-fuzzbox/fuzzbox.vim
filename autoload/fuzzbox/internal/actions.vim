@@ -37,7 +37,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    previewer.PreviewFile(wid, fnamemodify(path, ':p'), line)
+    previewer.PreviewFile(wid, fnamemodify(path, ':p'), line, col)
 enddef
 
 export def OpenFile(wid: number, result: string, opts: dict<any> = {})
