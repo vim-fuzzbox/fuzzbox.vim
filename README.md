@@ -47,6 +47,8 @@ systems for finding files and searching in files by default (e.g. `grep`,
 - [vim-nerdtree-syntax-highlight](https://github.com/tiagofumo/vim-nerdtree-syntax-highlight) - 
   used to colorize devicons if installed, and [vim-nerdtree](https://github.com/preservim/nerdtree)
   installed
+- [yegappan/lsp](https://github.com/yegappan/lsp) - used as backend for LSP
+  commands with [fuzzbox-lsp.vim](https://github.com/vim-fuzzbox/fuzzbox-lsp.vim) extension
 
 ## Install
 
