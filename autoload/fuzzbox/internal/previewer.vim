@@ -34,7 +34,7 @@ def FTDetectModelines(content: list<string>): string
     endif
     try
         var modelines = len(content) >= &modelines ? &modelines : len(content)
-        var pattern = '\M\C\s\?\(Vim\|vim\|vi\| ex\):\.\*\(ft\|filetype\)=\w\+'
+        var pattern = '\M\C^\.\{-,10}\s\?\(Vim\|vim\|vi\| ex\):\.\{-,50}\(ft\|filetype\)=\w\+'
         var matched = content[0 : modelines - 1]->matchstr(pattern)
         if empty(matched)
             matched = content[len(content) - modelines : -1]->matchstr(pattern)
