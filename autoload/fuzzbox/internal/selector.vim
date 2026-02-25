@@ -57,78 +57,26 @@ export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
     endif
 enddef
 
-# Search pattern @pattern in a list of strings @li
-# if pattern is empty, return [li, []]
-# params:
-#  - li: list of string to be searched
-#  - pattern: string to be searched
-#  - args: dict of options
-#      - limit: max number of results
-# return:
-# - a list [str_list, hl_list]
-#   - str_list: list of search results
-#   - hl_list: list of highlight positions
-#       - [[line1, col1], [line1, col2], [line2, col1], ...]
-export def FuzzySearch(li: list<string>, pattern: string, ...args: list<any>): list<any>
-    if pattern == ''
-        len_results = len(raw_list)
-        return [copy(li), []]
-    endif
-    var opts = {}
-    if len(args) > 0 && args[0] > 0
-        opts['limit'] = args[0]
-    endif
-    var results: list<any> = matchfuzzypos(li, pattern, opts)
+# Take results list from matchfuzzypos() and convert to sortable list
+# e.g. [[v1, v2], [p1, p2], [s1, s2]] -> [[v1, p1, s1], [v2, p2, s2]]
+# Necessary to combine and sort results when processing asynchronously
+def ProcessResults(results: list<list<any>>): list<list<any>>
+    var processed_results: list<list<any>>
     var strs = results[0]
     var poss = results[1]
     var scores = results[2]
 
-    len_results = len(strs)
-
-    var str_list = []
-    var hl_list = []
-    for idx in range(0, len(strs) - 1)
-        add(str_list, strs[idx])
-        var poss_result = MergeContinusNumber(poss[idx])
-
-        # convert char index to byte index for highlighting
-        for idx2 in range(len(poss_result))
-            var temp = []
-            var r = poss_result[idx2]
-            add(temp, byteidx(strs[idx], r[0] - 1) + 1)
-            if len(poss_result[idx2]) == 2
-                add(temp, byteidx(strs[idx], r[0] - 1 + r[1]) + 1 - temp[0])
-            endif
-            poss_result[idx2] = temp
-        endfor
-
-        hl_list += reduce(poss_result, (acc, val) => add(acc, [idx + 1] + val), [])
+    for idx in range(len(strs))
+        add(processed_results, [strs[idx], poss[idx], scores[idx]])
     endfor
-    return [str_list, hl_list]
+
+    return processed_results
 enddef
 
-var async_list: list<string>
-var async_pattern: string
-var async_results: list<any>
-var async_tid: number
-var AsyncCb: func
-
-def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>)
-    UpdateMenu(str_list, hl_list)
-    if has_counter
-        popup.SetCounter(len_results, len_list)
-    endif
-enddef
-
-def InputAsync(wid: number, result: string)
-    async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
-enddef
-
-# merge continus numbers and convert them from string index to vim column
-# [1,3] means [start index, length
-# eg. [1,2,3,4,5,7,9] -> [[1,5], [7], [9]]
-# eg. [2,3,4,5,6,8,10] -> [[2,5], [8], [10]]
-def MergeContinusNumber(li: list<number>): list<any>
+# Take positions from matchfuzzypos() and transform for use with matchaddpos()
+# Merges continuous numbers to ranges, change list indexes to column positions
+# e.g. [1,2,3,4,5,7,9] -> [[2,5], [8], [10]]
+def TransformPositions(li: list<number>): list<any>
     var last_pos = li[0]
     var start_pos = li[0]
     var pos_len = 1
@@ -158,6 +106,88 @@ def MergeContinusNumber(li: list<number>): list<any>
     return poss_result
 enddef
 
+# Take processed results and convert to list of strings and highlight positions
+# with line numbers that can be used to update the menu content and highlighting
+# e.g. [['bar.vim', [4, 6], 540], ['foo.vim', [4, 6], 540]]
+#  ->  [['bar.vim', 'foo.vim'], [[1, 5], [1, 7], [2, 5], [2, 7]]]
+export def TransformResults(processed_results: list<list<any>>): list<list<any>>
+    var str_list = []
+    var hl_list = []
+    var idx = 1
+    for item in processed_results
+        add(str_list, item[0])
+
+        var positions = TransformPositions(item[1])
+
+        # convert char index to byte index for highlighting
+        for idx2 in range(len(positions))
+            var temp = []
+            var r = positions[idx2]
+            add(temp, byteidx(item[0], r[0] - 1) + 1)
+            if len(positions[idx2]) == 2
+                add(temp, byteidx(item[0], r[0] - 1 + r[1]) + 1 - temp[0])
+            endif
+            positions[idx2] = temp
+        endfor
+
+        hl_list += reduce(positions, (acc, val) => {
+            add(acc, [idx] + val)
+            return acc
+        }, [])
+        idx += 1
+    endfor
+
+    return [str_list, hl_list]
+enddef
+
+# Search pattern @pattern in a list of strings @li
+# if pattern is empty, return [li, []]
+# params:
+#  - li: list of string to be searched
+#  - pattern: string to be searched
+#  - args: dict of options
+#      - limit: max number of results
+# return:
+# - a list [str_list, hl_list]
+#   - str_list: list of search results
+#   - hl_list: list of highlight positions
+#       - [[line1, col1], [line1, col2], [line2, col1], ...]
+export def FuzzySearch(li: list<string>, pattern: string, ...args: list<any>): list<any>
+    if pattern == ''
+        len_results = len(raw_list)
+        return [copy(li), []]
+    endif
+    var opts = {}
+    if len(args) > 0 && args[0] > 0
+        opts['limit'] = args[0]
+    endif
+    var results: list<any> = matchfuzzypos(li, pattern, opts)
+
+    len_results = len(results[0])
+
+    var processed_results = ProcessResults(results)
+
+    var [str_list, hl_list] = TransformResults(processed_results)
+    return [str_list, hl_list]
+enddef
+
+var async_list: list<string>
+var async_pattern: string
+var async_results: list<any>
+var async_tid: number
+var AsyncCb: func
+
+def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>)
+    UpdateMenu(str_list, hl_list)
+    if has_counter
+        popup.SetCounter(len_results, len_list)
+    endif
+enddef
+
+def InputAsync(wid: number, result: string)
+    async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
+enddef
+
 def AsyncWorker(tid: number)
     var li = async_list[: async_step]
     var results: list<any> = matchfuzzypos(li, async_pattern)
@@ -169,24 +199,7 @@ def AsyncWorker(tid: number)
 
     len_results += len(strs)
 
-    for idx in range(len(strs))
-        # merge continus number
-        var poss_result = MergeContinusNumber(poss[idx])
-
-        # convert char index to byte index for highlighting
-        for idx2 in range(len(poss_result))
-            var temp = []
-            var r = poss_result[idx2]
-            add(temp, byteidx(strs[idx], r[0] - 1) + 1)
-            if len(poss_result[idx2]) == 2
-                add(temp, byteidx(strs[idx], r[0] - 1 + r[1]) + 1 - temp[0])
-            endif
-            poss_result[idx2] = temp
-        endfor
-
-        add(processed_results, [strs[idx], poss_result, scores[idx]])
-    endfor
-    async_results += processed_results
+    async_results += ProcessResults(results)
     sort(async_results, (a, b) => {
         if a[2] < b[2]
             return 1
@@ -201,18 +214,7 @@ def AsyncWorker(tid: number)
         async_results = async_results[: async_limit]
     endif
 
-    var str_list = []
-    var hl_list = []
-    var idx = 1
-    for item in async_results
-        add(str_list, item[0])
-        hl_list += reduce(item[1], (acc, val) => {
-            var pos = copy(val)
-            add(acc, [idx] + pos)
-            return acc
-        }, [])
-        idx += 1
-    endfor
+    var [str_list, hl_list] = TransformResults(async_results)
     AsyncCb(str_list, hl_list)
 
     async_list = async_list[async_step + 1 :]
@@ -354,14 +356,8 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     if opts.input_cb == function('InputAsync')
         li = li[: async_limit]
     endif
-    if has_devicons
-         devicons.AddDevicons(li)
-    endif
-    popup.MenuSetText(li)
-    if has_devicons
-        devicons.AddColor(menu_wid)
-    endif
 
+    UpdateMenu(li, [])
     if has_counter
         popup.SetCounter(len_list, len_list)
     endif
