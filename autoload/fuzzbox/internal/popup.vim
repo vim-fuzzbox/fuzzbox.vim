@@ -916,16 +916,16 @@ def PopupWinOpts(opts: dict<any>): list<any>
 enddef
 
 # params:
-#   - opts: options: dictonary contains following keys:
-#       - select_cb: callback function when a value is selected(press enter)
-#       - preview_cb: callback function when cursor moves to a new value
-#       - input_cb: callback function when user input something
+#   - opts: dict of options
+#       - select_cb: function called when a value is selected
+#       - preview_cb: function called when cursor moves to a new value
+#       - input_cb: function called when user inputs to prompt
 # return:
-#   A dictionary:
+#   A dictionary of window ids:
 #    {
-#        menu: wins.menu,
-#        prompt: wins.prompt,
-#        preview: wins.preview,
+#       menu: menu_wid,
+#       prompt: prompt_wid,
+#       preview: preview_wid,
 #    }
 export def PopupSelection(opts: dict<any>): dict<any>
     popup_opts = opts
@@ -939,7 +939,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
 
     active = true
     actions = has_key(opts, 'actions') ? opts.actions : {}
-    has_devicons = has_key(opts, 'devicons') ? opts.devicons && devicons.Enabled() : 0
+    has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
 
     if has_key(opts, 'title') && !has_key(opts, 'prompt_title')
         opts.prompt_title = opts.title

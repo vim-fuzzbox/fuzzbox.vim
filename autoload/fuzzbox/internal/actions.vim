@@ -5,7 +5,6 @@ import autoload './popup.vim'
 import autoload './previewer.vim'
 import autoload './helpers.vim'
 
-var enable_devicons = devicons.Enabled()
 var iswin = helpers.IsWin()
 
 # Note: for actions that open or preview files, fnamemodify() is used to ensure
@@ -118,7 +117,7 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
 enddef
 
 export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
-    var has_devicons = enable_devicons && has_key(opts, 'devicons') && opts.devicons
+    var has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
     var bufnr = winbufnr(wid)
     var lines: list<any>
     lines = reverse(getbufline(bufnr, 1, "$"))

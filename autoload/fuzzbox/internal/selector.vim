@@ -25,10 +25,6 @@ export var async_limit = exists('g:fuzzbox_async_limit')
     && type(g:fuzzbox_async_limit) == v:t_number ?
     g:fuzzbox_async_limit : 200
 
-var wins: dict<any>
-
-var enable_devicons = devicons.Enabled()
-
 # track whether options are endbled for the current selector
 var has_devicons: bool
 var has_counter: bool
@@ -39,20 +35,20 @@ export var len_results: number
 
 # render the menu window with list of items and fuzzy matched positions
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
-    # Note: copy required to allow source list to be changed by selector
-    var new_list = copy(str_list)
     if has_devicons
+        # avoid modifying source/raw list when adding devicons
+        var new_list = copy(str_list)
         var hl_offset = devicons.GetDeviconOffset()
         var new_hl_list = reduce(hl_list, (a, v) => {
             v[1] += hl_offset
             return add(a, v)
-         }, [])
+        }, [])
         devicons.AddDevicons(new_list)
         popup.MenuSetText(new_list)
         popup.MenuSetHl(new_hl_list)
         devicons.AddColor(menu_wid)
     else
-        popup.MenuSetText(new_list)
+        popup.MenuSetText(str_list)
         popup.MenuSetHl(hl_list)
     endif
 enddef
@@ -152,16 +148,12 @@ enddef
 #   - str_list: list of search results
 #   - hl_list: list of highlight positions
 #       - [[line1, col1], [line1, col2], [line2, col1], ...]
-export def FuzzySearch(li: list<string>, pattern: string, ...args: list<any>): list<any>
-    if pattern == ''
-        len_results = len(raw_list)
-        return [copy(li), []]
+export def FuzzySearch(li: list<string>, pattern: string): list<any>
+    if empty(pattern)
+        len_results = len_list
+        return [li, []]
     endif
-    var opts = {}
-    if len(args) > 0 && args[0] > 0
-        opts['limit'] = args[0]
-    endif
-    var results: list<any> = matchfuzzypos(li, pattern, opts)
+    var results: list<any> = matchfuzzypos(li, pattern)
 
     len_results = len(results[0])
 
@@ -191,7 +183,6 @@ enddef
 def AsyncWorker(tid: number)
     var li = async_list[: async_step]
     var results: list<any> = matchfuzzypos(li, async_pattern)
-    var processed_results = []
 
     var strs = results[0]
     var poss = results[1]
@@ -259,11 +250,9 @@ export def UpdateList(li: list<string>)
     raw_list = li
 enddef
 
-def Input(wid: number, result: string)
-    prompt_str = result # required for RefreshMenu()
-    var str_list: list<string>
-    var hl_list: list<any>
-    [str_list, hl_list] = FuzzySearch(raw_list, result)
+def Input(wid: number, pattern: string)
+    prompt_str = pattern # required for RefreshMenu()
+    var [str_list, hl_list] = FuzzySearch(raw_list, pattern)
 
     UpdateMenu(str_list, hl_list)
     if has_counter
@@ -284,42 +273,27 @@ default_actions = {
 }
 
 def GetDefaultOpts(): dict<any>
-    var opts: dict<any>
-    opts.dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
-    opts.counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
-    opts.preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
-    opts.compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
-    opts.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
+    var global_defaults: dict<any>
+    global_defaults.dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
+    global_defaults.counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
+    global_defaults.preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
+    global_defaults.compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
+    global_defaults.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
 
-    var defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
-    return extendnew(opts, defaults)
+    var window_defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
+    return extendnew(global_defaults, window_defaults)
 enddef
 
 # This function spawn a popup picker for user to select an item from a list.
 # params:
-#   - list: list of string to be selected. can be empty at init state
-#   - opts: dict of options
-#       - select_cb: callback to be called when user select an item.
-#           select_cb(menu_wid, result). result is a list like ['selected item']
-#       - preview_cb: callback to be called when user move cursor on an item.
-#           preview_cb(menu_wid, result). result is a list like ['selected item', opts]
-#       - input_cb: callback to be called when user input something. If input_cb
-#           is not set, then the input will be used as the pattern to filter the
-#           list. If input_cb is set, then the input will be passed to given callback.
-#           input_cb(menu_wid, result). the second argument result is a list ['input string', opts]
-#       - preview: wheather to show preview window, default 1
-#       - width: width of the popup window, default 80. If preview is enabled,
-#           then width is the width of the total layout.
-#       - xoffset: x offset of the popup window. The popup window is centered
-#           by default.
-#       - scrollbar: wheather to show scrollbar in the menu window.
-#       - preview_ratio: ratio of the preview window. default 0.5
+#   - list: list of string to be selected, can be empty
+#   - opts: dict of options, mostly for popup.PopupSelection()
 # return:
-#   A dictionary:
+#   A dictionary of window ids:
 #    {
-#        menu: menu_wid,
-#        prompt: prompt_wid,
-#        preview: preview_wid,
+#       menu: menu_wid,
+#       prompt: prompt_wid,
+#       preview: preview_wid,
 #    }
 export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     if popup.active
@@ -330,7 +304,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
 
     var defaults = GetDefaultOpts()
 
-    has_devicons = enable_devicons && has_key(opts, 'devicons') && opts.devicons
+    has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
     has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
 
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : actions.PreviewFile
@@ -348,16 +322,17 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
 
     opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
 
-    wins = popup.PopupSelection(extendnew(defaults, opts))
-    menu_wid = wins.menu
+    var wids = popup.PopupSelection(extendnew(defaults, opts))
+    menu_wid = wids.menu
     raw_list = li_raw
     len_list = len(raw_list)
-    var li = copy(li_raw)
+
     if opts.input_cb == function('InputAsync')
-        li = li[: async_limit]
+        UpdateMenu(raw_list, [])
+    else
+        UpdateMenu(raw_list[: async_limit], [])
     endif
 
-    UpdateMenu(li, [])
     if has_counter
         popup.SetCounter(len_list, len_list)
     endif
@@ -365,7 +340,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     # User autocmd triggered when closing popups to clean up any running timers
     # Note: calling timer_stop() from a lambda expression does not work here
     autocmd User __FuzzboxCleanup ++once Cleanup()
-    return wins
+    return wids
 enddef
 
 def Cleanup()

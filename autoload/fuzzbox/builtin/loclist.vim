@@ -119,7 +119,7 @@ export def Start(opts: dict<any> = {})
 
     var opener = winnr()
 
-    var wins = selector.Start(lines, extend(opts, {
+    var wids = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
@@ -131,15 +131,15 @@ export def Start(opts: dict<any> = {})
     }))
 
     var nr = getloclist(opener, {idx: 0}).idx
-    win_execute(wins.menu, $'syn match Number "^\s\+{nr}\s"')
+    win_execute(wids.menu, $'syn match Number "^\s\+{nr}\s"')
 
     # Move cursor to the current item in the location list
     var move = nr - 1
     if move > 0
         if opts.dropdown
-            win_execute(wins.menu, "norm! " .. move .. "j")
+            win_execute(wids.menu, "norm! " .. move .. "j")
         else
-            win_execute(wins.menu, "norm! " .. move .. "k")
+            win_execute(wids.menu, "norm! " .. move .. "k")
         endif
     endif
 enddef

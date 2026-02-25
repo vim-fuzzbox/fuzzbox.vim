@@ -17,7 +17,6 @@ var len_total: number
 var jid: job
 var menu_wid: number
 var update_tid: number
-var enable_devicons = devicons.Enabled()
 
 var async_limit = selector.async_limit
 
@@ -136,7 +135,7 @@ export def Start(opts: dict<any> = {})
         preview_cb: actions.PreviewFile,
         input_cb: function('Input'),
         close_cb: function('Close'),
-        devicons: enable_devicons,
+        devicons: true,
         counter: false
     }))
     menu_wid = wids.menu

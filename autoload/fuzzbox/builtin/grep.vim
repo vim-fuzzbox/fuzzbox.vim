@@ -8,8 +8,6 @@ import autoload '../internal/helpers.vim'
 import autoload '../internal/actions.vim'
 import autoload './grep/cmdbuilder.vim'
 
-var enable_devicons = devicons.Enabled()
-
 var loading = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 
 var cwd: string
@@ -281,7 +279,7 @@ export def Start(opts: dict<any> = {})
         input_cb: function('Input'),
         preview_cb: function('Preview'),
         close_cb: function('Close'),
-        devicons: enable_devicons,
+        devicons: true,
         counter: false
      }))
     menu_wid = wids.menu

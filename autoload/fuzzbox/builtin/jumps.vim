@@ -97,7 +97,7 @@ export def Start(opts: dict<any> = {})
     })
     reverse(lines) # Reverse list so we start at the end of the jumplist
 
-    var wins = selector.Start(lines, extend(opts, {
+    var wids = selector.Start(lines, extend(opts, {
         prompt_title: 'Jumps',
         select_cb: function('Select'),
         preview_cb: function('Preview'),
@@ -109,7 +109,7 @@ export def Start(opts: dict<any> = {})
     }))
 
     if jumplast != len(jumplist)
-        win_execute(wins.menu, $'syn match Number "^\s\+{jumplast + 1}\s"')
+        win_execute(wids.menu, $'syn match Number "^\s\+{jumplast + 1}\s"')
     endif
 
     # Move cursor to the current item in the jump list
@@ -117,9 +117,9 @@ export def Start(opts: dict<any> = {})
         var move = len(jumplist) - jumplast - 1
         if move > 0
             if opts.dropdown
-                win_execute(wins.menu, "norm! " .. move .. "j")
+                win_execute(wids.menu, "norm! " .. move .. "j")
             else
-                win_execute(wins.menu, "norm! " .. move .. "k")
+                win_execute(wids.menu, "norm! " .. move .. "k")
             endif
         endif
     endif
