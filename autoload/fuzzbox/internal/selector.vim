@@ -11,6 +11,7 @@ var cwd: string
 var menu_wid: number
 var prompt_str: string
 var default_actions: dict<any>
+var async_limit = g:fuzzbox_async_limit
 var async_step = exists('g:fuzzbox_async_step')
     && type(g:fuzzbox_async_step) == v:t_number ?
     g:fuzzbox_async_step : 10000
@@ -19,11 +20,6 @@ var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
     g:fuzzbox_prompt_prefix : '> '
 var menu_wrap = exists('g:fuzzbox_menu_wrap') ? g:fuzzbox_menu_wrap : false
 var preview_wrap = exists('g:fuzzbox_preview_wrap') ? g:fuzzbox_preview_wrap : true
-
-# Experimental: number of async results to show in menu, fewer is faster
-export var async_limit = exists('g:fuzzbox_async_limit')
-    && type(g:fuzzbox_async_limit) == v:t_number ?
-    g:fuzzbox_async_limit : 200
 
 # track whether options are endbled for the current selector
 var has_devicons: bool
@@ -173,7 +169,7 @@ def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: 
 enddef
 
 def InputAsync(wid: number, result: string)
-    async_tid = FuzzySearchAsync(raw_list, result, async_limit, function('InputAsyncCb'))
+    async_tid = FuzzySearchAsync(raw_list, result, function('InputAsyncCb'))
 enddef
 
 def AsyncWorker(tid: number)
@@ -198,7 +194,7 @@ def AsyncWorker(tid: number)
     })
 
     if len(async_results) >= async_limit
-        async_results = async_results[: async_limit]
+        async_results = async_results->slice(0, async_limit)
     endif
 
     var [str_list, hl_list] = TransformResults(async_results)
@@ -219,19 +215,17 @@ enddef
 # params:
 #  - li: list of string to be searched
 #  - pattern: string to be searched
-#  - limit: max number of results
 #  - Cb: callback function
 # return:
 #  timer id
-export def FuzzySearchAsync(li: list<string>, pattern: string, limit: number, Cb: func): number
+export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
     # only one outstanding call at a time
     timer_stop(async_tid)
     if empty(pattern)
-        Cb(raw_list[: limit], [], total_count)
+        Cb(raw_list->slice(0, async_limit), [], total_count)
         return -1
     endif
     async_list = li
-    async_limit = limit
     async_pattern = pattern
     async_results = []
     async_count = 0
@@ -325,7 +319,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     if opts.input_cb == function('InputAsync')
         UpdateMenu(raw_list, [])
     else
-        UpdateMenu(raw_list[: async_limit], [])
+        UpdateMenu(raw_list->slice(0, async_limit), [])
     endif
 
     if has_counter

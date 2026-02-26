@@ -19,22 +19,11 @@ var jid: job
 var menu_wid: number
 var update_tid: number
 
-var async_limit = selector.async_limit
-
-def ProcessResult(list_raw: list<string>, ...args: list<any>): list<string>
-    var limit = -1
-    var li: list<string>
-    if len(args) > 0
-        li = list_raw[: args[0]]
-    else
-        li = list_raw
-    endif
-    return li
-enddef
+var async_limit = g:fuzzbox_async_limit
 
 def AsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
     cur_count = match_count
-    selector.UpdateMenu(ProcessResult(str_list), hl_list)
+    selector.UpdateMenu(str_list, hl_list)
     popup.SetCounter(cur_count, total_count)
 enddef
 
@@ -105,11 +94,10 @@ def UpdateMenu(tid: number)
     endif
 
     if cur_pattern != ''
-        async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern,
-            async_limit, function('AsyncCb'))
+        async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern, function('AsyncCb'))
     else
         timer_stop(async_tid)
-        selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
+        selector.UpdateMenu(cur_result->slice(0, async_limit), [])
         popup.SetCounter(cur_result_len, total_count)
     endif
 enddef

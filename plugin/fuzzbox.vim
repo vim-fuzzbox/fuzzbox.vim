@@ -57,6 +57,9 @@ g:fuzzbox_ripgrep_options = exists('g:fuzzbox_ripgrep_options')
 g:fuzzbox_menu_separator = exists('g:fuzzbox_menu_separator') ? g:fuzzbox_menu_separator : (
     &encoding == 'utf-8' ? '│' : '|'
 )
+g:fuzzbox_async_limit = exists('g:fuzzbox_async_limit')
+    && type(g:fuzzbox_async_limit) == v:t_number ? g:fuzzbox_async_limit : 200
+
 
 if g:fuzzbox_respect_wildignore
     var wildignore_dir = copy(split(&wildignore, ','))->filter('v:val =~ "[\\/]"')

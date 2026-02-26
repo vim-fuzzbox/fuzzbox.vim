@@ -26,6 +26,8 @@ var jid: job
 var pid: number
 var preview_wid = -1
 
+var async_limit = g:fuzzbox_async_limit
+
 def ParseResult(str: string): list<any>
     var seq = matchstrpos(str, sep_pattern)
     if seq[1] == -1
@@ -217,7 +219,7 @@ def UpdateMenu(...li: list<any>)
         cols = []
     else
         last_result = cur_result
-        [strs, cols, cur_dict] = ResultHandle(cur_result[: selector.async_limit])
+        [strs, cols, cur_dict] = ResultHandle(cur_result->slice(0, async_limit))
     endif
 
     selector.UpdateMenu(strs, cols)

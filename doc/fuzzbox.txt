@@ -47,6 +47,7 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.30. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
     1.7.31. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
     1.7.32. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.33. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -652,6 +653,16 @@ should work well for most developer workstations, but you might want to reduce
 if you notice a lack of responsiveness on low spec machines
 >
   let g:fuzzbox_async_step = 10000
+<
+
+G:FUZZBOX_ASYNC_LIMIT                            *fuzzbox-g:fuzzbox_async_limit*
+
+Fuzzbox limits the number of async results shown in the menu window at any time.
+This leads to much better performance, especially when devicons are enabled, and
+prevents sending thousands of items to the quickfix list, which is very slow.
+The default limit is 200, you may wish to increase it if you don't use devicons.
+>
+  let g:fuzzbox_async_limit = 200
 <
 
 ------------------------------------------------------------------------------

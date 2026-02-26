@@ -544,6 +544,15 @@ if you notice a lack of responsiveness on low spec machines
 let g:fuzzbox_async_step = 10000
 ```
 
+### g:fuzzbox_async_limit
+Fuzzbox limits the number of async results shown in the menu window at any time.
+This improves performance, especially when devicons are enabled, but also limits
+the number of scrollable results. The default limit is 200, but you may wish to
+increase it if you don't use devicons and/or have a very high spec machine.
+```vim
+let g:fuzzbox_async_limit = 200
+```
+
 ## User autocommands
 
 Fuzzbox adds three `User` autocmd events which can be used to run arbitrary
