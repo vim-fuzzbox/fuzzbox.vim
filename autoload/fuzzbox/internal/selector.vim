@@ -6,7 +6,7 @@ import autoload './helpers.vim'
 import autoload './actions.vim'
 
 var raw_list: list<string>
-var len_list: number
+var total_count: number
 var cwd: string
 var menu_wid: number
 var prompt_str: string
@@ -28,10 +28,6 @@ export var async_limit = exists('g:fuzzbox_async_limit')
 # track whether options are endbled for the current selector
 var has_devicons: bool
 var has_counter: bool
-
-# Experimental: export count of results/matches for the current search
-# Can be used to to call popup.SetCounter
-export var len_results: number
 
 # render the menu window with list of items and fuzzy matched positions
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
@@ -150,29 +146,29 @@ enddef
 #       - [[line1, col1], [line1, col2], [line2, col1], ...]
 export def FuzzySearch(li: list<string>, pattern: string): list<any>
     if empty(pattern)
-        len_results = len_list
-        return [li, []]
+        return [li, [], total_count]
     endif
     var results: list<any> = matchfuzzypos(li, pattern)
 
-    len_results = len(results[0])
+    var match_count = len(results[0])
 
     var processed_results = ProcessResults(results)
 
     var [str_list, hl_list] = TransformResults(processed_results)
-    return [str_list, hl_list]
+    return [str_list, hl_list, match_count]
 enddef
 
 var async_list: list<string>
 var async_pattern: string
 var async_results: list<any>
+var async_count: number
 var async_tid: number
 var AsyncCb: func
 
-def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>)
+def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
     UpdateMenu(str_list, hl_list)
     if has_counter
-        popup.SetCounter(len_results, len_list)
+        popup.SetCounter(match_count, total_count)
     endif
 enddef
 
@@ -188,7 +184,7 @@ def AsyncWorker(tid: number)
     var poss = results[1]
     var scores = results[2]
 
-    len_results += len(strs)
+    async_count += len(strs)
 
     async_results += ProcessResults(results)
     sort(async_results, (a, b) => {
@@ -206,7 +202,7 @@ def AsyncWorker(tid: number)
     endif
 
     var [str_list, hl_list] = TransformResults(async_results)
-    AsyncCb(str_list, hl_list)
+    AsyncCb(str_list, hl_list, async_count)
 
     async_list = async_list[async_step + 1 :]
     if len(async_list) == 0
@@ -230,16 +226,15 @@ enddef
 export def FuzzySearchAsync(li: list<string>, pattern: string, limit: number, Cb: func): number
     # only one outstanding call at a time
     timer_stop(async_tid)
-    if pattern == ''
-        len_results = len(raw_list)
-        Cb(raw_list[: limit], [])
+    if empty(pattern)
+        Cb(raw_list[: limit], [], total_count)
         return -1
     endif
     async_list = li
     async_limit = limit
     async_pattern = pattern
     async_results = []
-    len_results = 0
+    async_count = 0
     AsyncCb = Cb
     async_tid = timer_start(50, function('AsyncWorker'), {repeat: -1})
     AsyncWorker(async_tid)
@@ -252,11 +247,11 @@ enddef
 
 def Input(wid: number, pattern: string)
     prompt_str = pattern # required for RefreshMenu()
-    var [str_list, hl_list] = FuzzySearch(raw_list, pattern)
+    var [str_list, hl_list, match_count] = FuzzySearch(raw_list, pattern)
 
     UpdateMenu(str_list, hl_list)
     if has_counter
-        popup.SetCounter(len_results, len_list)
+        popup.SetCounter(match_count, total_count)
     endif
 enddef
 
@@ -325,7 +320,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     var wids = popup.PopupSelection(extendnew(defaults, opts))
     menu_wid = wids.menu
     raw_list = li_raw
-    len_list = len(raw_list)
+    total_count = len(raw_list)
 
     if opts.input_cb == function('InputAsync')
         UpdateMenu(raw_list, [])
@@ -334,7 +329,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     endif
 
     if has_counter
-        popup.SetCounter(len_list, len_list)
+        popup.SetCounter(total_count, total_count)
     endif
 
     # User autocmd triggered when closing popups to clean up any running timers

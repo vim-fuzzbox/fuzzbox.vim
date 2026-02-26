@@ -13,7 +13,8 @@ var last_pattern: string
 var in_loading: number
 var cwd: string
 var cur_result: list<string>
-var len_total: number
+var total_count: number
+var cur_count: number
 var jid: job
 var menu_wid: number
 var update_tid: number
@@ -31,9 +32,10 @@ def ProcessResult(list_raw: list<string>, ...args: list<any>): list<string>
     return li
 enddef
 
-def AsyncCb(str_list: list<string>, hl_list: list<list<any>>)
+def AsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
+    cur_count = match_count
     selector.UpdateMenu(ProcessResult(str_list), hl_list)
-    popup.SetCounter(selector.len_results, len_total)
+    popup.SetCounter(cur_count, total_count)
 enddef
 
 def Input(wid: number, result: string)
@@ -87,14 +89,14 @@ var async_tid: number
 def UpdateMenu(tid: number)
     cur_pattern = popup.GetPrompt()
     var cur_result_len = len(cur_result)
-    if cur_result_len > len_total
-        len_total = cur_result_len
+    if cur_result_len > total_count
+        total_count = cur_result_len
     endif
     if in_loading
         if cur_pattern != ''
-            popup.SetCounter(selector.len_results, len_total)
+            popup.SetCounter(cur_count, total_count)
         else
-            popup.SetCounter(cur_result_len, len_total)
+            popup.SetCounter(cur_result_len, total_count)
         endif
         if cur_pattern == last_pattern
             return
@@ -108,7 +110,7 @@ def UpdateMenu(tid: number)
     else
         timer_stop(async_tid)
         selector.UpdateMenu(ProcessResult(cur_result, async_limit), [])
-        popup.SetCounter(cur_result_len, len_total)
+        popup.SetCounter(cur_result_len, total_count)
     endif
 enddef
 
@@ -124,7 +126,7 @@ enddef
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Find Files'
 
-    len_total = 0
+    total_count = 0
     cur_result = []
     cur_pattern = ''
     last_pattern = '@!#-='
