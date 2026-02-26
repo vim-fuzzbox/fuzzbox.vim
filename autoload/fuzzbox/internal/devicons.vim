@@ -7,24 +7,19 @@ var devicon_byte_width = 0
 
 # Options
 var glyph_func = exists('g:fuzzbox_devicons_glyph_func') ? g:fuzzbox_devicons_glyph_func : ''
-
 var color_func = exists('g:fuzzbox_devicons_color_func') ? g:fuzzbox_devicons_color_func : ''
 
-var enabled = exists('g:fuzzbox_devicons') && !empty(glyph_func) ? g:fuzzbox_devicons : !empty(glyph_func)
-
-if &encoding != 'utf-8'
-    enabled = false
-endif
+var supported = !empty(glyph_func) && &encoding == 'utf-8'
 
 export def Enabled(): bool
-    return enabled
+    return supported && (!exists('g:fuzzbox_devicons') || g:fuzzbox_devicons)
 enddef
 
 export def GetDevicon(str: string): string
     return function(glyph_func)(str)
 enddef
 
-if enabled
+if supported
     var test_devicon = GetDevicon('a.lua')
     devicon_char_width = strcharlen(test_devicon)
     devicon_byte_width = strlen(test_devicon)
@@ -39,7 +34,7 @@ def SetHl()
     endfor
 enddef
 
-if enabled
+if supported
     SetHl()
     augroup FuzzboxDevicons
         autocmd!
