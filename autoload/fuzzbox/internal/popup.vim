@@ -762,11 +762,6 @@ def PopupPrompt(args: dict<any>): number
     [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
     popup_wins[wid].cursor_args.mid = mid
 
-    if has_key(args, 'text') && !empty(args.text)
-        for i in range(strchars(args.text))
-            PromptFilter(wid, strcharpart(args.text, i, 1, 1))
-        endfor
-    endif
     return wid
 enddef
 
@@ -995,6 +990,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
         menu_opts['wrap'] = opts.menu_wrap
     endif
     wins.menu = PopupMenu(menu_opts)
+    popup_wins[wins.menu].partids = wins
 
     var prompt_opts = {
         yoffset: prompt_yoffset,
@@ -1014,6 +1010,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
         prompt_opts['text'] = opts.prompt_text
     endif
     wins.prompt = PopupPrompt(prompt_opts)
+    popup_wins[wins.prompt].partids = wins
 
     if preview
         var preview_xoffset = popup_wins[wins.menu].col + popup_wins[wins.menu].width
@@ -1040,9 +1037,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
         wins.preview = wins.preview
         popup_wins[wins.preview].partids = wins
     endif
-
-    popup_wins[wins.menu].partids = wins
-    popup_wins[wins.prompt].partids = wins
 
     HideCursor()
 

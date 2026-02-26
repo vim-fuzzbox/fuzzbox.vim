@@ -326,6 +326,12 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         popup.SetCounter(total_count, total_count)
     endif
 
+    # Note: this must apply after the popups have been created and the window
+    # ids returned, so UpdateMenu() can reference the the correct window id
+    if has_key(opts, 'prompt_text') && !empty(opts.prompt_text)
+        popup.SetPrompt(opts.prompt_text)
+    endif
+
     # User autocmd triggered when closing popups to clean up any running timers
     # Note: calling timer_stop() from a lambda expression does not work here
     autocmd User __FuzzboxCleanup ++once Cleanup()
