@@ -57,9 +57,10 @@ g:fuzzbox_ripgrep_options = exists('g:fuzzbox_ripgrep_options')
 g:fuzzbox_menu_separator = exists('g:fuzzbox_menu_separator') ? g:fuzzbox_menu_separator : (
     &encoding == 'utf-8' ? '│' : '|'
 )
+g:fuzzbox_async_step = exists('g:fuzzbox_async_step')
+    && type(g:fuzzbox_async_step) == v:t_number ? g:fuzzbox_async_step : 10000
 g:fuzzbox_async_limit = exists('g:fuzzbox_async_limit')
     && type(g:fuzzbox_async_limit) == v:t_number ? g:fuzzbox_async_limit : 200
-
 
 if g:fuzzbox_respect_wildignore
     var wildignore_dir = copy(split(&wildignore, ','))->filter('v:val =~ "[\\/]"')
@@ -106,7 +107,7 @@ command! -nargs=0 FuzzyArglist launcher.Start('arglist')
 command! -nargs=0 FuzzyRegisters launcher.Start('registers')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
 
-# Hack to only show a single line warning when startng the selector
+# Hack to only show a single line warning when launching the selector
 # Avoids showing warnings on Vim startup and does not break selector
 if len(warnings) > 0
     g:__fuzzbox_warnings_found = 1

@@ -12,14 +12,7 @@ var menu_wid: number
 var prompt_str: string
 var default_actions: dict<any>
 var async_limit = g:fuzzbox_async_limit
-var async_step = exists('g:fuzzbox_async_step')
-    && type(g:fuzzbox_async_step) == v:t_number ?
-    g:fuzzbox_async_step : 10000
-var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
-    && type(g:fuzzbox_prompt_prefix) == v:t_string ?
-    g:fuzzbox_prompt_prefix : '> '
-var menu_wrap = exists('g:fuzzbox_menu_wrap') ? g:fuzzbox_menu_wrap : false
-var preview_wrap = exists('g:fuzzbox_preview_wrap') ? g:fuzzbox_preview_wrap : true
+var async_step = g:fuzzbox_async_step
 
 # track whether options are endbled for the current selector
 var has_devicons: bool
@@ -262,15 +255,19 @@ default_actions = {
 }
 
 def GetDefaultOpts(): dict<any>
-    var global_defaults: dict<any>
-    global_defaults.dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
-    global_defaults.counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
-    global_defaults.preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
-    global_defaults.compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
-    global_defaults.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
+    var globals: dict<any>
+    globals.dropdown = exists('g:fuzzbox_dropdown') ? g:fuzzbox_dropdown : false
+    globals.counter = exists('g:fuzzbox_counter') ? g:fuzzbox_counter : true
+    globals.preview = exists('g:fuzzbox_preview') ? g:fuzzbox_preview : true
+    globals.compact = exists('g:fuzzbox_compact') ? g:fuzzbox_compact : false
+    globals.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
+    globals.menu_wrap = exists('g:fuzzbox_menu_wrap') ? g:fuzzbox_menu_wrap : false
+    globals.preview_wrap = exists('g:fuzzbox_preview_wrap') ? g:fuzzbox_preview_wrap : true
+    globals.prompt_prefix = exists('g:fuzzbox_prompt_prefix')
+        && type(g:fuzzbox_prompt_prefix) == v:t_string ? g:fuzzbox_prompt_prefix : '> '
 
-    var window_defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
-    return extendnew(global_defaults, window_defaults)
+    var defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
+    return extendnew(globals, defaults)
 enddef
 
 # This function spawn a popup picker for user to select an item from a list.
@@ -305,9 +302,9 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.preview = has_key(opts, 'preview') ? opts.preview : defaults.preview
     opts.compact = has_key(opts, 'compact') ? opts.compact : defaults.compact
     opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : defaults.scrollbar
-    opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : prompt_prefix
-    opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : menu_wrap
-    opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : preview_wrap
+    opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : defaults.prompt_prefix
+    opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : defaults.menu_wrap
+    opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : defaults.preview_wrap
 
     opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
 
