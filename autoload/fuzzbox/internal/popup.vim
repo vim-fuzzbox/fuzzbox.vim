@@ -808,6 +808,7 @@ export def SetCounter(count: any, total: any = null)
     if wins.prompt == -1
         return
     endif
+    timer_stop(loading_tid)
     var bufnr = popup_wins[wins.prompt].bufnr
     var type = 'FuzzboxCounter'
     var prop = prop_type_get(type)
@@ -831,6 +832,18 @@ export def SetCounter(count: any, total: any = null)
         text: text .. ' ',
         text_align: 'right'
     })
+enddef
+
+var loading = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+var loading_tid: number
+export def SetLoading()
+    timer_stop(loading_tid)
+    loading_tid = timer_start(100, (_) => {
+        var time = float2nr(str2float(reltime()->reltimestr()[4 : ]) * 1000)
+        var speed = 100
+        var loadidx = (time % speed) / len(loading)
+        SetCounter(loading[loadidx])
+    }, { repeat: -1 })
 enddef
 
 def PopupMenu(args: dict<any>): number

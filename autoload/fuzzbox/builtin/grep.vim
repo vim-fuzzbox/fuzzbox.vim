@@ -8,8 +8,6 @@ import autoload '../internal/helpers.vim'
 import autoload '../internal/actions.vim'
 import autoload './grep/cmdbuilder.vim'
 
-var loading = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-
 var cwd: string
 var cwdlen: number
 var cur_pattern = ''
@@ -148,6 +146,7 @@ enddef
 # async version
 def Input(wid: number, result: string)
     cur_pattern = result
+    popup.SetLoading()
     JobStart(result)
 enddef
 
@@ -196,12 +195,7 @@ def UpdateMenu(...li: list<any>)
             job_stop(jid)
         endif
         popup.SetCounter('> ' .. max_results)
-    elseif job_running
-        var time = float2nr(str2float(reltime()->reltimestr()[4 : ]) * 1000)
-        var speed = 100
-        var loadidx = (time % speed) / len(loading)
-        popup.SetCounter(loading[loadidx])
-    else
+    elseif !job_running
         popup.SetCounter(len(cur_result))
     endif
 
