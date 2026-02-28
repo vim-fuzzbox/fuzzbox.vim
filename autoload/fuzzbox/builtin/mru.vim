@@ -38,7 +38,8 @@ def ToggleScope()
             return acc
         }, [])
     endif
-    selector.UpdateMenu(mru_list, [])
+    var len_list = len(mru_list)
+    selector.UpdateResults(mru_list, [], len_list, len_list)
 enddef
 
 export def Start(opts: dict<any> = {})

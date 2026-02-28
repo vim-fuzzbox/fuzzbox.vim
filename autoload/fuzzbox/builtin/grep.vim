@@ -182,7 +182,7 @@ enddef
 def UpdateMenu(...li: list<any>)
     var cur_result_len = len(cur_result)
     if cur_pattern == ''
-        selector.UpdateMenu([], [])
+        popup.UpdateMenu([], [])
         last_pattern = cur_pattern
         last_result_len = cur_result_len
         popup.SetCounter(null)
@@ -222,7 +222,7 @@ def UpdateMenu(...li: list<any>)
         [strs, cols, cur_dict] = ResultHandle(cur_result->slice(0, async_limit))
     endif
 
-    selector.UpdateMenu(strs, cols)
+    popup.UpdateMenu(strs, cols)
     UpdatePreviewHl()
     last_pattern = cur_pattern
     last_result_len = cur_result_len

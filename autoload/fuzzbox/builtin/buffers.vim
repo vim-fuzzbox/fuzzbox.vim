@@ -116,9 +116,7 @@ def DeleteBuffer(wid: number, result: string)
     var [file, bufnr, lnum] = ParseResult(result)
     execute ':bdelete ' .. bufnr
     var li = GetBufList()
-    selector.UpdateMenu(li, [])
     selector.UpdateList(li)
-    selector.RefreshMenu()
 enddef
 
 export def Start(opts: dict<any> = {})

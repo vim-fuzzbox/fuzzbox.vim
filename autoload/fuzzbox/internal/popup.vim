@@ -229,6 +229,26 @@ def GeneralPopupCallback(wid: number, select: any)
     endif
 enddef
 
+# update menu window with list of items and positions for matchaddpos()
+export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
+    if has_devicons
+        # avoid modifying source/raw list when adding devicons
+        var new_list = copy(str_list)
+        var hl_offset = devicons.GetDeviconOffset()
+        var new_hl_list = reduce(hl_list, (a, v) => {
+            v[1] += hl_offset
+            return add(a, v)
+        }, [])
+        devicons.AddDevicons(new_list)
+        MenuSetText(new_list)
+        MenuSetHl(new_hl_list)
+        devicons.AddColor(wins.menu)
+    else
+        MenuSetText(str_list)
+        MenuSetHl(hl_list)
+    endif
+enddef
+
 # Handle situation when Text under cursor in menu window is changed
 var preview_tid: number
 def MenuCursorContentChangeCb()

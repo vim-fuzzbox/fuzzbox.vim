@@ -23,8 +23,7 @@ var async_limit = g:fuzzbox_async_limit
 
 def AsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
     cur_count = match_count
-    selector.UpdateMenu(str_list, hl_list)
-    popup.SetCounter(cur_count, total_count)
+    selector.UpdateResults(str_list, hl_list, cur_count, total_count)
 enddef
 
 def Input(wid: number, result: string)
@@ -97,8 +96,8 @@ def UpdateMenu(tid: number)
         async_tid = selector.FuzzySearchAsync(cur_result, cur_pattern, function('AsyncCb'))
     else
         timer_stop(async_tid)
-        selector.UpdateMenu(cur_result->slice(0, async_limit), [])
-        popup.SetCounter(cur_result_len, total_count)
+        selector.UpdateResults(cur_result->slice(0, async_limit), [],
+            cur_result_len, total_count)
     endif
 enddef
 
@@ -126,7 +125,7 @@ export def Start(opts: dict<any> = {})
         input_cb: function('Input'),
         close_cb: function('Close'),
         devicons: true,
-        counter: false
+        counter: true
     }))
     menu_wid = wids.menu
     if menu_wid == -1

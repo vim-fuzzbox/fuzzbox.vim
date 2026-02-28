@@ -1,40 +1,30 @@
 vim9script
 
 import autoload './popup.vim'
-import autoload './devicons.vim'
 import autoload './helpers.vim'
 import autoload './actions.vim'
 
 var raw_list: list<string>
-var total_count: number
+var len_list: number
 var cwd: string
 var menu_wid: number
-var prompt_str: string
 var default_actions: dict<any>
 var async_limit = g:fuzzbox_async_limit
 var async_step = g:fuzzbox_async_step
 
-# track whether options are endbled for the current selector
-var has_devicons: bool
+# track whether counter is endbled for the current selector
 var has_counter: bool
 
-# render the menu window with list of items and fuzzy matched positions
+# deprecated, do not use, backwards compatibility only, moved to popup
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
-    if has_devicons
-        # avoid modifying source/raw list when adding devicons
-        var new_list = copy(str_list)
-        var hl_offset = devicons.GetDeviconOffset()
-        var new_hl_list = reduce(hl_list, (a, v) => {
-            v[1] += hl_offset
-            return add(a, v)
-        }, [])
-        devicons.AddDevicons(new_list)
-        popup.MenuSetText(new_list)
-        popup.MenuSetHl(new_hl_list)
-        devicons.AddColor(menu_wid)
-    else
-        popup.MenuSetText(str_list)
-        popup.MenuSetHl(hl_list)
+    popup.UpdateMenu(str_list, hl_list)
+enddef
+
+export def UpdateResults(str_list: list<string>, hl_list: list<list<any>>,
+        match_count: number, total_count: number)
+    popup.UpdateMenu(str_list, hl_list)
+    if has_counter
+        popup.SetCounter(match_count, total_count)
     endif
 enddef
 
@@ -121,21 +111,10 @@ export def TransformResults(processed_results: list<list<any>>): list<list<any>>
     return [str_list, hl_list]
 enddef
 
-# Search pattern @pattern in a list of strings @li
-# if pattern is empty, return [li, []]
-# params:
-#  - li: list of string to be searched
-#  - pattern: string to be searched
-#  - args: dict of options
-#      - limit: max number of results
-# return:
-# - a list [str_list, hl_list]
-#   - str_list: list of search results
-#   - hl_list: list of highlight positions
-#       - [[line1, col1], [line1, col2], [line2, col1], ...]
+# Returns the results, matchaddpos() positions, and the match count
 export def FuzzySearch(li: list<string>, pattern: string): list<any>
     if empty(pattern)
-        return [li, [], total_count]
+        return [li, [], len_list]
     endif
     var results: list<any> = matchfuzzypos(li, pattern)
 
@@ -147,6 +126,19 @@ export def FuzzySearch(li: list<string>, pattern: string): list<any>
     return [str_list, hl_list, match_count]
 enddef
 
+def Input(wid: number, pattern: string)
+    var [str_list, hl_list, match_count] = FuzzySearch(raw_list, pattern)
+    UpdateResults(str_list, hl_list, match_count, len_list)
+enddef
+
+# Currently only used by FuzzyBuffers, to refresh after deleting a buffer
+export def UpdateList(li: list<string>)
+    raw_list = li
+    len_list = len(li)
+    popup.UpdateMenu(li, [])
+    Input(menu_wid, popup.GetPrompt())
+enddef
+
 var async_list: list<string>
 var async_pattern: string
 var async_results: list<any>
@@ -155,10 +147,7 @@ var async_tid: number
 var AsyncCb: func
 
 def InputAsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
-    UpdateMenu(str_list, hl_list)
-    if has_counter
-        popup.SetCounter(match_count, total_count)
-    endif
+    UpdateResults(str_list, hl_list, match_count, len_list)
 enddef
 
 def InputAsync(wid: number, result: string)
@@ -201,21 +190,18 @@ def AsyncWorker(tid: number)
 enddef
 
 # Using timer to mimic async search. This is a workaround for the lack of async
-# support in vim. It uses timer to do the search in the background, and calls
-# the callback function when part of the results are ready.
+# support in vim. It uses a timer to do the search in the background, and calls
+# the callback function when part of the results are ready. The callback is
+# called with the results, matchaddpos() positions, and the current match count.
+#
 # This function only allows one outstanding call at a time. If a new call is
-# made before the previous one finishes, the previous one will be canceled.
-# params:
-#  - li: list of string to be searched
-#  - pattern: string to be searched
-#  - Cb: callback function
-# return:
-#  timer id
+# made before the previous one finishes, the previous one will be cancelled.
+# The timer id is returned so calling code can preemptivley cancel the timer.
 export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
     # only one outstanding call at a time
     timer_stop(async_tid)
     if empty(pattern)
-        Cb(raw_list->slice(0, async_limit), [], total_count)
+        Cb(raw_list->slice(0, async_limit), [], len_list)
         return -1
     endif
     async_list = li
@@ -226,24 +212,6 @@ export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
     async_tid = timer_start(50, function('AsyncWorker'), {repeat: -1})
     AsyncWorker(async_tid)
     return async_tid
-enddef
-
-export def UpdateList(li: list<string>)
-    raw_list = li
-enddef
-
-def Input(wid: number, pattern: string)
-    prompt_str = pattern # required for RefreshMenu()
-    var [str_list, hl_list, match_count] = FuzzySearch(raw_list, pattern)
-
-    UpdateMenu(str_list, hl_list)
-    if has_counter
-        popup.SetCounter(match_count, total_count)
-    endif
-enddef
-
-export def RefreshMenu()
-    Input(menu_wid, prompt_str)
 enddef
 
 default_actions = {
@@ -286,11 +254,9 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         return { menu: -1, prompt: -1, preview: -1 }
     endif
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    prompt_str = ''
 
     var defaults = GetDefaultOpts()
 
-    has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
     has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
 
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : actions.PreviewFile
@@ -298,8 +264,9 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
         has_key(opts, 'async') && opts.async ? function('InputAsync') : function('Input')
     )
+
+    opts.devicons = has_key(opts, 'devicons') ? opts.devicons : false
     opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : defaults.dropdown
-    opts.preview = has_key(opts, 'preview') ? opts.preview : defaults.preview
     opts.compact = has_key(opts, 'compact') ? opts.compact : defaults.compact
     opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : defaults.scrollbar
     opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : defaults.prompt_prefix
@@ -311,16 +278,12 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     var wids = popup.PopupSelection(extendnew(defaults, opts))
     menu_wid = wids.menu
     raw_list = li_raw
-    total_count = len(raw_list)
+    len_list = len(raw_list)
 
     if opts.input_cb == function('InputAsync')
-        UpdateMenu(raw_list, [])
+        UpdateResults(raw_list, [], len_list, len_list)
     else
-        UpdateMenu(raw_list->slice(0, async_limit), [])
-    endif
-
-    if has_counter
-        popup.SetCounter(total_count, total_count)
+        UpdateResults(raw_list->slice(0, async_limit), [], len_list, len_list)
     endif
 
     # Note: this must apply after the popups have been created and the window
