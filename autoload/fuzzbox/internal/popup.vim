@@ -803,12 +803,14 @@ export def SetTitle(wid: number, str: string)
     popup_setoptions(wid, {title: title})
 enddef
 
-export def SetCounter(count: any, total: any = null)
+export def SetCounter(count: any, total: any = null, isloading: bool = false)
     # this can happen with async callbacks
     if wins.prompt == -1
         return
     endif
-    timer_stop(loading_tid)
+    if !isloading
+        timer_stop(loading_tid)
+    endif
     var bufnr = popup_wins[wins.prompt].bufnr
     var type = 'FuzzboxCounter'
     var prop = prop_type_get(type)
@@ -842,7 +844,7 @@ export def SetLoading()
         var time = float2nr(str2float(reltime()->reltimestr()[4 : ]) * 1000)
         var speed = 100
         var loadidx = (time % speed) / len(loading)
-        SetCounter(loading[loadidx])
+        SetCounter(loading[loadidx], null, true)
     }, { repeat: -1 })
 enddef
 
