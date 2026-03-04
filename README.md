@@ -267,9 +267,31 @@ let g:fuzzbox_preview_wrap = 1
 ```
 
 ### g:fuzzbox_borderchars
-Set the borderchars of popup windows. Must be a list of 8 characters.
+Set the borderchars of popup windows. Must be a list of 4 or 8 characters.
+Default varies depending on whether `&encoding` is set to `utf-8` or not.
 ```vim
+" utf-8
 let g:fuzzbox_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
+
+" other
+let g:fuzzbox_borderchars = ['-', '|', '-', '|']
+```
+
+### g:fuzzbox_loadingchars
+Set the characters to use for each frame of the loading indicator. Must be a
+list of strings, though usually a list of individual characters. Default also
+varies depending on whether `&encoding` is set to `utf-8` or not.
+```vim
+" utf-8
+let g:fuzzbox_loadingchars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+
+" other
+let g:fuzzbox_loadingchars = ['|', '/', '-', '\']
+```
+
+Example using multiple characters for each frame:
+```vim
+let g:fuzzbox_loadingchars = ['⢎⡰', '⢎⡡', '⢎⡑', '⢎⠱', '⠎⡱', '⢊⡱', '⢌⡱', '⢆⡱']
 ```
 
 ### g:fuzzbox_dynamic_preview_title

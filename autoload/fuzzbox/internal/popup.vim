@@ -66,6 +66,15 @@ var borderchars = exists('g:fuzzbox_borderchars') &&
             ['-', '|', '-', '|']
     )
 
+var loadingchars = exists('g:fuzzbox_loadingchars') &&
+    type(g:fuzzbox_loadingchars) == v:t_list &&
+    [4, 8]->index(len(g:fuzzbox_loadingchars)) != -1 ?
+    g:fuzzbox_loadingchars : (
+        &encoding == 'utf-8' ?
+            ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'] :
+            ['|', '/', '-', '\']
+    )
+
 var selection_sign = exists('g:fuzzbox_selection_sign')
     && type(g:fuzzbox_selection_sign) == v:t_string ?
     g:fuzzbox_selection_sign : '>'
@@ -836,15 +845,17 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     })
 enddef
 
-var loading = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
 var loading_tid: number
 export def SetLoading()
     timer_stop(loading_tid)
+    var loading_idx = 0
     loading_tid = timer_start(100, (_) => {
-        var time = float2nr(str2float(reltime()->reltimestr()[4 : ]) * 1000)
-        var speed = 100
-        var loadidx = (time % speed) / len(loading)
-        SetCounter(loading[loadidx], null, true)
+        SetCounter(loadingchars[loading_idx], null, true)
+        if loading_idx == len(loadingchars) - 1
+            loading_idx = 0
+        else
+            loading_idx += 1
+        endif
     }, { repeat: -1 })
 enddef
 
