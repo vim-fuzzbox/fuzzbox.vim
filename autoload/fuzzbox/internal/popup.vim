@@ -67,8 +67,7 @@ var borderchars = exists('g:fuzzbox_borderchars') &&
     )
 
 var loadingchars = exists('g:fuzzbox_loadingchars') &&
-    type(g:fuzzbox_loadingchars) == v:t_list &&
-    [4, 8]->index(len(g:fuzzbox_loadingchars)) != -1 ?
+    type(g:fuzzbox_loadingchars) == v:t_list ?
     g:fuzzbox_loadingchars : (
         &encoding == 'utf-8' ?
             ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'] :
