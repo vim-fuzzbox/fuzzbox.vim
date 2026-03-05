@@ -29,25 +29,26 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.12. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
     1.7.13. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
     1.7.14. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
-    1.7.15. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
-    1.7.16. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
-    1.7.17. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
-    1.7.18. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
-    1.7.19. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
-    1.7.20. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
-    1.7.21. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
-    1.7.22. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
-    1.7.23. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
-    1.7.24. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.25. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.26. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.27. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.28. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.29. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.30. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
-    1.7.31. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
-    1.7.32. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
-    1.7.33. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
+    1.7.15. g:fuzzbox_loadingchars..............|fuzzbox-g:fuzzbox_loadingchars|
+    1.7.16. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
+    1.7.17. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
+    1.7.18. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
+    1.7.19. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
+    1.7.20. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
+    1.7.21. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
+    1.7.22. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
+    1.7.23. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
+    1.7.24. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
+    1.7.25. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
+    1.7.26. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.27. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.28. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.29. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.30. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.31. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
+    1.7.32. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
+    1.7.33. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.34. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Credits................................................|fuzzbox-credits|
@@ -345,9 +346,30 @@ Enable text wrap in the preview window. Default 1
 
 G:FUZZBOX_BORDERCHARS                            *fuzzbox-g:fuzzbox_borderchars*
 
-Set the borderchars of popup windows. Must be a list of 8 characters.
+Set the borderchars of popup windows. Must be a list of 4 or 8 characters.
+Default varies depending on whether `&encoding` is set to `utf-8` or not.
 >
+  " utf-8
   let g:fuzzbox_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
+  " other
+  let g:fuzzbox_borderchars = ['-', '|', '-', '|']
+<
+
+G:FUZZBOX_LOADINGCHARS                          *fuzzbox-g:fuzzbox_loadingchars*
+
+Set the characters to use for each frame of the loading indicator. Must be a
+list of strings, though usually a list of individual characters. Default also
+varies depending on whether `&encoding` is set to `utf-8` or not.
+>
+  " utf-8
+  let g:fuzzbox_loadingchars = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏']
+  " other
+  let g:fuzzbox_loadingchars = ['|', '/', '-', '\']
+<
+
+Example using multiple characters for each frame:
+>
+  let g:fuzzbox_loadingchars = ['⢎⡰', '⢎⡡', '⢎⡑', '⢎⠱', '⠎⡱', '⢊⡱', '⢌⡱', '⢆⡱']
 <
 
 G:FUZZBOX_DYNAMIC_PREVIEW_TITLE        *fuzzbox-g:fuzzbox_dynamic_preview_title*
@@ -658,9 +680,9 @@ if you notice a lack of responsiveness on low spec machines
 G:FUZZBOX_ASYNC_LIMIT                            *fuzzbox-g:fuzzbox_async_limit*
 
 Fuzzbox limits the number of async results shown in the menu window at any time.
-This leads to much better performance, especially when devicons are enabled, and
-prevents sending thousands of items to the quickfix list, which is very slow.
-The default limit is 200, you may wish to increase it if you don't use devicons.
+This improves performance, especially when devicons are enabled, but also limits
+the number of scrollable results. The default limit is 200, but you may wish to
+increase it if you don't use devicons and/or have a very high spec machine.
 >
   let g:fuzzbox_async_limit = 200
 <
