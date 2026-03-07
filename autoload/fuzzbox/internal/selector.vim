@@ -7,18 +7,12 @@ import autoload './actions.vim'
 var raw_list: list<string>
 var len_list: number
 var cwd: string
-var menu_wid: number
 var default_actions: dict<any>
 var async_limit = g:fuzzbox_async_limit
 var async_step = g:fuzzbox_async_step
 
 # track whether counter is endbled for the current selector
 var has_counter: bool
-
-# deprecated, do not use, backwards compatibility only, moved to popup
-export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
-    popup.UpdateMenu(str_list, hl_list)
-enddef
 
 export def UpdateResults(str_list: list<string>, hl_list: list<list<any>>,
         match_count: number, total_count: number)
@@ -81,7 +75,7 @@ enddef
 # with line numbers that can be used to update the menu content and highlighting
 # e.g. [['bar.vim', [4, 6], 540], ['foo.vim', [4, 6], 540]]
 #  ->  [['bar.vim', 'foo.vim'], [[1, 5], [1, 7], [2, 5], [2, 7]]]
-export def TransformResults(processed_results: list<list<any>>): list<list<any>>
+def TransformResults(processed_results: list<list<any>>): list<list<any>>
     var str_list = []
     var hl_list = []
     var idx = 1
@@ -136,7 +130,7 @@ export def UpdateList(li: list<string>)
     raw_list = li
     len_list = len(li)
     popup.UpdateMenu(li, [])
-    Input(menu_wid, popup.GetPrompt())
+    popup.SetPrompt(popup.GetPrompt())
 enddef
 
 var async_list: list<string>
@@ -276,7 +270,6 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
 
     var wids = popup.PopupSelection(extendnew(defaults, opts))
-    menu_wid = wids.menu
     raw_list = li_raw
     len_list = len(raw_list)
 
@@ -284,12 +277,6 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         UpdateResults(raw_list, [], len_list, len_list)
     else
         UpdateResults(raw_list->slice(0, async_limit), [], len_list, len_list)
-    endif
-
-    # Note: this must apply after the popups have been created and the window
-    # ids returned, so UpdateMenu() can reference the the correct window id
-    if has_key(opts, 'prompt_text') && !empty(opts.prompt_text)
-        popup.SetPrompt(opts.prompt_text)
     endif
 
     # User autocmd triggered when closing popups to clean up any running timers

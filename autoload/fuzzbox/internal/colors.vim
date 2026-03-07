@@ -14,8 +14,7 @@ endif
 # devicons chosen based on the Stack Overflow Developer Survey and TIOBE Index
 # over time, and a very biased view on which are most relevant for Vim users
 # You can modify this for your preferences using g:fuzzbox_devicons_color_table
-# Please open a PR if you think something is missing or could be improved (all
-# defaults should have an icon in vim-devicons, and a published nerdfont glyph)
+# Please open a PR if you think something is missing or could be improved
 var devicons_color_table = {
     '__default__': 'lightblue4',
     '*.c': 'lightblue3',
@@ -191,7 +190,7 @@ def Rgb(r: number, g: number, b: number): number
 enddef
 
 # Returns the palette index to approximate the '#rrggbb' hex string
-export def Hex(hex: string): number
+def Hex(hex: string): number
     var r = str2nr(strpart(hex, 1, 2), 16)
     var g = str2nr(strpart(hex, 3, 2), 16)
     var b = str2nr(strpart(hex, 5, 2), 16)

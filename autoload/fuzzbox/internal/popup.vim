@@ -82,14 +82,6 @@ if !empty(selection_sign)
     sign_define('FuzzboxSelection', {text: selection_sign, texthl: 'fuzzboxSelectionSign'})
 endif
 
-export def SetPopupWinProp(wid: number, key: string, val: any)
-    if has_key(popup_wins, wid) && has_key(popup_wins[wid], key)
-        popup_wins[wid][key] = val
-    else
-        echoerr 'SetPopupWinProp: key not exist'
-    endif
-enddef
-
 def ResolveCursor()
     hlset([{name: 'fuzzboxCursor', cleared: true}])
     var fallback = {
@@ -659,7 +651,7 @@ def NewPopup(args: dict<any>): list<number>
     return [wid, bufnr]
 enddef
 
-export def MenuSetText(text_list: list<string>)
+def MenuSetText(text_list: list<string>)
     if type(text_list) != v:t_list
         echoerr 'text must be a list'
     endif
@@ -711,7 +703,7 @@ enddef
 # Set Highlight for menu window
 # params:
 #   - hi_list: list of position to highlight eg. [[1,2,3], [1,5]]
-export def MenuSetHl(hl_list_raw: list<any>)
+def MenuSetHl(hl_list_raw: list<any>)
     if !has_key(popup_wins, wins.menu)
         return
     endif
@@ -789,6 +781,12 @@ def PopupPrompt(args: dict<any>): number
     var mid = matchaddpos(cursor_args.highlight,
     [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
     popup_wins[wid].cursor_args.mid = mid
+
+    if has_key(args, 'text') && !empty(args.text)
+        for i in range(strchars(args.text))
+            PromptFilter(wid, strcharpart(args.text, i, 1, 1))
+        endfor
+    endif
 
     return wid
 enddef

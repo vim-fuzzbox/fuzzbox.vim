@@ -1,6 +1,6 @@
 vim9script
 
-# Experimental convenience script to create custom commands and selectors
+# Convenience functions to create custom commands and selectors
 #
 # You can use this in your vimrc to create custom commmands that launch
 # selectors with custom options, and create arbitrary selectors without
