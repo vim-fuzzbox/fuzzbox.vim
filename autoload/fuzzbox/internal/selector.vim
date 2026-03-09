@@ -274,9 +274,9 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     len_list = len(raw_list)
 
     if opts.input_cb == function('InputAsync')
-        UpdateResults(raw_list, [], len_list, len_list)
-    else
         UpdateResults(raw_list->slice(0, async_limit), [], len_list, len_list)
+    else
+        UpdateResults(raw_list, [], len_list, len_list)
     endif
 
     # User autocmd triggered when closing popups to clean up any running timers
