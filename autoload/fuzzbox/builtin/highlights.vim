@@ -39,6 +39,8 @@ enddef
 def Close(wid: number)
     # release memory
     hl_meta = {}
+    # reset preview match id
+    preview_mid = 0
 enddef
 
 hi fuzzboxHighlights_whitebg ctermbg=white ctermfg=black guibg=white guifg=black
