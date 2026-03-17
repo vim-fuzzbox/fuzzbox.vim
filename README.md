@@ -1,7 +1,5 @@
 # fuzzbox.vim
 
-**Fuzzyy has been renamed to Fuzzbox, new name, same great taste!**
-
 A modern fuzzy finder with minimal dependencies. Written in vim9script using
 Vim's native fuzzing matching, background job, and popup window features, it's
 fast and works out of the box on Mac, Linux, and Windows.
