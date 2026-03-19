@@ -16,6 +16,8 @@ var follow_symlinks = exists('g:fuzzbox_files_follow_symlinks') ?
 var ripgrep_options = exists('g:fuzzbox_files_ripgrep_options')
     && type(g:fuzzbox_files_ripgrep_options) == v:t_list ?
     g:fuzzbox_files_ripgrep_options : g:fuzzbox_ripgrep_options
+var recurse_submodules = exists('g:fuzzbox_files_recurse_submodules') ?
+    g:fuzzbox_files_recurse_submodules : g:fuzzbox_recurse_submodules
 
 def Build_rg(): string
     var result = 'rg --files --no-messages'
@@ -63,7 +65,12 @@ def Build_fd(): string
 enddef
 
 def Build_git(): string
-    var result = 'git ls-files --cached --other --exclude-standard'
+    var result = 'git ls-files --cached --exclude-standard'
+    if recurse_submodules
+        result ..= ' --recurse-submodules'
+    else
+        result ..= ' --other --no-recurse-submodules'
+    endif
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "-x " .. dir .. " ", "")
 

@@ -352,6 +352,21 @@ let g:fuzzbox_follow_symlinks = 0
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_follow_symlinks` and `g:fuzzbox_grep_follow_symlinks`
 
+### g:fuzzbox_recurse_submodules
+Make FuzzyFiles & FuzzyGrep recurse into submodules when using git-ls-files
+or git-grep. Default 0. Only applies when
+1. inside a git repository and git is installed
+2. and neither rg or fd is installed for FuzzyFiles
+3. and neither rg or ag is installed for FuzzyGrep
+```vim
+let g:fuzzbox_recurse_submodules = 0
+```
+This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
+`g:fuzzbox_files_recurse_submodules` and `g:fuzzbox_grep_recurse_submodules`
+
+Note: recursing into submodules is incompatible with including untracked files,
+so enabling this option will remove untracked files from the results.
+
 ### g:fuzzbox_root_patterns
 Patterns to find a project root in supported commands, e.g. FuzzyFilesRoot.
 These commands find a "root" directory to use as the working directory by

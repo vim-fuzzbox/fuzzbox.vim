@@ -45,6 +45,7 @@ endif
 
 # Options referenced from multiple selectors or other scripts
 g:fuzzbox_respect_gitignore = exists('g:fuzzbox_respect_gitignore') ? g:fuzzbox_respect_gitignore : 1
+g:fuzzbox_recurse_submodules = exists('g:fuzzbox_recurse_submodules') ? g:fuzzbox_recurse_submodules : 0
 g:fuzzbox_respect_wildignore = exists('g:fuzzbox_respect_wildignore') ? g:fuzzbox_respect_wildignore : 0
 g:fuzzbox_follow_symlinks = exists('g:fuzzbox_follow_symlinks') ? g:fuzzbox_follow_symlinks : 0
 g:fuzzbox_include_hidden = exists('g:fuzzbox_include_hidden') ? g:fuzzbox_include_hidden : 1

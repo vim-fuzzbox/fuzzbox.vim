@@ -16,6 +16,8 @@ var follow_symlinks = exists('g:fuzzbox_grep_follow_symlinks') ?
 var ripgrep_options = exists('g:fuzzbox_grep_ripgrep_options')
     && type(g:fuzzbox_grep_ripgrep_options) == v:t_list ?
     g:fuzzbox_grep_ripgrep_options : g:fuzzbox_ripgrep_options
+var recurse_submodules = exists('g:fuzzbox_grep_recurse_submodules') ?
+    g:fuzzbox_grep_recurse_submodules : g:fuzzbox_recurse_submodules
 
 var max_count = 1000
 
@@ -84,7 +86,12 @@ def Build_grep(): string
 enddef
 
 def Build_git(): string
-    var result = 'git grep -n -I --column --untracked --exclude-standard -F'
+    var result = 'git grep -n -I --column --exclude-standard -F'
+    if recurse_submodules
+        result ..= ' --recurse-submodules'
+    else
+        result ..= ' --untracked --no-recurse-submodules'
+    endif
     var version = system('git version')->matchstr('\M\(\d\+\.\)\{2}\d\+')
     var [major, minor] = split(version, '\M.')[0 : 1]
     # -m/--max-count option added in git version 2.38.0
