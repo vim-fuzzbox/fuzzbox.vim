@@ -3,7 +3,6 @@ vim9script
 
 import autoload '../internal/selector.vim'
 
-var hl_meta: dict<any>
 var preview_wid: number
 var preview_mid: number
 
@@ -11,16 +10,13 @@ def Preview(wid: number, result: string)
     if wid == -1
         return
     endif
-    if !has_key(hl_meta, result)
-        return
-    endif
-    var line = hl_meta[result][0]
-    win_execute(wid, 'normal! ' .. line .. 'G')
-    win_execute(wid, 'normal! zz')
+    win_execute(wid, "silent! search('\\M\^" .. result .. "\\s\\+xxx', 'cw')")
+    win_execute(wid, 'norm! zz')
     if preview_mid > 0
-        matchdelete(preview_mid, preview_wid)
+        matchdelete(preview_mid, wid)
     endif
-    preview_mid = matchaddpos('fuzzboxPreviewMatch', [[line, 1, len(result)]], 999, -1,  {window: preview_wid})
+    var lnum = getcurpos(wid)[1]
+    preview_mid = matchaddpos('fuzzboxPreviewMatch', [[lnum, 1, len(result)]], 999, -1,  {window: wid})
 enddef
 
 def Select(wid: number, result: string)
@@ -36,56 +32,40 @@ def TogglePreviewBg()
     endif
 enddef
 
-def Close(wid: number)
-    # release memory
-    hl_meta = {}
-    # reset preview match id
-    preview_mid = 0
-enddef
-
 hi fuzzboxHighlights_whitebg ctermbg=white ctermfg=black guibg=white guifg=black
 
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Highlight Groups'
     opts.preview_ratio = has_key(opts, 'preview_ratio') ? opts.preview_ratio : 0.7
 
-    var highlights_raw = substitute(execute('hi'), "\n", " ", "g") .. ' fuzzbox_dummyy xxx'
-    var highlights: list<any> = []
-    def Helper(s: any): number
-        highlights->add(s)
-        return 1
-    enddef
-    substitute(highlights_raw, '\zs[a-zA-Z0-9_.-]\+\s\+xxx[[:alnum:][:blank:]=#,]\{-}\ze\s\+\w\+\s*xxx',
-        '\=Helper(submatch(0))', 'g')
+    # var highlights = execute('hi')->substitute('\v\n\s+', ' ', 'g')->split("\n")
+    var highlights = execute('hi')->split("\n")
 
-    hl_meta = {}
-    for idx in range(len(highlights))
-        var hl_raw = highlights[idx]
-        var xxxidx = hl_raw->match('xxx')
-        var name = split(hl_raw)[0]
-        hl_meta[name] = [idx + 1, xxxidx]
-    endfor
-
-    var wids = selector.Start(keys(hl_meta), extend(opts, {
+    var li: list<string> = getcompletion('', 'highlight')
+    var wids = selector.Start(li, extend(opts, {
         preview_cb: function('Preview'),
         select_cb: function('Select'),
-        close_cb: function('Close'),
         actions: {
             "\<c-k>": function('TogglePreviewBg'),
         }
     }))
 
     preview_wid = wids.preview
-    var menu_wid = wids.menu
+    preview_mid = 0 # always reset to 0 to avoid clearing invalid match ids
 
-    setwinvar(preview_wid, '&number', 0)
     # set preview buffer's content
+    setwinvar(preview_wid, '&number', 0)
     popup_settext(preview_wid, highlights)
 
     # add highlight to preview buffer
-    for [hl, parts] in items(hl_meta)
-        var line = parts[0]
-        var xxxidx = parts[1]
-        var mid = matchaddpos(hl, [[line, xxxidx + 1, 3]], 99, -1,  {window: preview_wid})
+    var lnum: number
+    for line in getbufline(winbufnr(preview_wid), 1, '$')
+        lnum += 1
+        var xxxidx = line->match('xxx')
+        if xxxidx == -1
+            continue
+        endif
+        var hlgroup = line->matchstr('\v^\zs\S+')
+        matchaddpos(hlgroup, [[lnum, xxxidx + 1, 3]], 99, -1,  {window: preview_wid})
     endfor
 enddef
