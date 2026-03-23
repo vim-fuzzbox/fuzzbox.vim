@@ -255,7 +255,13 @@ var ignore_case: string
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Live Grep'
 
-    [cmd_template, sep_pattern, ignore_case] = cmdbuilder.Build()
+    if len(get(opts, 'command', '')) > 0
+        cmd_template = opts.command .. '%s "%s" "%s"'
+        sep_pattern = '\:\d\+:\d\+:'
+        ignore_case = ''
+    else
+        [cmd_template, sep_pattern, ignore_case] = cmdbuilder.Build()
+    endif
 
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     cwdlen = len(cwd)

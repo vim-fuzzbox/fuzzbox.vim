@@ -89,6 +89,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
 | FuzzyTagsRoot         | search tags in the project/vcs root directory
 | FuzzyGitFiles         | search files in output from `git ls-files`
+| FuzzyGitGrep          | search for string in CWD using `git grep`
 | FuzzyPrevious         | reloads the previous selector and search string
 
 - For FuzzyGrep and FuzzyInBuffer, you can define a keymap like this to search
@@ -97,11 +98,14 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
   nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
   ```
 - FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
-  `rg` or `ag` are installed it will also use `git-grep` when in a git repo.
+  `rg` or `ag` are installed it will also use `git-grep` when in a git repo and
+  `g:fuzzbox_respect_gitignore` is true.
 - FuzzyFiles requires one of `rg`, `fd`, `find` or `powershell` commands. If
   neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
-  git repo.
+  git repo and `g:fuzzbox_respect_gitignore` is true.
 - FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
+- FuzzyGitFiles and FuzzyGitGrep are only useful when
+  `g:fuzzbox_respect_gitignore` is false.
 
 ## Mappings
 

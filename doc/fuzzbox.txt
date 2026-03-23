@@ -151,6 +151,7 @@ COMMANDS                                                      *fuzzbox-commands*
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
 | FuzzyTagsRoot         | search tags in the project/vcs root directory
 | FuzzyGitFiles         | search files in output from `git ls-files`
+| FuzzyGitGrep          | search for string in CWD using `git grep`
 | FuzzyPrevious         | reloads the previous selector and search string
 
 * For FuzzyGrep and FuzzyInBuffer, you can define a keymap like this to search
@@ -164,6 +165,8 @@ COMMANDS                                                      *fuzzbox-commands*
   neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
   git repo.
 * FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
+* FuzzyGitFiles and FuzzyGitGrep are only useful when
+  `g:fuzzbox_respect_gitignore` is false
 
 ------------------------------------------------------------------------------
 MAPPINGS                                                      *fuzzbox-mappings*

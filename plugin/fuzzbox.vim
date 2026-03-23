@@ -93,6 +93,7 @@ command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { prompt_text: <q-arg
 command! -nargs=0 FuzzyCommands launcher.Start('commands')
 command! -nargs=0 FuzzyBuffers launcher.Start('buffers')
 command! -nargs=0 FuzzyHighlights launcher.Start('highlights')
+command! -nargs=0 FuzzyGitGrep launcher.Start('grep', { command: 'git grep -n --column' })
 command! -nargs=0 FuzzyGitFiles launcher.Start('files', { command: 'git ls-files' })
 command! -nargs=0 FuzzyCmdHistory launcher.Start('cmdhistory')
 command! -nargs=0 FuzzyMru launcher.Start('mru')
