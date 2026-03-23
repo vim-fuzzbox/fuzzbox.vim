@@ -74,6 +74,7 @@ highlight default link fuzzboxCursor Cursor
 highlight default link fuzzboxNormal Normal
 highlight default link fuzzboxBorder Normal
 highlight default link fuzzboxCounter NonText
+highlight default link fuzzboxLoading Normal
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Search

@@ -610,7 +610,7 @@ augroup END
 ## Syntax highlighting
 
 It is also possible to modify the colors used for highlighting. The defaults are
-shown below, you can change them in your vimrc. See :help :highlight if you are
+shown below, you can change them in your vimrc. See `:help :highlight` if you are
 unfamiliar with Vim highlighting
 
 ```vim
@@ -618,6 +618,7 @@ highlight default link fuzzboxCursor Cursor
 highlight default link fuzzboxNormal Normal
 highlight default link fuzzboxBorder Normal
 highlight default link fuzzboxCounter NonText
+highlight default link fuzzboxLoading Normal
 highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Search

@@ -814,14 +814,21 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     if wins.prompt == -1
         return
     endif
-    if !isloading
+    var hlgroup: string
+    if isloading
+        hlgroup = 'fuzzboxLoading'
+    else
+        hlgroup = 'fuzzboxCounter'
         timer_stop(loading_tid)
     endif
     var bufnr = popup_wins[wins.prompt].bufnr
     var type = 'FuzzboxCounter'
     var prop = prop_type_get(type)
     if empty(prop)
-        prop_type_add(type, {'highlight': type})
+        prop_type_add(type, {'highlight': hlgroup})
+    elseif prop.highlight != hlgroup
+        prop_type_delete(type, {'highlight': prop.highlight})
+        prop_type_add(type, {'highlight': hlgroup})
     endif
     var text: string
     if type(count) == v:t_none
