@@ -1,5 +1,7 @@
 vim9script
 
+import autoload '../../internal/helpers.vim'
+
 # Options
 var respect_gitignore = exists('g:fuzzbox_files_respect_gitignore') ?
     g:fuzzbox_files_respect_gitignore : g:fuzzbox_respect_gitignore
@@ -142,10 +144,6 @@ def Build_gci(): string
     return "powershell -command " .. '"' .. cmd .. '"'
 enddef
 
-def InsideGitRepo(): bool
-    return stridx(system('git rev-parse --is-inside-work-tree'), 'true') == 0
-enddef
-
 export def Build(): string
     var cmdstr = ''
     if executable('rg') # rg is cross-plaform
@@ -155,7 +153,7 @@ export def Build(): string
     elseif executable('fdfind') # debian installs fd as fdfind
         cmdstr = Build_fd()
         cmdstr = substitute(cmdstr, '^fd ', 'fdfind ', '')
-    elseif respect_gitignore && executable('git') && InsideGitRepo()
+    elseif respect_gitignore && executable('git') && helpers.InsideGitRepo()
         cmdstr = Build_git()
     elseif has('win32')
         cmdstr = Build_gci()

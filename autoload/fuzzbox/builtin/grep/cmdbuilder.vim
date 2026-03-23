@@ -1,5 +1,7 @@
 vim9script
 
+import autoload '../../internal/helpers.vim'
+
 # Options
 var respect_gitignore = exists('g:fuzzbox_grep_respect_gitignore') ?
     g:fuzzbox_grep_respect_gitignore : g:fuzzbox_respect_gitignore
@@ -106,10 +108,6 @@ enddef
 
 var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" "%s/*"'
 
-def InsideGitRepo(): bool
-    return stridx(system('git rev-parse --is-inside-work-tree'), 'true') == 0
-enddef
-
 export def Build(): list<any>
     var cmd_template: string
     var sep_pattern: string
@@ -122,7 +120,7 @@ export def Build(): list<any>
         cmd_template = Build_ag()
         ignore_case = ''
         sep_pattern = '\:\d\+:\d\+:'
-    elseif respect_gitignore && executable('git') && InsideGitRepo()
+    elseif respect_gitignore && executable('git') && helpers.InsideGitRepo()
         cmd_template = Build_git()
         ignore_case = '-i'
         sep_pattern = '\:\d\+:\d\+:'

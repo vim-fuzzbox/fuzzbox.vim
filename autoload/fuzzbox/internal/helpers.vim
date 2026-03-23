@@ -18,6 +18,10 @@ export def PathSep(): string
     return fs
 enddef
 
+export def InsideGitRepo(): bool
+    return stridx(system('git rev-parse --is-inside-work-tree'), 'true') == 0
+enddef
+
 export def Warn(msg: string)
     if has('patch-9.0.0321')
         echow msg
