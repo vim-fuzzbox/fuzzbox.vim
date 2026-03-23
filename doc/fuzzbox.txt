@@ -160,13 +160,14 @@ COMMANDS                                                      *fuzzbox-commands*
     nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
 <
 * FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
-  `rg` or `ag` are installed it will also use `git-grep` when in a git repo.
+  `rg` or `ag` are installed it will also use `git-grep` when in a git repo and
+  `g:fuzzbox_respect_gitignore` is true.
 * FuzzyFiles requires one of `rg`, `fd`, `find` or `powershell` commands. If
   neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
-  git repo.
+  git repo and `g:fuzzbox_respect_gitignore` is true.
 * FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
 * FuzzyGitFiles and FuzzyGitGrep are only useful when
-  `g:fuzzbox_respect_gitignore` is false
+  `g:fuzzbox_respect_gitignore` is false.
 
 ------------------------------------------------------------------------------
 MAPPINGS                                                      *fuzzbox-mappings*
@@ -725,13 +726,14 @@ compatibility with other plugins, or customise behaviour, e.g.
 SYNTAX HIGHLIGHTING                                *fuzzbox-syntax_highlighting*
 
 It is also possible to modify the colors used for highlighting. The defaults are
-shown below, you can change them in your vimrc. See :help :highlight if you are
+shown below, you can change them in your vimrc. See `:help :highlight` if you are
 unfamiliar with Vim highlighting
 >
   highlight default link fuzzboxCursor Cursor
   highlight default link fuzzboxNormal Normal
   highlight default link fuzzboxBorder Normal
   highlight default link fuzzboxCounter NonText
+  highlight default link fuzzboxLoading Normal
   highlight default link fuzzboxMatching Special
   highlight default link fuzzboxPreviewMatch Search
   highlight default link fuzzboxPreviewLine Search
