@@ -85,6 +85,7 @@ def Build_grep(): string
     return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -e "%s" "%s"'
 enddef
 
+var git_version: string
 def Build_git(): string
     var result = 'git grep -n -I --column --exclude-standard -F'
     if recurse_submodules
@@ -92,8 +93,10 @@ def Build_git(): string
     else
         result ..= ' --untracked --no-recurse-submodules'
     endif
-    var version = system('git version')->matchstr('\M\(\d\+\.\)\{2}\d\+')
-    var [major, minor] = split(version, '\M.')[0 : 1]
+    if empty(git_version)
+        git_version = system('git version')->matchstr('\M\(\d\+\.\)\{2}\d\+')
+    endif
+    var [major, minor] = split(git_version, '\M.')[0 : 1]
     # -m/--max-count option added in git version 2.38.0
     if str2nr(major) > 2 || ( str2nr(major) == 2 && str2nr(minor) >= 38 )
         result ..= ' --max-count=' .. max_count
