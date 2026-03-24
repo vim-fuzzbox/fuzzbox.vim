@@ -37,8 +37,14 @@ export def Warn(msg: string)
         echow msg
     else
         timer_start(100, (_) => {
-            echohl WarningMsg | echo msg | echohl None
+            echohl WarningMsg | echom msg | echohl None
         }, { repeat: 0 })
+    endif
+enddef
+
+export def Debug(msg: string)
+    if exists('g:fuzzbox_debug') && g:fuzzbox_debug
+        Warn(msg)
     endif
 enddef
 
