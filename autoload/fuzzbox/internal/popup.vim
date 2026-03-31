@@ -232,8 +232,9 @@ enddef
 # update menu window with list of items and positions for matchaddpos()
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
     if has_devicons
-        # avoid modifying source/raw list when adding devicons
-        var new_list = copy(str_list)
+        # avoid modifying source/raw list when adding devicons, and limit
+        # columns to avoid slow rendering of highlights on very long lines
+        var new_list = str_list->mapnew('slice(v:val, 0, 1000)')
         var hl_offset = devicons.GetDeviconOffset()
         var new_hl_list = reduce(hl_list, (a, v) => {
             v[1] += hl_offset
