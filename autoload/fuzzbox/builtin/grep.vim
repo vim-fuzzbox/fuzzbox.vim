@@ -100,7 +100,7 @@ def JobStart(pattern: string)
     else
         cmd_str = printf(cmd_template, '', escape(pattern, '"'), escape(cwd, '"'))
     endif
-    helpers.Debug(cmd_str)
+    helpers.Debug('grep command: ' .. cmd_str)
     jid = job_start(cmd_str, {
         out_cb: function('JobOutCb'),
         out_mode: 'raw',

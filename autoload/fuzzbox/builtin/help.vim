@@ -2,6 +2,7 @@ vim9script
 
 import autoload '../internal/selector.vim'
 import autoload '../internal/popup.vim'
+import autoload '../internal/helpers.vim'
 
 var tag_table: dict<any>
 var tag_files: list<string>
@@ -58,6 +59,9 @@ export def Start(opts: dict<any> = {})
     opts.preview_ratio = has_key(opts, 'preview_ratio') ? opts.preview_ratio : 0.6
 
     tag_files = reverse(split(globpath(&runtimepath, 'doc/tags', 1), '\n'))
+
+    helpers.Debug('help tags files: ' .. tag_files->join(', '))
+
     var file_index = 0
     for file in tag_files
         for line in readfile(file)

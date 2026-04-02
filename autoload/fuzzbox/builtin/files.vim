@@ -137,6 +137,7 @@ export def Start(opts: dict<any> = {})
     else
         cmd = cmdbuilder.Build()
     endif
+    helpers.Debug('files command: ' .. cmd)
     JobStart(cwd, cmd)
     timer_start(100, function('UpdateMenu'))
     update_tid = timer_start(400, function('UpdateMenu'), {repeat: -1})

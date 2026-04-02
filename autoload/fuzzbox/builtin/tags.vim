@@ -164,6 +164,8 @@ export def Start(opts: dict<any> = {})
             endif
         endif
 
+        helpers.Debug('tags files: ' .. tag_files->join(', '))
+
         tag_list = []
         # Possible TODO: use readtags program here, would remove additional info
         # and could also be used to format the lines nicely (fzf.vim does this)

@@ -160,6 +160,5 @@ export def Build(): string
     else
         cmdstr = Build_find()
     endif
-    helpers.Debug(cmdstr)
     return cmdstr
 enddef
