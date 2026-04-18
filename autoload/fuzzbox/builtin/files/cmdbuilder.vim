@@ -44,6 +44,29 @@ def Build_rg(): string
         ' ' .. join(ripgrep_options, ' ')
 enddef
 
+def Build_ag(): string
+    # Note: --search-files is required here to work with Vim jobs, otherwise ag
+    # does not read from stdin, and does not flush to stdout line by line (using
+    # --vimgrep would also work, as that enables opts.search_stream within ag)
+    var result = 'ag --files-with-matches --search-files --silent'
+    if include_hidden
+        result ..= ' --hidden'
+    endif
+    if follow_symlinks
+        result ..= ' --follow'
+    endif
+    if !respect_gitignore
+        result ..= ' --skip-vcs-ignores'
+    endif
+    var dir_list_parsed = reduce(dir_exclude,
+        (acc, dir) => acc .. "--ignore " .. dir .. " ", "")
+
+    var file_list_parsed = reduce(file_exclude,
+        (acc, file) => acc .. "--ignore " .. file .. " ", "")
+
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed
+enddef
+
 def Build_fd(): string
     var result = 'fd --type f' # fd suppresses filesytem errors by default
     if include_hidden
@@ -148,6 +171,8 @@ export def Build(): string
     var cmdstr = ''
     if executable('rg') # rg is cross-plaform
         cmdstr = Build_rg()
+    elseif executable('ag') # ag is cross-plaform
+        cmdstr = Build_ag()
     elseif executable('fd') # fd is also cross-platform
         cmdstr = Build_fd()
     elseif executable('fdfind') # debian installs fd as fdfind
