@@ -26,8 +26,8 @@ systems for finding files and searching in files by default (e.g. `grep`,
 
 ### Optional dependencies
 
-- [ag](https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep if
-  ripgrep not installed
+- [ag](https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep and
+  FuzzyFiles if ag installed while ripgrep not
 - [fd](https://github.com/sharkdp/fd) - used for FuzzyFiles if ripgrep not
   installed
 - [git](https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles when inside git
