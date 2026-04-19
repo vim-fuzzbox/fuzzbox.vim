@@ -27,9 +27,9 @@ systems for finding files and searching in files by default (e.g. `grep`,
 ### Optional dependencies
 
 - [ag](https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep and
-  FuzzyFiles if ag installed while ripgrep not
-- [fd](https://github.com/sharkdp/fd) - used for FuzzyFiles if ripgrep not
-  installed
+  FuzzyFiles if ripgrep not installed
+- [fd](https://github.com/sharkdp/fd) - used for FuzzyFiles if neither ripgrep 
+  or ag are installed
 - [git](https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles when inside git
   repo and no alternative dependency installed
 - [ctags](https://ctags.io) - used to generate tags for FuzzyTags (Universal
