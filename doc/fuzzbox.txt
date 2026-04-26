@@ -86,9 +86,9 @@ SUGGESTED DEPENDENCIES                          *fuzzbox-suggested_dependencies*
 OPTIONAL DEPENDENCIES                            *fuzzbox-optional_dependencies*
 
 * ag (https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep and
-  FuzzyFiles if ag installed while ripgrep not
-* fd (https://github.com/sharkdp/fd) - used for FuzzyFiles if ripgrep not
-  installed
+  FuzzyFiles if ripgrep not installed
+* fd (https://github.com/sharkdp/fd) - used for FuzzyFiles if neither ripgrep
+  or ag are installed
 * git (https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles when inside git
   repo and no alternative dependency installed
 * ctags (https://ctags.io) - used to generate tags for FuzzyTags (Universal
@@ -162,9 +162,9 @@ COMMANDS                                                      *fuzzbox-commands*
 * FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
   `rg` or `ag` are installed it will also use `git-grep` when in a git repo and
   `g:fuzzbox_respect_gitignore` is true.
-* FuzzyFiles requires one of `rg`, `fd`, `find` or `powershell` commands. If
-  neither `rg` or `fd` are installed it will also use `git-ls-files` when in a
-  git repo and `g:fuzzbox_respect_gitignore` is true.
+* FuzzyFiles requires one of `rg`, `ag`, `fd`, `find` or `powershell` commands.
+  If none of `rg`, `ag`, or `fd` are installed it will also use `git-ls-files`
+  when in a git repo and `g:fuzzbox_respect_gitignore` is true.
 * FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
 * FuzzyGitFiles and FuzzyGitGrep are only useful when
   `g:fuzzbox_respect_gitignore` is false.
