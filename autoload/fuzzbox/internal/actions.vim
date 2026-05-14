@@ -25,6 +25,16 @@ def ParseResult(result: string): list<any>
     return [file, str2nr(line), str2nr(col)]
 enddef
 
+def FnameForOpen(path: string): string
+    # Hack for relative paths beginning with + or > on Windows, these have
+    # special meaning for :edit and friends and are escaped by fnameescape(),
+    # resulting in paths like \+\foo.md, interpreted as relative to drive root
+    if iswin && path =~ '\v^(\+|>)'
+        return fnameescape(fnamemodify(path, ':p:~'))
+    endif
+    return fnameescape(fnamemodify(path, ':p:~:.'))
+enddef
+
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
     if wid == -1
         return
@@ -48,7 +58,7 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     helpers.MoveToUsableWindow()
-    execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'edit ' .. FnameForOpen(path)
     if line > 0
         if col > 0
             cursor(line, col)
@@ -67,7 +77,7 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'tabnew ' .. FnameForOpen(path)
     if line > 0
         if col > 0
             cursor(line, col)
@@ -86,7 +96,7 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'vsplit ' .. FnameForOpen(path)
     if line > 0
         if col > 0
             cursor(line, col)
@@ -105,7 +115,7 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'split ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'split ' .. FnameForOpen(path)
     if line > 0
         if col > 0
             cursor(line, col)
