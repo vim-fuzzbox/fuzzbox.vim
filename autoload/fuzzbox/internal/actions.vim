@@ -48,7 +48,7 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     helpers.MoveToUsableWindow()
-    execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'edit ' .. fnameescape(fnamemodify(path, ':p:~'))
     if line > 0
         if col > 0
             cursor(line, col)
@@ -67,7 +67,7 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'tabnew ' .. fnameescape(fnamemodify(path, ':p:~'))
     if line > 0
         if col > 0
             cursor(line, col)
@@ -86,7 +86,7 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'vsplit ' .. fnameescape(fnamemodify(path, ':p:~'))
     if line > 0
         if col > 0
             cursor(line, col)
@@ -105,7 +105,7 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'split ' .. fnameescape(fnamemodify(path, ':p:~:.'))
+    execute 'split ' .. fnameescape(fnamemodify(path, ':p:~'))
     if line > 0
         if col > 0
             cursor(line, col)
