@@ -264,7 +264,7 @@ export def Start(opts: dict<any> = {})
         [cmd_template, sep_pattern, ignore_case] = cmdbuilder.Build()
     endif
 
-    cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+    cwd = len(get(opts, 'cwd', '')) > 0 ? helpers.ParsePath(opts.cwd) : getcwd()
     cwdlen = len(cwd)
     cur_pattern = ''
     cur_result = []

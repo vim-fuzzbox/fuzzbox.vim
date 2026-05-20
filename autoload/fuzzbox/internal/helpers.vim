@@ -86,3 +86,7 @@ export def MoveToUsableWindow(buf: any = null)
         c = c + 1
     endwhile
 enddef
+
+export def ParsePath(path: string): string
+    return simplify(expand(path))
+enddef

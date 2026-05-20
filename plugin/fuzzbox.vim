@@ -86,8 +86,10 @@ import autoload '../autoload/fuzzbox/internal/helpers.vim'
 
 command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
 command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: helpers.GetRootDir(), prompt_text: <q-args> })
+command! -nargs=1 FuzzyGrepDir launcher.Start('grep', { cwd: <q-args> })
 command! -nargs=0 FuzzyFiles launcher.Start('files')
 command! -nargs=0 FuzzyFilesRoot launcher.Start('files', { cwd: helpers.GetRootDir() })
+command! -nargs=1 FuzzyFilesDir launcher.Start('files', { cwd: <q-args> })
 command! -nargs=0 FuzzyHelp launcher.Start('help')
 command! -nargs=0 FuzzyColors launcher.Start('colors')
 command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { prompt_text: <q-args> })

@@ -117,7 +117,7 @@ export def Start(opts: dict<any> = {})
     cur_result = []
     cur_pattern = ''
     last_pattern = '@!#-='
-    cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+    cwd = len(get(opts, 'cwd', '')) > 0 ? helpers.ParsePath(opts.cwd) : getcwd()
     in_loading = 1
     var wids = selector.Start([], extend(opts, {
         select_cb: actions.OpenFile,

@@ -68,8 +68,10 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | ---                   | ---
 | FuzzyFiles            | search files in current working directory (CWD)
 | FuzzyFilesRoot        | search files in the project/vcs root directory
+| FuzzyFilesDir [path]  | search files in the specified directory
 | FuzzyGrep [str]       | search for string in CWD, use [str] if provided
 | FuzzyGrepRoot [str]   | search for string in the project/vcs root directory
+| FuzzyGrepDir [path]   | search for string in the specified directory 
 | FuzzyBuffers          | search opened buffers
 | FuzzyMru              | search most recent used files
 | FuzzyMruCwd           | search most recent used files in CWD
