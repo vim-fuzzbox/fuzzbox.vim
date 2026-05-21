@@ -82,12 +82,12 @@ highlight default link fuzzboxPreviewCol CurSearch
 highlight default link fuzzboxSelectionSign CursorLine
 
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
-import autoload '../autoload/fuzzbox/internal/helpers.vim'
+import autoload '../autoload/fuzzbox/internal/utils.vim'
 
 command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
-command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: helpers.GetRootDir(), prompt_text: <q-args> })
+command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: utils.GetRootDir(), prompt_text: <q-args> })
 command! -nargs=0 FuzzyFiles launcher.Start('files')
-command! -nargs=0 FuzzyFilesRoot launcher.Start('files', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyFilesRoot launcher.Start('files', { cwd: utils.GetRootDir() })
 command! -nargs=0 FuzzyHelp launcher.Start('help')
 command! -nargs=0 FuzzyColors launcher.Start('colors')
 command! -nargs=? FuzzyInBuffer launcher.Start('inbuffer', { prompt_text: <q-args> })
@@ -99,11 +99,11 @@ command! -nargs=0 FuzzyGitFiles launcher.Start('files', { command: 'git ls-files
 command! -nargs=0 FuzzyCmdHistory launcher.Start('cmdhistory')
 command! -nargs=0 FuzzyMru launcher.Start('mru')
 command! -nargs=0 FuzzyMruCwd launcher.Start('mru', { cwd: getcwd() })
-command! -nargs=0 FuzzyMruRoot launcher.Start('mru', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyMruRoot launcher.Start('mru', { cwd: utils.GetRootDir() })
 command! -nargs=0 FuzzyQuickfix launcher.Start('quickfix')
 command! -nargs=0 FuzzyLoclist launcher.Start('loclist')
 command! -nargs=0 FuzzyTags launcher.Start('tags')
-command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', { cwd: helpers.GetRootDir() })
+command! -nargs=0 FuzzyTagsRoot launcher.Start('tags', { cwd: utils.GetRootDir() })
 command! -nargs=0 FuzzyMarks launcher.Start('marks')
 command! -nargs=0 FuzzyJumps launcher.Start('jumps')
 command! -nargs=0 FuzzyArglist launcher.Start('arglist')

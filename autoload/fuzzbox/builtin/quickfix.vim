@@ -3,7 +3,7 @@ vim9script
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 
 var separator = g:fuzzbox_menu_separator
 
@@ -12,7 +12,7 @@ def Select(wid: number, result: string)
         return
     endif
     var nr = str2nr(split(result, separator)[0])
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     echo '' # clear qflist title message
     exe 'cc!' .. nr
 enddef
@@ -61,7 +61,7 @@ def OpenSplit(wid: number, result: string)
     endif
     popup_close(wid)
     var nr = str2nr(split(result, separator)[0])
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     execute 'split'
     execute 'cc!' .. nr
 enddef
@@ -72,7 +72,7 @@ def OpenVSplit(wid: number, result: string)
     endif
     popup_close(wid)
     var nr = str2nr(split(result, separator)[0])
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     execute 'vsplit'
     execute 'cc!' .. nr
 enddef

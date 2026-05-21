@@ -3,9 +3,9 @@ vim9script
 import autoload './devicons.vim'
 import autoload './popup.vim'
 import autoload './previewer.vim'
-import autoload './helpers.vim'
+import autoload './utils.vim'
 
-var iswin = helpers.IsWin()
+var iswin = utils.IsWin()
 
 # Note: for actions that open or preview files, fnamemodify() is used to ensure
 # a readable path. On Unix emulation envinronments like Git-Bash / Mingw-w64,
@@ -57,7 +57,7 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var [file, line, col] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     execute 'edit ' .. FnameForOpen(path)
     if line > 0
         if col > 0

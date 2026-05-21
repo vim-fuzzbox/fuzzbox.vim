@@ -5,7 +5,7 @@ scriptencoding utf-8
 import autoload './colors.vim'
 import autoload './devicons.vim'
 import autoload './launcher.vim'
-import autoload './helpers.vim'
+import autoload './utils.vim'
 
 var popup_wins: dict<any>
 var wins = { menu: -1, prompt: -1, preview: -1 }
@@ -120,7 +120,7 @@ def ResolveCursor()
         # foreground and/or background not known and used as ctermfg or ctermbg
         hlset([fallback])
     catch
-        helpers.Warn('Fuzzbox: failed to resolve cursor highlight: ' .. v:exception)
+        utils.Warn('Fuzzbox: failed to resolve cursor highlight: ' .. v:exception)
         hlset([fallback])
     endtry
 enddef
@@ -167,7 +167,7 @@ def InvokeAction(Action: func, wid: number = wins.menu)
                 catch /\v:(E118):/
                     Action()
                 catch
-                    helpers.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
+                    utils.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
                 endtry
             endtry
         endtry
@@ -179,7 +179,7 @@ def InvokeAction(Action: func, wid: number = wins.menu)
         catch /\v:(E118):/
             Action(wid, [linetext])
         catch
-            helpers.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
+            utils.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
         endtry
     endtry
 enddef

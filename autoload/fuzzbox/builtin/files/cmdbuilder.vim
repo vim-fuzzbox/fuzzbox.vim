@@ -1,6 +1,6 @@
 vim9script
 
-import autoload '../../internal/helpers.vim'
+import autoload '../../internal/utils.vim'
 
 # Options
 var respect_gitignore = exists('g:fuzzbox_files_respect_gitignore') ?
@@ -178,7 +178,7 @@ export def Build(): string
     elseif executable('fdfind') # debian installs fd as fdfind
         cmdstr = Build_fd()
         cmdstr = substitute(cmdstr, '^fd ', 'fdfind ', '')
-    elseif respect_gitignore && executable('git') && helpers.InsideGitRepo()
+    elseif respect_gitignore && executable('git') && utils.InsideGitRepo()
         cmdstr = Build_git()
     elseif has('win32')
         cmdstr = Build_gci()

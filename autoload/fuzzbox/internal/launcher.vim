@@ -1,7 +1,7 @@
 vim9script
 
 import autoload './popup.vim'
-import autoload './helpers.vim'
+import autoload './utils.vim'
 
 var window_opts: dict<any>
 if exists('g:fuzzbox_window_options') && type(g:fuzzbox_window_options) == v:t_dict
@@ -24,13 +24,13 @@ export def Start(selector: string, opts: dict<any> = {})
     endif
 
     if exists('g:__fuzzbox_warnings_found') && g:__fuzzbox_warnings_found
-        helpers.Warn('Fuzzbox started with warnings, use :FuzzyShowWarnings command to see details')
+        utils.Warn('Fuzzbox started with warnings, use :FuzzyShowWarnings command to see details')
     endif
 enddef
 
 export def Resume()
     if !exists('g:__fuzzbox_launcher_cache') || empty(g:__fuzzbox_launcher_cache)
-        helpers.Warn('fuzzbox: no previous search to resume')
+        utils.Warn('fuzzbox: no previous search to resume')
         return
     endif
     for e in g:__fuzzbox_launcher_cache
@@ -48,7 +48,7 @@ export def Resume()
     endfor
     # clear cache, no items in cache have saved prompt, so cannot be resumed
     g:__fuzzbox_launcher_cache = []
-    helpers.Warn('fuzzbox: no previous search to resume')
+    utils.Warn('fuzzbox: no previous search to resume')
 enddef
 
 export def Save(wins: dict<any>)
@@ -64,6 +64,6 @@ export def Save(wins: dict<any>)
             remove(g:__fuzzbox_launcher_cache, 0)
         endif
     catch
-        helpers.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
+        utils.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
     endtry
 enddef

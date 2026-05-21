@@ -4,7 +4,7 @@ import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/devicons.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 import autoload '../internal/actions.vim'
 import autoload './grep/cmdbuilder.vim'
 
@@ -100,7 +100,7 @@ def JobStart(pattern: string)
     else
         cmd_str = printf(cmd_template, '', escape(pattern, '"'), escape(cwd, '"'))
     endif
-    helpers.Debug('grep command: ' .. cmd_str)
+    utils.Debug('grep command: ' .. cmd_str)
     jid = job_start(cmd_str, {
         out_cb: function('JobOutCb'),
         out_mode: 'raw',
@@ -112,7 +112,7 @@ enddef
 
 def JobOutCb(channel: channel, msg: string)
     if job_info(ch_getjob(channel)).process == pid
-        var lists = helpers.Split(msg)
+        var lists = utils.Split(msg)
         cur_result += lists
     endif
 enddef

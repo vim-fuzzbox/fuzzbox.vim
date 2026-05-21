@@ -1,7 +1,7 @@
 vim9script
 
 import autoload './popup.vim'
-import autoload './helpers.vim'
+import autoload './utils.vim'
 import autoload './actions.vim'
 
 var raw_list: list<string>

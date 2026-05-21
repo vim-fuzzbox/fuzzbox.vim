@@ -4,7 +4,7 @@ import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/devicons.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 import autoload '../internal/actions.vim'
 
 # Options

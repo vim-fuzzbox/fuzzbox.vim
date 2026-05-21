@@ -2,13 +2,13 @@ vim9script
 
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 
 var tag_list: list<string>
 var tag_files = []
 var tag_dirs = []
 var cwd: string
-var fs = helpers.PathSep()
+var fs = utils.PathSep()
 var menu_wid: number
 
 def ParseResult(result: string): list<any>
@@ -55,7 +55,7 @@ def Select(wid: number, result: string)
     var [tagname, tagfile, tagaddress] = ParseResult(result)
     var path = ExpandPath(tagfile)
     if filereadable(path)
-        helpers.MoveToUsableWindow()
+        utils.MoveToUsableWindow()
         exe 'edit ' .. fnameescape(path)
         JumpToAddress(tagaddress)
     endif
@@ -164,7 +164,7 @@ export def Start(opts: dict<any> = {})
             endif
         endif
 
-        helpers.Debug('tags files: ' .. tag_files->join(', '))
+        utils.Debug('tags files: ' .. tag_files->join(', '))
 
         tag_list = []
         # Possible TODO: use readtags program here, would remove additional info

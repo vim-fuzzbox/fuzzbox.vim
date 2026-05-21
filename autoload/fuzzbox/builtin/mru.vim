@@ -3,14 +3,14 @@ vim9script
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/devicons.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 import autoload '../internal/actions.vim'
 
 var mru_origin_list: list<string>
 var cwd: string
 var cwd_only: bool
 var cwdlen: number
-var fs = helpers.PathSep()
+var fs = utils.PathSep()
 var menu_wid: number
 
 # Options

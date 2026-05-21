@@ -3,7 +3,7 @@ vim9script
 import autoload '../internal/selector.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 
 var loclist: list<any>
 
@@ -63,7 +63,7 @@ def OpenSplit(wid: number, result: string)
     endif
     popup_close(wid)
     var [fname, lnum, col] = ParseResult(result)
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     exe 'split ' .. fnameescape(fname)
     exe 'norm! ' .. lnum .. 'G'
     exe 'norm! zz'
@@ -75,7 +75,7 @@ def OpenVSplit(wid: number, result: string)
     endif
     popup_close(wid)
     var [fname, lnum, col] = ParseResult(result)
-    helpers.MoveToUsableWindow()
+    utils.MoveToUsableWindow()
     exe 'vsplit ' .. fnameescape(fname)
     exe 'norm! ' .. lnum .. 'G'
     exe 'norm! zz'

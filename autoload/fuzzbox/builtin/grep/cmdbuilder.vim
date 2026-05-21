@@ -1,6 +1,6 @@
 vim9script
 
-import autoload '../../internal/helpers.vim'
+import autoload '../../internal/utils.vim'
 
 # Options
 var respect_gitignore = exists('g:fuzzbox_grep_respect_gitignore') ?
@@ -120,7 +120,7 @@ export def Build(): list<any>
         cmd_template = Build_ag()
         ignore_case = ''
         sep_pattern = '\:\d\+:\d\+:'
-    elseif respect_gitignore && executable('git') && helpers.InsideGitRepo()
+    elseif respect_gitignore && executable('git') && utils.InsideGitRepo()
         cmd_template = Build_git()
         ignore_case = '-i'
         sep_pattern = '\:\d\+:\d\+:'

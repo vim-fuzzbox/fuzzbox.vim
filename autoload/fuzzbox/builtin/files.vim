@@ -4,7 +4,7 @@ import autoload '../internal/selector.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/previewer.vim'
 import autoload '../internal/devicons.vim'
-import autoload '../internal/helpers.vim'
+import autoload '../internal/utils.vim'
 import autoload '../internal/actions.vim'
 import autoload './files/cmdbuilder.vim'
 
@@ -48,7 +48,7 @@ def JobStart(path: string, cmd: string)
 enddef
 
 def JobOutCb(channel: channel, msg: string)
-    var lists = helpers.Split(msg)
+    var lists = utils.Split(msg)
     cur_result += lists
 enddef
 
@@ -137,7 +137,7 @@ export def Start(opts: dict<any> = {})
     else
         cmd = cmdbuilder.Build()
     endif
-    helpers.Debug('files command: ' .. cmd)
+    utils.Debug('files command: ' .. cmd)
     JobStart(cwd, cmd)
     timer_start(100, function('UpdateMenu'))
     update_tid = timer_start(400, function('UpdateMenu'), {repeat: -1})
