@@ -815,6 +815,10 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     if wins.prompt == -1
         return
     endif
+    # ability to align virtual text only added in Vim 9.0.0121
+    if !has('patch-9.0.0121')
+        return
+    endif
     var hlgroup: string
     if isloading
         hlgroup = 'fuzzboxLoading'
