@@ -149,25 +149,49 @@ def ShowCursor()
     endif
 enddef
 
+# legacy script function to get v:stacktrace to avoid function compile errors on
+# Vim versions that do not include it (only added to Vim in version 9.1.0984)
+# Note: get(v:, 'stacktrace') in a vim9 function throws E1075: Namespace not supported: v:, 'stacktrace'
+function GetStackTrace()
+  return get(v:, 'stacktrace')
+endfunction
+
 def InvokeAction(Action: func, wid: number = wins.menu)
     if Action == null # allow for null_function
         return
     endif
     var linetext = GetCursorItem()
+
+    # Hacky code to support optional arguments in action function definitions
+    # Checks for "Vim:E118: Too many arguments" thrown by invoking actions
+    #
+    # The check for a throwpoint relies on Vim formatting of that string, e.g.
+    # <SNR>266_Select at function <SNR>265_MenuFilter[77]..<SNR>265_InvokeAction, line 7
+    # A check on the stacktrace is preferred as assumed to be more reliable, but
+    # this was only added in Vim 9.1.0984, hence the convoluted code to check it
+    def RethrowIfActionError()
+        if exists('v:stacktrace')
+            if expand('<script>:p') != GetStackTrace()[-1]['filepath']
+                echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
+            endif
+        elseif v:throwpoint !~# 'InvokeAction,'
+            echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
+        endif
+    enddef
     try
         try
             Action(wid, linetext, popup_opts)
         catch /\v:(E118):/
+            RethrowIfActionError()
             try
                 Action(wid, linetext)
             catch /\v:(E118):/
-                # Experimental: don't rely on this within custom selectors
+                RethrowIfActionError()
                 try
                     Action(wid)
                 catch /\v:(E118):/
+                    RethrowIfActionError()
                     Action()
-                catch
-                    utils.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
                 endtry
             endtry
         endtry
@@ -177,9 +201,8 @@ def InvokeAction(Action: func, wid: number = wins.menu)
         try
             Action(wid, [linetext], popup_opts)
         catch /\v:(E118):/
+            RethrowIfActionError()
             Action(wid, [linetext])
-        catch
-            utils.Warn('fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint)
         endtry
     endtry
 enddef
