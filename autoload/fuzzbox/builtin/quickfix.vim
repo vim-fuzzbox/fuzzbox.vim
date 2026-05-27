@@ -5,6 +5,7 @@ import autoload '../internal/previewer.vim'
 import autoload '../internal/popup.vim'
 import autoload '../internal/utils.vim'
 
+var async_limit = g:fuzzbox_async_limit
 var separator = g:fuzzbox_menu_separator
 
 def Select(wid: number, result: string)
@@ -151,7 +152,7 @@ export def Start(opts: dict<any> = {})
 
     # Move cursor to the current item in the quickfix list
     var move = nr - 1
-    if move > 0 && move < selector.async_limit
+    if move > 0 && move < async_limit
         if opts.dropdown
             win_execute(wids.menu, "norm! " .. move .. "j")
         else
