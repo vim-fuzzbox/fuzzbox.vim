@@ -152,7 +152,7 @@ enddef
 # legacy script function to get v:stacktrace to avoid function compile errors on
 # Vim versions that do not include it (only added to Vim in version 9.1.0984)
 # Note: get(v:, 'stacktrace') in a vim9 function throws E1075: Namespace not supported: v:, 'stacktrace'
-function GetStackTrace()
+function GetStackTraceVar()
   return get(v:, 'stacktrace')
 endfunction
 
@@ -171,7 +171,7 @@ def InvokeAction(Action: func, wid: number = wins.menu)
     # this was only added in Vim 9.1.0984, hence the convoluted code to check it
     def RethrowIfActionError()
         if exists('v:stacktrace')
-            if expand('<script>:p') != GetStackTrace()[-1]['filepath']
+            if expand('<script>:p') != GetStackTraceVar()[-1]['filepath']
                 echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
             endif
         elseif v:throwpoint !~# 'InvokeAction,'
