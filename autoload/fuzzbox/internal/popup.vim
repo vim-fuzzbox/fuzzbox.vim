@@ -149,13 +149,6 @@ def ShowCursor()
     endif
 enddef
 
-# legacy script function to get v:stacktrace to avoid function compile errors on
-# Vim versions that do not include it (only added to Vim in version 9.1.0984)
-# Note: get(v:, 'stacktrace') in a vim9 function throws E1075: Namespace not supported: v:, 'stacktrace'
-function GetStackTraceVar()
-  return get(v:, 'stacktrace')
-endfunction
-
 def InvokeAction(Action: func, wid: number = wins.menu)
     if Action == null # allow for null_function
         return
@@ -167,11 +160,10 @@ def InvokeAction(Action: func, wid: number = wins.menu)
     #
     # The check for a throwpoint relies on Vim formatting of that string, e.g.
     # <SNR>266_Select at function <SNR>265_MenuFilter[77]..<SNR>265_InvokeAction, line 7
-    # A check on the stacktrace is preferred as assumed to be more reliable, but
-    # this was only added in Vim 9.1.0984, hence the convoluted code to check it
+    # Checking v:stacktrace is preferred but this was only added in Vim 9.1.0984
     def RethrowIfActionError()
-        if exists('v:stacktrace')
-            if expand('<script>:p') != GetStackTraceVar()[-1]['filepath']
+        if exists_compiled('v:stacktrace')
+            if expand('<script>:p') != v:stacktrace[-1]['filepath']
                 echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
             endif
         elseif v:throwpoint !~# 'InvokeAction,'
