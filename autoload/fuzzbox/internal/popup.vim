@@ -396,6 +396,11 @@ def PromptFilter(wid: number, key: string): number
         if cur_pos < 0
             cur_pos = 0
         endif
+    elseif key == "P" && has('gui') && line->slice(cur_pos - 3, cur_pos) == ['"', '+', 'g']
+        # handle gvim & macvim paste, copied from scope.vim, thanks @girishji
+        var pasted = getreg('+')->split('\zs')
+        line = line->slice(0, cur_pos - 3) + pasted + line->slice(cur_pos)
+        cur_pos = (cur_pos - 3) + len(pasted)
     elseif (ascii_val >= 32 && ascii_val <= 126) || (ascii_val >= 160)
         if cur_pos == len(line)
             line->add(key)
