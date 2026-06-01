@@ -7,7 +7,7 @@ vim9script
 # creating a full Fuzzbox extension, e.g.
 #
 #   " Custom Fuzzbox command to search all files in CWD using ripgrep
-#   command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files'})
+#   command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files', title: 'All Files'})
 #
 #   " Custom Fuzzbox selector to toggle some pre-defined Vim options
 #   function! FuzzyToggleCb(wid, result)
