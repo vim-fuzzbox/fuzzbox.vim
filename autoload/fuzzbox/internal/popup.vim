@@ -327,16 +327,7 @@ def PromptFilter(wid: number, key: string): number
     var max_pos = popup_wins[wid].cursor_args.max_pos
     var last_displayed_line = popup_wins[wid].prompt.displayed_line
     var ascii_val = char2nr(key)
-    if (len(key) == 1 && ascii_val >= 32 && ascii_val <= 126)
-        || (ascii_val >= 19968 && ascii_val <= 205743) # chinese or more character support
-        if cur_pos == len(line)
-            line->add(key)
-        else
-            var pre = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : []
-            line = pre + [key] + line[cur_pos :]
-        endif
-        cur_pos += 1
-    elseif index(keymaps['backspace'], key) >= 0
+    if index(keymaps['backspace'], key) >= 0
         if cur_pos == len(line)
             line = line[: -2]
         else
@@ -344,10 +335,6 @@ def PromptFilter(wid: number, key: string): number
             line = before + line[cur_pos :]
         endif
         cur_pos = max([ 0, cur_pos - 1 ])
-    elseif key == "\<Left>"
-        cur_pos = max([ 0, cur_pos - 1 ])
-    elseif key == "\<Right>"
-        cur_pos = min([ max_pos, cur_pos + 1 ])
     elseif index(keymaps['delete'], key) >= 0
         if cur_pos == max_pos
             line = line[: -2]
@@ -392,6 +379,10 @@ def PromptFilter(wid: number, key: string): number
     elseif index(keymaps['delete_prefix'], key) >= 0
         line = line[cur_pos :]
         cur_pos = 0
+    elseif key == "\<Left>"
+        cur_pos = max([ 0, cur_pos - 1 ])
+    elseif key == "\<Right>"
+        cur_pos = min([ max_pos, cur_pos + 1 ])
     elseif key ==? "\<LeftMouse>" || key ==? "\<2-LeftMouse>"
         var pos = getmousepos()
         if pos.winid != wid
@@ -405,6 +396,14 @@ def PromptFilter(wid: number, key: string): number
         if cur_pos < 0
             cur_pos = 0
         endif
+    elseif (ascii_val >= 32 && ascii_val <= 126) || (ascii_val >= 160)
+        if cur_pos == len(line)
+            line->add(key)
+        else
+            var pre = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : []
+            line = pre + [key] + line[cur_pos :]
+        endif
+        cur_pos += 1
     else
         # catch all unhandled keys
         return 1
