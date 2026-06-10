@@ -6,6 +6,7 @@ import autoload './colors.vim'
 import autoload './devicons.vim'
 import autoload './launcher.vim'
 import autoload './utils.vim'
+import autoload './inspect.vim'
 
 var popup_wins: dict<any>
 var wins = { menu: -1, prompt: -1, preview: -1 }
@@ -155,48 +156,25 @@ def InvokeAction(Action: func, wid: number = wins.menu)
     endif
     var linetext = GetCursorItem()
 
-    # Hacky code to support optional arguments in action function definitions
-    # Checks for "Vim:E118: Too many arguments" thrown by invoking actions
-    #
-    # The check for a throwpoint relies on Vim formatting of that string, e.g.
-    # <SNR>266_Select at function <SNR>265_MenuFilter[77]..<SNR>265_InvokeAction, line 7
-    # Checking v:stacktrace is preferred but this was only added in Vim 9.1.0984
-    def RethrowIfActionError()
-        if exists_compiled('v:stacktrace')
-            if expand('<script>:p') != v:stacktrace[-1]['filepath']
-                echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
-            endif
-        elseif v:throwpoint !~# 'InvokeAction,'
-            echoerr 'fuzzbox: ' .. v:exception .. ' at ' .. v:throwpoint
+    var signature = inspect.Signature(Action)
+
+    var args: list<any>
+    if len(signature) > 0
+        args->add(wid)
+    endif
+    if len(signature) > 1
+        if signature[1] =~ '^list<\l\+>$'
+            # backwards compatibility with old signature, result as list
+            args->add([linetext])
+        else
+            args->add(linetext)
         endif
-    enddef
-    try
-        try
-            Action(wid, linetext, popup_opts)
-        catch /\v:(E118):/
-            RethrowIfActionError()
-            try
-                Action(wid, linetext)
-            catch /\v:(E118):/
-                RethrowIfActionError()
-                try
-                    Action(wid)
-                catch /\v:(E118):/
-                    RethrowIfActionError()
-                    Action()
-                endtry
-            endtry
-        endtry
-    catch /\v:(E1013):/
-        # backwards compat with old function signature, expected result as list
-        # Handles "Argument 2: type mismatch, expected list<any> but got string"
-        try
-            Action(wid, [linetext], popup_opts)
-        catch /\v:(E118):/
-            RethrowIfActionError()
-            Action(wid, [linetext])
-        endtry
-    endtry
+    endif
+    if len(signature) > 2
+        args->add(popup_opts)
+    endif
+
+    call(Action, args)
 enddef
 
 # Called usually when popup window is closed
