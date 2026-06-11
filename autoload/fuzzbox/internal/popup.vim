@@ -6,7 +6,6 @@ import autoload './colors.vim'
 import autoload './devicons.vim'
 import autoload './launcher.vim'
 import autoload './utils.vim'
-import autoload './inspect.vim'
 
 var popup_wins: dict<any>
 var wins = { menu: -1, prompt: -1, preview: -1 }
@@ -156,21 +155,21 @@ def InvokeAction(Action: func, wid: number = wins.menu)
     endif
     var linetext = GetCursorItem()
 
-    var signature = inspect.Signature(Action)
+    var sig = typename(Action)->matchlist('func(\(.*\))$')[1]->split(', ')
 
     var args: list<any>
-    if len(signature) > 0
+    if len(sig) > 0
         args->add(wid)
     endif
-    if len(signature) > 1
-        if signature[1] =~ '^list<\l\+>$'
-            # backwards compatibility with old signature, result as list
+    if len(sig) > 1
+        if sig[1] =~ '^list<\l\+>$'
+            # backwards compatibility with old sig, result as list
             args->add([linetext])
         else
             args->add(linetext)
         endif
     endif
-    if len(signature) > 2
+    if len(sig) > 2
         args->add(popup_opts)
     endif
 
