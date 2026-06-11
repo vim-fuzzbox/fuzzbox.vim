@@ -7,9 +7,6 @@ var preview_wid: number
 var preview_mid: number
 
 def Preview(wid: number, result: string)
-    if wid == -1
-        return
-    endif
     win_execute(wid, "silent! search('\\M\^" .. result .. "\\s\\+xxx', 'cw')")
     win_execute(wid, 'norm! zz')
     if preview_mid > 0

@@ -169,9 +169,6 @@ def UpdatePreviewHl()
 enddef
 
 def Preview(wid: number, result: string, opts: dict<any>)
-    if wid == -1
-        return
-    endif
     cur_menu_item = result
 
     actions.PreviewFile(wid, result, opts)

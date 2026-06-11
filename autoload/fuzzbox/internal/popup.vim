@@ -251,16 +251,20 @@ def MenuCursorContentChangeCb()
         sign_unplace('PopUpFuzzbox', {buffer: bufnr, id: 1})
         sign_place(1, 'PopUpFuzzbox', 'FuzzboxSelection', bufnr, {lnum: lnum})
     endif
-    if has_key(popup_wins[wins.menu], 'preview_cb')
-        if type(popup_wins[wins.menu].preview_cb) == v:t_func
-            # timer to avoid triggering preview unnecessarily during mouse scroll
-            timer_stop(preview_tid)
-            preview_tid = timer_start(30, (_) => {
-                if active # allow for popups to have closed when lambda is invoked
-                    InvokeAction(popup_wins[wins.menu].preview_cb, wins.preview)
-                endif
-            }, { repeat: 0 })
-        endif
+    if has_key(popup_wins[wins.menu], 'change_cb') &&
+            type(popup_wins[wins.menu].change_cb) == v:t_func
+            InvokeAction(popup_wins[wins.menu].change_cb, wins.menu)
+    endif
+    if wins.preview != -1 &&
+            has_key(popup_wins[wins.preview], 'preview_cb') &&
+            type(popup_wins[wins.preview].preview_cb) == v:t_func
+        # timer to avoid triggering preview unnecessarily during mouse scroll
+        timer_stop(preview_tid)
+        preview_tid = timer_start(30, (_) => {
+            if active # allow for popups to have closed when lambda is invoked
+                InvokeAction(popup_wins[wins.preview].preview_cb, wins.preview)
+            endif
+        }, { repeat: 0 })
     endif
 enddef
 
@@ -565,7 +569,7 @@ def CreatePopup(args: dict<any>): number
        highlight: 'fuzzboxNormal', }
 
     for key in ['filter', 'border', 'borderhighlight', 'highlight', 'borderchars',
-    'scrollbar', 'padding', 'wrap', 'zindex', 'title']
+            'scrollbar', 'padding', 'wrap', 'zindex', 'title']
         if has_key(args, key)
             opts[key] = args[key]
         endif
@@ -590,20 +594,17 @@ def CreatePopup(args: dict<any>): number
          highlights: {},
          noscrollbar_width: noscrollbar_width,
          validrow: 0,
-         preview_cb: null,
          line: args.line,
          col: args.col,
          width: args.width,
          height: args.height,
-         reverse_menu: 0,
-         dropdown: 0,
          cursor_item: null,
          wid: wid,
          update_delay_timer: -1,
          prompt_delay_timer: -1,
          }
 
-    for key in ['dropdown', 'reverse_menu', 'preview_cb', 'close_cb', 'select_cb']
+    for key in ['dropdown', 'reverse_menu', 'preview_cb', 'close_cb', 'select_cb', 'change_cb']
         if has_key(args, key)
             popup_wins[wid][key] = args[key]
         endif
@@ -1025,7 +1026,7 @@ export def PopupSelection(opts: dict<any>): dict<any>
     var menu_opts = {
         select_cb: has_key(opts, 'select_cb') ? opts.select_cb : null,
         close_cb: has_key(opts, 'close_cb') ? opts.close_cb : null,
-        preview_cb: has_key(opts, 'preview_cb') ? opts.preview_cb : null,
+        change_cb: has_key(opts, 'change_cb') ? opts.change_cb : null,
         scrollbar: has_key(opts, 'scrollbar') ? opts.scrollbar : 0,
         reverse_menu: reverse_menu,
         yoffset: menu_yoffset,
@@ -1044,11 +1045,11 @@ export def PopupSelection(opts: dict<any>): dict<any>
     popup_wins[wins.menu].partids = wins
 
     var prompt_opts = {
+        input_cb: has_key(opts, 'input_cb') ? opts.input_cb : null,
         yoffset: prompt_yoffset,
         xoffset: xoffset,
         width: menu_width,
         dropdown: dropdown,
-        input_cb: has_key(opts, 'input_cb') ? opts.input_cb : null,
         zindex: 1010,
     }
     if has_key(opts, 'prompt_title')
@@ -1069,8 +1070,9 @@ export def PopupSelection(opts: dict<any>): dict<any>
         var prompt_row = popup_wins[wins.prompt].line
         prompt_height = popup_wins[wins.prompt].height
         # var preview_height = prompt_row - menu_row + prompt_height
-        var preview_height =  menu_height + prompt_height + 2
+        var preview_height = menu_height + prompt_height + 2
         var preview_opts = {
+            preview_cb: has_key(opts, 'preview_cb') ? opts.preview_cb : null,
             width: preview_width,
             height: preview_height,
             yoffset: yoffset,

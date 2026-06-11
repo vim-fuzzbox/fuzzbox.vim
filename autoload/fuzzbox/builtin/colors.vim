@@ -13,7 +13,7 @@ def GetColors(): list<string>
    )))
 enddef
 
-def Preview(wid: number, result: string)
+def Change(wid: number, result: string)
     if empty(result)
         return
     endif
@@ -52,7 +52,7 @@ export def Start(opts: dict<any> = {})
     var colors = GetColors()
 
     var wids = selector.Start(colors, extend(opts, {
-        preview_cb: function('Preview'),
+        change_cb: function('Change'),
         select_cb: function('Select'),
         close_cb: function('Close'),
         preview: 0

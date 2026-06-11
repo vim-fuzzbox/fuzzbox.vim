@@ -258,6 +258,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
         has_key(opts, 'async') && opts.async ? function('InputAsync') : function('Input')
     )
+    opts.change_cb = has_key(opts, 'change_cb') ? opts.change_cb : null
 
     opts.devicons = has_key(opts, 'devicons') ? opts.devicons : false
     opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : defaults.dropdown

@@ -22,9 +22,6 @@ def ParseResult(result: string): list<any>
 enddef
 
 def Preview(wid: number, result: string)
-    if wid == -1
-        return
-    endif
     if empty(result)
         previewer.PreviewText(wid, '')
         return

@@ -36,9 +36,6 @@ def FnameForOpen(path: string): string
 enddef
 
 export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
-    if wid == -1
-        return
-    endif
     if empty(result)
         previewer.PreviewText(wid, '')
         return
