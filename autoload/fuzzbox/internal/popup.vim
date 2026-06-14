@@ -185,12 +185,19 @@ def GeneralPopupCallback(wid: number, select: any)
     if wid != wins.menu
         return
     endif
+
     launcher.Save(wins)
+
+    if has_key(popup_wins[wid], 'close_cb')
+            && type(popup_wins[wid].close_cb) == v:t_func
+        InvokeAction(popup_wins[wid].close_cb, wid)
+    endif
 
     # we need to redraw if the windows overlap the statusline and cmdline
     var total_height = popup_wins[wins.menu].height + popup_wins[wins.prompt].height + 4 # 4 = borderchars
     var redraw_required = total_height >= &lines - &cmdheight
 
+    # close each of the popup windows
     for key in keys(wins)
         if len(getwininfo(wins[key])) > 0 && wins[key] != wid
             popup_close(wins[key])
@@ -201,16 +208,11 @@ def GeneralPopupCallback(wid: number, select: any)
     # restore things to normal
     ShowCursor()
     active = false
-
-    if has_key(popup_wins[wid], 'close_cb')
-      && type(popup_wins[wid].close_cb) == v:t_func
-        popup_wins[wid].close_cb(wid)
-    endif
+    popup_wins = {}
+    popup_opts = {}
 
     # Clean up any running timers etc., see selector.vim
     doautocmd <nomodeline> User __FuzzboxCleanup
-
-    popup_wins = {}
 
     if redraw_required
         redraw
