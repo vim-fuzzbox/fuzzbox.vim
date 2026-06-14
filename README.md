@@ -6,9 +6,9 @@ fast and works out of the box on Mac, Linux, and Windows.
 
 ## Screenshot
 
-![screenshot](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
-[](https://raw.githubusercontent.com/vim-fuzzbox/showcase/refs/heads/main/screenshot.png)
-Visit the [showcase](https://github.com/vim-fuzzbox/showcase) for other examples
+![screenshot](https://raw.githubusercontent.com/vim-fuzzbox/fuzzbox-showcase/refs/heads/main/screenshot.png)
+[](https://raw.githubusercontent.com/vim-fuzzbox/fuzzbox-showcase/refs/heads/main/screenshot.png)
+Visit the [showcase](https://github.com/vim-fuzzbox/fuzzbox-showcase) for other examples
 
 ## Requirements
 
