@@ -205,14 +205,16 @@ def GeneralPopupCallback(wid: number, select: any)
         wins[key] = -1
     endfor
 
+    # call cleanup function from selector.vim, stop running timers etc.
+    if has_key(popup_opts, 'cleanup') && type(popup_opts.cleanup) == v:t_func
+        call(popup_opts.cleanup, [])
+    endif
+
     # restore things to normal
     ShowCursor()
     active = false
     popup_wins = {}
     popup_opts = {}
-
-    # Clean up any running timers etc., see selector.vim
-    doautocmd <nomodeline> User __FuzzboxCleanup
 
     if redraw_required
         redraw

@@ -270,6 +270,8 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
 
     opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
 
+    opts.cleanup = () => timer_stop(async_tid)
+
     var wids = popup.PopupSelection(extendnew(defaults, opts))
     raw_list = li_raw
     len_list = len(raw_list)
@@ -280,12 +282,5 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         UpdateResults(raw_list, [], len_list, len_list)
     endif
 
-    # User autocmd triggered when closing popups to clean up any running timers
-    # Note: calling timer_stop() from a lambda expression does not work here
-    autocmd User __FuzzboxCleanup ++once Cleanup()
     return wids
-enddef
-
-def Cleanup()
-    timer_stop(async_tid)
 enddef
