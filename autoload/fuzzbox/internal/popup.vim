@@ -570,7 +570,8 @@ def CreatePopup(args: dict<any>): number
        border: [1],
        borderchars: borderchars,
        borderhighlight: ['fuzzboxBorder'],
-       highlight: 'fuzzboxNormal', }
+       highlight: 'fuzzboxNormal'
+    }
 
     for key in ['filter', 'border', 'borderhighlight', 'highlight', 'borderchars',
             'scrollbar', 'padding', 'wrap', 'zindex', 'title']
@@ -887,6 +888,9 @@ def PopupMenu(args: dict<any>): number
 
     if !empty(selection_sign)
         setwinvar(wid, '&signcolumn', 'yes')
+        if exists('&winhighlight')
+            setwinvar(wid, '&winhighlight', 'SignColumn:fuzzboxNormal,Normal:fuzzboxNormal')
+        endif
     endif
 
     return wid
