@@ -78,6 +78,10 @@ var selection_sign = exists('g:fuzzbox_selection_sign')
     && type(g:fuzzbox_selection_sign) == v:t_string ?
     g:fuzzbox_selection_sign : '>'
 
+var cursor_style = exists('g:fuzzbox_cursor_style')
+    && index(['line', 'block'], g:fuzzbox_cursor_style) != -1 ?
+    g:fuzzbox_cursor_style : 'block'
+
 if !empty(selection_sign)
     sign_define('FuzzboxSelection', {text: selection_sign, texthl: 'fuzzboxSelectionSign'})
 endif
@@ -420,15 +424,20 @@ def PromptFilter(wid: number, key: string): number
     popup_wins[wid].cursor_args.max_pos = len(line)
     var prefix_len = popup_wins[wid].cursor_args.prefix_len
 
-    # cursor hl
-    var hl = popup_wins[wid].cursor_args.highlight
-    matchdelete(popup_wins[wid].cursor_args.mid, wid)
+    # update prompt cursor
     var hi_end_pos = prefix_len + 1
     if cur_pos > 0
         hi_end_pos += len(join(line[: cur_pos - 1], ''))
     endif
-    var mid = matchaddpos(hl, [[1, hi_end_pos]], 10, -1, {window: wid})
-    popup_wins[wid].cursor_args.mid = mid
+    if cursor_style == 'line'
+        prop_remove({all: true, type: 'FuzzboxCursor', bufnr: bufnr}, 1)
+        prop_add(1, hi_end_pos, { bufnr: bufnr, type: 'FuzzboxCursor', text: '▏' })
+    else
+        var hl = popup_wins[wid].cursor_args.highlight
+        matchdelete(popup_wins[wid].cursor_args.mid, wid)
+        var mid = matchaddpos(hl, [[1, hi_end_pos]], 10, -1, {window: wid})
+        popup_wins[wid].cursor_args.mid = mid
+    endif
     return 1
 enddef
 
@@ -780,10 +789,17 @@ def PopupPrompt(args: dict<any>): number
         SetTitle(wid, args.title)
     endif
 
-    # set cursor
-    var mid = matchaddpos(cursor_args.highlight,
-    [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
-    popup_wins[wid].cursor_args.mid = mid
+    # set prompt cursor
+    if cursor_style == 'line'
+        if empty(prop_type_get('FuzzboxCursor'))
+            prop_type_add('FuzzboxCursor', {'highlight': 'fuzzboxNormal', priority: 10})
+        endif
+        prop_add(1, prefix_len + 1, { bufnr: bufnr, type: 'FuzzboxCursor', text: '▏' })
+    else
+        var mid = matchaddpos(cursor_args.highlight,
+            [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
+        popup_wins[wid].cursor_args.mid = mid
+    endif
 
     if has_key(args, 'text') && !empty(args.text)
         for i in range(strchars(args.text))
