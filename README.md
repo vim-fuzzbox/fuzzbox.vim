@@ -594,8 +594,8 @@ let g:fuzzbox_async_limit = 200
 
 ## User autocommands
 
-Fuzzbox adds three `User` autocmd events which can be used to run arbitrary
-commands when Fuzzbox is opening, opened, and closed. This can help aid
+Fuzzbox adds four `User` autocmd events which can be used to run arbitrary
+commands when Fuzzbox is opening, opened, closing, and closed. This can help aid
 compatibility with other plugins, or customise behaviour, e.g.
 
 ```vim
@@ -603,6 +603,7 @@ augroup MyFuzzbox
   autocmd!
   autocmd User FuzzboxOpening windo set nocursorline
   autocmd User FuzzboxOpened echow 'Fuzzbox opened!'
+  autocmd User FuzzboxClosing echow 'Fuzzbox closing...'
   autocmd User FuzzboxClosed windo set cursorline
 augroup END
 ```

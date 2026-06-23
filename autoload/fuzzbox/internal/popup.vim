@@ -186,6 +186,10 @@ def GeneralPopupCallback(wid: number, select: any)
         return
     endif
 
+    if exists('#User#FuzzboxClosing')
+        doautocmd <nomodeline> User FuzzboxClosing
+    endif
+
     launcher.Save(wins)
 
     if has_key(popup_wins[wid], 'close_cb')
