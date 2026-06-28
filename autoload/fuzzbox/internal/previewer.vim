@@ -163,12 +163,15 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
     if empty(getwinvar(wid, '&filetype'))
         win_execute(wid, 'noautocmd setlocal filetype=text')
     endif
-    win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
 
     var re = &re
     try
         &re = 2 # workaround for E363: Pattern uses more memory than 'maxmempattern'
         win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
+    catch
+        echohl ErrorMsg
+        echom 'fuzzbox:' v:exception .. ' ' .. v:throwpoint
+        echohl None
     finally
         &re = re
     endtry
