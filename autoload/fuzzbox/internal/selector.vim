@@ -248,15 +248,20 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
         return { menu: -1, prompt: -1, preview: -1 }
     endif
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+    raw_list = li_raw
+    len_list = len(raw_list)
 
     var defaults = GetDefaultOpts()
 
     has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
 
+    opts.async = has_key(opts, 'async') && opts.async ? opts.async : (
+        len_list >= async_step
+    )
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : actions.PreviewFile
     opts.select_cb = has_key(opts, 'select_cb') ? opts.select_cb : actions.OpenFile
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
-        has_key(opts, 'async') && opts.async ? function('InputAsync') : function('Input')
+        opts.async ? function('InputAsync') : function('Input')
     )
     opts.change_cb = has_key(opts, 'change_cb') ? opts.change_cb : null
 
@@ -273,8 +278,6 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.cleanup = () => timer_stop(async_tid)
 
     var wids = popup.PopupSelection(extendnew(defaults, opts))
-    raw_list = li_raw
-    len_list = len(raw_list)
 
     if opts.input_cb == function('InputAsync')
         UpdateResults(raw_list->slice(0, async_limit), [], len_list, len_list)
