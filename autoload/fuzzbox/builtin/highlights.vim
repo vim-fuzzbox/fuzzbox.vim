@@ -17,7 +17,7 @@ def Preview(wid: number, result: string)
 enddef
 
 def Select(wid: number, result: string)
-    setreg('*', result)
+    setreg(v:register, result)
 enddef
 
 def TogglePreviewBg()

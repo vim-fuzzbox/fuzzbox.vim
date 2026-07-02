@@ -9,7 +9,7 @@ def Select(wid: number, result: string)
         return
     endif
     var reg = result->matchstr('\v^\s*\zs\S+')
-    exe $'normal! "{reg}p'
+    setreg(v:register, reg)
 enddef
 
 export def Start(opts: dict<any> = {})
