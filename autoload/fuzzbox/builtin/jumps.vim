@@ -88,7 +88,10 @@ export def Start(opts: dict<any> = {})
         var text: string
         if bufloaded(jump.bufnr)
             # note: getbufoneline() only added in vim 9.1.0916
-            text = getbufline(jump.bufnr, jump.lnum)[0]
+            var lines = getbufline(jump.bufnr, jump.lnum)
+            if !empty(lines)
+                text = lines[0]
+            endif
         endif
         return printf($"{fmt}%s:%d:%d:%s", idx + 1, fname, jump.lnum, jump.col, text)
     })
