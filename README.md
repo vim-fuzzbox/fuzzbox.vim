@@ -47,6 +47,8 @@ systems for finding files and searching in files by default (e.g. `grep`,
   installed
 - [yegappan/lsp](https://github.com/yegappan/lsp) - used as backend for LSP
   commands with [fuzzbox-lsp.vim](https://github.com/vim-fuzzbox/fuzzbox-lsp.vim) extension
+- [unicode.vim](https://github.com/chrisbra/unicode.vim) - used as data source
+  for Unicode search with [fuzzbox-unicode.vim](https://github.com/vim-fuzzbox/fuzzbox-unicode.vim) extension
 
 ## Install
 
