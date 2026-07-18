@@ -13,6 +13,8 @@ var popup_opts: dict<any>
 var t_ve: string
 var hlcursor: dict<any>
 var has_devicons: bool
+var dropdown: bool
+var scrollbar: bool
 export var active = false
 
 # user can register a custom action for any key
@@ -149,7 +151,7 @@ def ShowCursor()
     endif
 enddef
 
-def InvokeAction(Action: func, wid: number = wins.menu)
+def InvokeAction(Action: func, wid: number)
     if Action == null # allow for null_function
         return
     endif
@@ -192,9 +194,9 @@ def GeneralPopupCallback(wid: number, select: any)
 
     launcher.Save(wins)
 
-    if has_key(popup_wins[wid], 'close_cb')
-            && type(popup_wins[wid].close_cb) == v:t_func
-        InvokeAction(popup_wins[wid].close_cb, wid)
+    if has_key(popup_opts, 'close_cb')
+            && type(popup_opts.close_cb) == v:t_func
+        InvokeAction(popup_opts.close_cb, wins.menu)
     endif
 
     # we need to redraw if the windows overlap the statusline and cmdline
@@ -259,18 +261,18 @@ def MenuCursorContentChangeCb()
         sign_unplace('PopUpFuzzbox', {buffer: bufnr, id: 1})
         sign_place(1, 'PopUpFuzzbox', 'FuzzboxSelection', bufnr, {lnum: lnum})
     endif
-    if has_key(popup_wins[wins.menu], 'change_cb') &&
-            type(popup_wins[wins.menu].change_cb) == v:t_func
-            InvokeAction(popup_wins[wins.menu].change_cb, wins.menu)
+    if has_key(popup_opts, 'change_cb') &&
+            type(popup_opts.change_cb) == v:t_func
+            InvokeAction(popup_opts.change_cb, wins.menu)
     endif
     if wins.preview != -1 &&
-            has_key(popup_wins[wins.preview], 'preview_cb') &&
-            type(popup_wins[wins.preview].preview_cb) == v:t_func
+            has_key(popup_opts, 'preview_cb') &&
+            type(popup_opts.preview_cb) == v:t_func
         # timer to avoid triggering preview unnecessarily during mouse scroll
         timer_stop(preview_tid)
         preview_tid = timer_start(30, (_) => {
             if active # allow for popups to have closed when lambda is invoked
-                InvokeAction(popup_wins[wins.preview].preview_cb, wins.preview)
+                InvokeAction(popup_opts.preview_cb, wins.preview)
             endif
         }, { repeat: 0 })
     endif
@@ -405,7 +407,7 @@ def PromptFilter(wid: number, key: string): number
     popup_wins[wid].cursor_args.cur_pos = cur_pos
 
     var line_str = join(line, '')
-    if has_key(popup_wins[wid].prompt, 'input_cb') && popup_wins[wid].prompt.line != line
+    if has_key(popup_opts, 'input_cb') && popup_wins[wid].prompt.line != line
         var prompt = popup_wins[wid].prompt.prefix
         var displayed_line = prompt .. line_str .. " "
         popup_settext(wid, displayed_line)
@@ -413,12 +415,12 @@ def PromptFilter(wid: number, key: string): number
         popup_wins[wid].prompt.line = line
         # after a keystroke, we need to update the menu popup to display
         # appropriate content and reset the cursor position
-        if popup_wins[wid].dropdown
+        if dropdown
             win_execute(wins.menu, "silent! cursor(1, 1)")
         else
             win_execute(wins.menu, "silent! cursor('$', 1)")
         endif
-        popup_wins[wid].prompt.input_cb(wid, line_str)
+        popup_opts.input_cb(wid, line_str)
     endif
 
     popup_wins[wid].cursor_args.max_pos = len(line)
@@ -439,25 +441,14 @@ enddef
 def MenuFilter(wid: number, key: string): number
     var bufnr = popup_wins[wid].bufnr
     var width = popup_wins[wid].width
-    var cursorlinepos = line('.', wid)
     var moved = 0
+    var cursorline = line('.', wid)
     if index(keymaps['menu_down'], key) >= 0
         win_execute(wid, 'norm! j')
         moved = 1
     elseif index(keymaps['menu_up'], key) >= 0
+        win_execute(wid, 'norm! k')
         moved = 1
-        if popup_wins[wid].reverse_menu
-            var textrows = popup_getpos(wid).height - 2
-            var validrow = popup_wins[wid].validrow
-            var minline = textrows - validrow + 1
-            if cursorlinepos > minline
-                win_execute(wid, 'norm! k')
-                moved = 1
-            endif
-        else
-            win_execute(wid, 'norm! k')
-            moved = 1
-        endif
     elseif index(keymaps['menu_page_up'], key) >= 0
         win_execute(wid, "norm! \<c-b>")
         moved = 1
@@ -491,9 +482,9 @@ def MenuFilter(wid: number, key: string): number
             return 0
         endif
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
-        if has_key(popup_wins[wid], 'select_cb')
-                && type(popup_wins[wid].select_cb) == v:t_func
-            InvokeAction(popup_wins[wid].select_cb)
+        if has_key(popup_opts, 'select_cb')
+                && type(popup_opts.select_cb) == v:t_func
+            InvokeAction(popup_opts.select_cb, wins.menu)
         endif
         popup_close(wid)
     elseif key ==? "\<ScrollWheelUp>"
@@ -511,17 +502,27 @@ def MenuFilter(wid: number, key: string): number
         win_execute(wid, "norm! 3j")
         moved = 1
     elseif index(keymaps['menu_select'], key) >= 0
-        if has_key(popup_wins[wid], 'select_cb')
-                && type(popup_wins[wid].select_cb) == v:t_func
-            InvokeAction(popup_wins[wid].select_cb)
+        if has_key(popup_opts, 'select_cb')
+                && type(popup_opts.select_cb) == v:t_func
+            InvokeAction(popup_opts.select_cb, wins.menu)
         endif
         popup_close(wid)
     elseif index(keymaps['exit'], key) >= 0
         popup_close(wid)
     elseif has_key(actions, key) && type(actions[key]) == v:t_func
-        InvokeAction(actions[key])
+        InvokeAction(actions[key], wins.menu)
     else
         return 0
+    endif
+
+    if moved && !dropdown
+        var minline = getwinvar(wins.menu, 'minline', 1)
+        if line('.', wid) < minline
+            win_execute(wid, 'norm! ' .. minline .. 'G')
+        endif
+        if line('.', wid) == cursorline
+            moved = 0
+        endif
     endif
 
     if moved
@@ -559,22 +560,22 @@ enddef
 
 def CreatePopup(args: dict<any>): number
     var opts = {
-       line: args.line,
-       col: args.col,
-       minwidth: args.width,
-       maxwidth: args.width,
-       minheight: args.height,
-       maxheight: args.height,
-       scrollbar: false,
-       padding: [0, 0, 0, 0],
-       zindex: 1000,
-       wrap: 0,
-       cursorline: 0,
-       callback: function('GeneralPopupCallback'),
-       border: [1],
-       borderchars: borderchars,
-       borderhighlight: ['fuzzboxBorder'],
-       highlight: 'fuzzboxNormal'
+        line: args.line,
+        col: args.col,
+        minwidth: args.width,
+        maxwidth: args.width,
+        minheight: args.height,
+        maxheight: args.height,
+        scrollbar: false,
+        padding: [0, 0, 0, 0],
+        zindex: 1000,
+        wrap: 0,
+        cursorline: 0,
+        callback: function('GeneralPopupCallback'),
+        border: [1],
+        borderchars: borderchars,
+        borderhighlight: ['fuzzboxBorder'],
+        highlight: 'fuzzboxNormal'
     }
 
     for key in ['filter', 'border', 'borderhighlight', 'highlight', 'borderchars',
@@ -583,15 +584,11 @@ def CreatePopup(args: dict<any>): number
             opts[key] = args[key]
         endif
     endfor
-    var noscrollbar_width = opts.minwidth
-    if opts.scrollbar
-        opts.minwidth -= 1
-        opts.maxwidth -= 1
-    endif
 
     if has_key(opts, 'filter')
         opts.mapping = false
     endif
+
     var wid = popup_create('', opts)
     if has_key(args, 'cursorline') && args.cursorline
        # we don't use popup option 'cursorline' because it is buggy (some
@@ -600,24 +597,12 @@ def CreatePopup(args: dict<any>): number
        setwinvar(wid, '&cursorlineopt', 'line')
     endif
     popup_wins[wid] = {
-         highlights: {},
-         noscrollbar_width: noscrollbar_width,
-         validrow: 0,
-         line: args.line,
-         col: args.col,
-         width: args.width,
-         height: args.height,
-         cursor_item: null,
-         wid: wid,
-         update_delay_timer: -1,
-         prompt_delay_timer: -1,
-         }
+        line: args.line,
+        col: args.col,
+        width: args.width,
+        height: args.height,
+    }
 
-    for key in ['dropdown', 'reverse_menu', 'preview_cb', 'close_cb', 'select_cb', 'change_cb']
-        if has_key(args, key)
-            popup_wins[wid][key] = args[key]
-        endif
-    endfor
     return wid
 enddef
 
@@ -643,11 +628,11 @@ def NewPopup(args: dict<any>): list<number>
     col = min([max([0, col]), columns - final_width])
 
     var opts = extend(args, {
-     line: line,
-     col: col,
-     width: final_width,
-     height: final_height
-     })
+        line: line,
+        col: col,
+        width: final_width,
+        height: final_height
+    })
 
     var wid = CreatePopup(opts)
     var bufnr = winbufnr(wid)
@@ -667,19 +652,23 @@ def MenuSetText(text_list: list<string>)
     endif
     var text = text_list
     var old_cursor_pos = line('$', wins.menu) - line('.', wins.menu)
-
-    popup_wins[wins.menu].validrow = len(text_list)
     var textrows = popup_getpos(wins.menu).height - 2
-    if popup_wins[wins.menu].reverse_menu
+
+    if !dropdown
+        var len_text = len(text_list)
+        setwinvar(wins.menu, 'minline', textrows - len_text + 1)
         text = reverse(text_list)
-        if len(text) < textrows
-            text = repeat([''], textrows - len(text)) + text
+        if len_text < textrows
+            text = repeat([''], textrows - len_text) + text
         endif
     endif
 
     if popup_getoptions(wins.menu).scrollbar
+        if !getwinvar(wins.menu, 'noscrollbar_width')
+            setwinvar(wins.menu, 'noscrollbar_width', popup_getoptions(wins.menu).maxwidth)
+        endif
         var curwidth = popup_getpos(wins.menu).width
-        var noscrollbar_width = popup_wins[wins.menu].noscrollbar_width
+        var noscrollbar_width = getwinvar(wins.menu, 'noscrollbar_width')
         if len(text) > textrows && curwidth != noscrollbar_width - 1
             var width = noscrollbar_width - 1
            popup_move(wins.menu, {minwidth: width, maxwidth: width})
@@ -690,7 +679,7 @@ def MenuSetText(text_list: list<string>)
     endif
 
     popup_settext(wins.menu, text)
-    if popup_wins[wins.menu].reverse_menu
+    if !dropdown
         var new_line_length = line('$', wins.menu)
         var cursor_pos = new_line_length - old_cursor_pos
         win_execute(wins.menu, 'normal! ' .. new_line_length .. 'zb')
@@ -724,7 +713,7 @@ def MenuSetHl(hl_list_raw: list<any>)
     # in case of reverse menu, we need to reverse the hl_list
     var textrows = popup_getpos(wins.menu).height - 2
     var height = max([hl_list_raw[-1][0], textrows])
-    if popup_wins[wins.menu].reverse_menu
+    if !dropdown
         hl_list = reduce(hl_list_raw, (acc, v) => add(acc, [height - v[0] + 1] + v[1 :]), [])
     endif
 
@@ -748,36 +737,33 @@ def PopupPrompt(args: dict<any>): number
     endif
 
     var opts = {
-     width: 0.4,
-     height: 1,
-     filter: function('PromptFilter')
-     }
+        width: 0.4,
+        height: 1,
+        filter: function('PromptFilter')
+    }
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
     var prefix = has_key(args, 'prefix') ? args.prefix : '> '
     const prefix_len = len(prefix)
     const prefix_charlen = strcharlen(prefix)
     var prompt_opt = {
-     line: [],
-     prefix: prefix,
-     displayed_line: prefix .. " ",
-     }
+        line: [],
+        prefix: prefix,
+        displayed_line: prefix .. " ",
+    }
 
     var cursor_args = {
-     min_pos: 0,
-     max_pos: 0,
-     prefix_len: prefix_len,
-     prefix_charlen: prefix_charlen,
-     cur_pos: 0,
-     highlight: 'fuzzboxCursor',
-     mid: -1,
-     }
+        min_pos: 0,
+        max_pos: 0,
+        prefix_len: prefix_len,
+        prefix_charlen: prefix_charlen,
+        cur_pos: 0,
+        highlight: 'fuzzboxCursor',
+        mid: -1,
+    }
 
     popup_wins[wid].cursor_args = cursor_args
     popup_wins[wid].prompt = prompt_opt
-    if has_key(args, 'input_cb') && type(args.input_cb) == v:t_func
-        popup_wins[wid].prompt.input_cb = args.input_cb
-    endif
     popup_settext(wid, prompt_opt.displayed_line)
 
     if has_key(args, 'title') && !empty(args.title)
@@ -876,12 +862,12 @@ enddef
 
 def PopupMenu(args: dict<any>): number
     var opts = {
-     width: 0.4,
-     height: 17,
-     yoffset: 0.3,
-     cursorline: 1,
-     filter: function('MenuFilter'),
-     }
+        width: 0.4,
+        height: 17,
+        yoffset: 0.3,
+        cursorline: 1,
+        filter: function('MenuFilter'),
+    }
 
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
@@ -902,12 +888,12 @@ enddef
 
 def PopupPreview(args: dict<any>): number
     var opts = {
-     width: 0.4,
-     height: 19,
-     yoffset: 0.3,
-     cursorline: 1,
-     filter: function('PreviewFilter'),
-     }
+        width: 0.4,
+        height: 19,
+        yoffset: 0.3,
+        cursorline: 1,
+        filter: function('PreviewFilter'),
+    }
 
     opts = extend(opts, args)
     var [wid, bufnr] = NewPopup(opts)
@@ -1016,31 +1002,26 @@ export def PopupSelection(opts: dict<any>): dict<any>
         menu_width = width
     endif
 
-    var dropdown = has_key(opts, 'dropdown') && opts.dropdown
+    dropdown = has_key(opts, 'dropdown') && opts.dropdown
 
     var prompt_height = 3 # 1 row of text plus borderchars
     var menu_height = height - prompt_height
 
     var prompt_yoffset: number
     var menu_yoffset: number
-    var reverse_menu: number
 
     if dropdown
         prompt_yoffset = yoffset
         menu_yoffset = yoffset + prompt_height
-        reverse_menu = 0
     else
         menu_yoffset = yoffset
         prompt_yoffset = yoffset + menu_height + 2
-        reverse_menu = 1
     endif
 
+    scrollbar = has_key(opts, 'scrollbar') && opts.scrollbar
+
     var menu_opts = {
-        select_cb: has_key(opts, 'select_cb') ? opts.select_cb : null,
-        close_cb: has_key(opts, 'close_cb') ? opts.close_cb : null,
-        change_cb: has_key(opts, 'change_cb') ? opts.change_cb : null,
-        scrollbar: has_key(opts, 'scrollbar') ? opts.scrollbar : 0,
-        reverse_menu: reverse_menu,
+        scrollbar: scrollbar,
         yoffset: menu_yoffset,
         xoffset: xoffset,
         width: menu_width,
@@ -1054,14 +1035,11 @@ export def PopupSelection(opts: dict<any>): dict<any>
         menu_opts['wrap'] = opts.menu_wrap
     endif
     wins.menu = PopupMenu(menu_opts)
-    popup_wins[wins.menu].partids = wins
 
     var prompt_opts = {
-        input_cb: has_key(opts, 'input_cb') ? opts.input_cb : null,
         yoffset: prompt_yoffset,
         xoffset: xoffset,
         width: menu_width,
-        dropdown: dropdown,
         zindex: 1010,
     }
     if has_key(opts, 'prompt_title')
@@ -1074,7 +1052,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
         prompt_opts['text'] = opts.prompt_text
     endif
     wins.prompt = PopupPrompt(prompt_opts)
-    popup_wins[wins.prompt].partids = wins
 
     if preview
         var preview_xoffset = popup_wins[wins.menu].col + popup_wins[wins.menu].width
@@ -1084,7 +1061,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
         # var preview_height = prompt_row - menu_row + prompt_height
         var preview_height = menu_height + prompt_height + 2
         var preview_opts = {
-            preview_cb: has_key(opts, 'preview_cb') ? opts.preview_cb : null,
             width: preview_width,
             height: preview_height,
             yoffset: yoffset,
@@ -1099,8 +1075,6 @@ export def PopupSelection(opts: dict<any>): dict<any>
             preview_opts['title'] = opts.preview_title
         endif
         wins.preview = PopupPreview(preview_opts)
-        wins.preview = wins.preview
-        popup_wins[wins.preview].partids = wins
     endif
 
     HideCursor()
