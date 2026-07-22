@@ -78,11 +78,12 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyMruRoot          | search most recent used files in project/vcs root
 | FuzzyInBuffer [str]   | search for string in buffer, use [str] if provided
 | FuzzyHelp             | search subjects/tags in help documents
-| FuzzyCommands         | search commands
+| FuzzyCommands         | search built-in and user-defined commands
 | FuzzyColors           | search installed color schemes
-| FuzzyCmdHistory       | search command history
+| FuzzyCmdHistory       | search the command line history
+| FuzzySearchHistory    | search the search string history
 | FuzzyHighlights       | search highlight groups
-| FuzzyRegisters        | search registers, paste contents on `<cr>`
+| FuzzyRegisters        | search registers, see `:h registers`
 | FuzzyQuickfix         | search the quickfix list, see `:h quickfix`
 | FuzzyLoclist          | search the location list, see `:h location-list`
 | FuzzyArglist          | search the argument list, see `:h arglist`

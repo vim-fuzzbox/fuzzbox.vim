@@ -15,7 +15,7 @@ export def Start(opts: dict<any> = {})
 
     var cmds = split(execute("history"), '\n')[1 : ]
 
-    # remove index of command history
+    # remove index from history command output
     cmds = reduce(cmds,
         (a, v) => add(a, substitute(v, '\m^.*\d\+\s\+', '', '')), [])
 
