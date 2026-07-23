@@ -251,6 +251,10 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     raw_list = li_raw
     len_list = len(raw_list)
 
+    if has_key(opts, 'title') && !has_key(opts, 'prompt_title')
+        opts.prompt_title = opts.title
+    endif
+
     var defaults = GetDefaultOpts()
 
     has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
