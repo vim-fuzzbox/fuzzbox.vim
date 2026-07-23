@@ -75,6 +75,8 @@ def OpenFileSplit(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Changes'
+
     changelist = getchangelist()[0]
     changelast = getchangelist()[1]
 
@@ -98,7 +100,6 @@ export def Start(opts: dict<any> = {})
     reverse(lines) # Reverse list so we start at the end of the changelist
 
     var wids = selector.Start(lines, extend(opts, {
-        prompt_title: 'Changes',
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {

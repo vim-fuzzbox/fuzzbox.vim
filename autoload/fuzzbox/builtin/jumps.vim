@@ -75,6 +75,8 @@ def OpenFileSplit(wid: number, result: string)
 enddef
 
 export def Start(opts: dict<any> = {})
+    opts.title = has_key(opts, 'title') ? opts.title : 'Jumps'
+
     jumplist = getjumplist()[0]
     jumplast = getjumplist()[1]
 
@@ -98,7 +100,6 @@ export def Start(opts: dict<any> = {})
     reverse(lines) # Reverse list so we start at the end of the jumplist
 
     var wids = selector.Start(lines, extend(opts, {
-        prompt_title: 'Jumps',
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         actions: {
