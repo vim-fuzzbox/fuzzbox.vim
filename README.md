@@ -87,6 +87,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 | FuzzyQuickfix         | search the quickfix list, see `:h quickfix`
 | FuzzyLoclist          | search the location list, see `:h location-list`
 | FuzzyArglist          | search the argument list, see `:h arglist`
+| FuzzyChanges          | search the change list, see `:h changelist`
 | FuzzyJumps            | search jumps, see `:h jumplist`
 | FuzzyMarks            | search marks, see `:h mark-motions`
 | FuzzyTags             | search tags in tagfiles(), see `:h tags`
