@@ -687,7 +687,7 @@ example, you can disable preview window for FuzzyFiles and friends with:
 
 or you change the width of the preview window for FuzzyHighlights with:
 >
-  let g:fuzzbox_window_options = { 'highlights': { 'width': 0.5 } }
+  let g:fuzzbox_window_options = { 'highlights': { 'preview_ratio': 0.5 } }
 <
 
 G:FUZZBOX_ASYNC_STEP                              *fuzzbox-g:fuzzbox_async_step*

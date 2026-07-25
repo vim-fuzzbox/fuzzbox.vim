@@ -574,7 +574,7 @@ let g:fuzzbox_window_options = { 'files': { 'preview': 0 } }
 ```
 or you change the width of the preview window for FuzzyHighlights with:
 ```vim
-let g:fuzzbox_window_options = { 'highlights': { 'width': 0.5 } }
+let g:fuzzbox_window_options = { 'highlights': { 'preview_ratio': 0.5 } }
 ```
 
 ### g:fuzzbox_async_step
