@@ -144,9 +144,3 @@ if enable_mappings
         endif
     endfor
 endif
-
-# Load compatibility hacks on VimEnter, after other plugins are loaded
-augroup fuzzboxCompat
-  au!
-  autocmd VimEnter * runtime! compat/fuzzbox.vim
-augroup END

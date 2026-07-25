@@ -1,10 +1,6 @@
 vim9script
 
-# Compatibility hacks, loaded from VimEnter autocmd in plugin/fuzzbox.vim
-if exists("g:loaded_fuzzbox_compat")
-  finish
-endif
-g:loaded_fuzzbox_compat = 1
+# Compatibility hacks, loaded after other plugins
 
 if exists('g:loaded_webdevicons') && !exists('g:fuzzbox_devicons_glyph_func')
     g:fuzzbox_devicons_glyph_func = 'g:WebDevIconsGetFileTypeSymbol'
