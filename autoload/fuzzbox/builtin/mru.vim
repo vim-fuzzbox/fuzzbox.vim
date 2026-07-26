@@ -8,7 +8,7 @@ import autoload '../internal/actions.vim'
 
 var mru_origin_list: list<string>
 var cwd: string
-var cwd_only: bool
+var cwd_filter: bool
 var cwdlen: number
 var fs = utils.PathSep()
 var menu_wid: number
@@ -20,11 +20,12 @@ var file_exclude = exists('g:fuzzbox_mru_exclude_file')
 var dir_exclude = exists('g:fuzzbox_mru_exclude_dir')
     && type(g:fuzzbox_mru_exclude_dir) == v:t_list ?
     g:fuzzbox_mru_exclude_dir : g:fuzzbox_exclude_dir
+var cwd_only = exists('g:fuzzbox_mru_cwd_only') && g:fuzzbox_mru_cwd_only
 
 def ToggleScope()
-    cwd_only = cwd_only ? 0 : 1
+    cwd_filter = cwd_filter ? 0 : 1
     var mru_list: list<string> = copy(mru_origin_list)
-    if cwd_only
+    if cwd_filter
         mru_list = filter(mru_list, (_, val) => {
             return stridx(fnamemodify(val, ':p'), cwd) >= 0
         })
@@ -46,8 +47,8 @@ export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Recent Files'
 
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    cwd_only = len(get(opts, 'cwd', '')) > 0
     cwdlen = len(cwd)
+    cwd_filter = cwd_only || len(get(opts, 'cwd', '')) > 0
     # sorted files from buffers opened during this session, including unlisted
     var mru_buffers = split(execute('buffers! t'), '\n')->map((_, val) => {
             var bufnumber = str2nr(matchstr(val, '\M\s\*\(\d\+\)'))
@@ -78,7 +79,7 @@ export def Start(opts: dict<any> = {})
         return true
     })
     var mru_list: list<string> = copy(mru_origin_list)
-    if cwd_only
+    if cwd_filter
         mru_list = filter(mru_list, (_, val) => {
             return stridx(fnamemodify(val, ':p'), cwd .. fs) >= 0
         })

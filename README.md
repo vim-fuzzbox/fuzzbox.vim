@@ -510,6 +510,15 @@ Example usage:
 let g:fuzzbox_buffers_exclude = ['terminal']
 ```
 
+### g:fuzzbox_mru_cwd_only
+Default FuzzyMru to only show recent files in current working directory. You can
+still use `CTRL-K` to toggle between all MRU files and CWD files only. Default 0
+```vim
+let g:fuzzbox_mru_cwd_only = 0
+```
+This is equivalent to using `FuzzyMruCwd`, but shorter to type and allows for
+only one default leader mapping for `FuzzyMru` that is easily configurable.
+
 ### g:fuzzbox_window_defaults
 Window configuration defaults for all selectors. The Fuzzbox defaults are listed
 below. Options set here are merged into the Fuzzbox defaults, so you only need to
