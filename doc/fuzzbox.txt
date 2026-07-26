@@ -173,20 +173,19 @@ COMMANDS                                                      *fuzzbox-commands*
 * FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
 * FuzzyGitFiles and FuzzyGitGrep are only useful when
   `g:fuzzbox_respect_gitignore` is false.
+* FuzzyMru can be configured to start in CWD by setting `g:fuzzbox_mru_cwd_only`
 
 ------------------------------------------------------------------------------
 MAPPINGS                                                      *fuzzbox-mappings*
 >
   nnoremap <silent> <leader>fb :FuzzyBuffers<CR>
-  nnoremap <silent> <leader>fc :FuzzyCommands<CR>
   nnoremap <silent> <leader>ff :FuzzyFiles<CR>
   nnoremap <silent> <leader>fg :FuzzyGrep<CR>
   nnoremap <silent> <leader>fh :FuzzyHelp<CR>
   nnoremap <silent> <leader>fi :FuzzyInBuffer<CR>
-  nnoremap <silent> <leader>fm :FuzzyMru<CR>
+  nnoremap <silent> <leader>fr :FuzzyMru<CR>
   nnoremap <silent> <leader>fp :FuzzyPrevious<CR>
   nnoremap <silent> <leader>fq :FuzzyQuickfix<CR>
-  nnoremap <silent> <leader>fr :FuzzyMruCwd<CR>
 <
 
 You can set `g:fuzzbox_mappings = 0` to disable these default mappings.

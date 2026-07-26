@@ -128,15 +128,13 @@ var enable_mappings = exists('g:fuzzbox_mappings') ? g:fuzzbox_mappings : true
 if enable_mappings
     var mappings = {
         '<leader>fb': ':FuzzyBuffers<CR>',
-        '<leader>fc': ':FuzzyCommands<CR>',
         '<leader>ff': ':FuzzyFiles<CR>',
         '<leader>fg': ':FuzzyGrep<CR>',
         '<leader>fh': ':FuzzyHelp<CR>',
         '<leader>fi': ':FuzzyInBuffer<CR>',
-        '<leader>fm': ':FuzzyMru<CR>',
         '<leader>fp': ':FuzzyPrevious<CR>',
         '<leader>fq': ':FuzzyQuickfix<CR>',
-        '<leader>fr': ':FuzzyMruCwd<CR>'
+        '<leader>fr': ':FuzzyMru<CR>'
     }
     for [lhs, rhs] in items(mappings)
         if empty(maparg(lhs, 'n'))
