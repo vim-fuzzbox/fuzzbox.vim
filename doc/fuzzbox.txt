@@ -219,16 +219,16 @@ be used to scroll in both the preview and menu windows.
 Command specific keymaps
 
 * FuzzyHighlights
-  * <CTRL-K> toggle white preview background color
+  * <CTRL-K> toggles white preview background color
 * FuzzyMru
-  * <CTRL-K> toggle between all MRU files and CWD only
+  * <CTRL-K> toggles between all MRU files and CWD only
 * FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix,
   FuzzyMarks, FuzzyTags
-  * <CTRL-S> open selected file in horizontal split
-  * <CTRL-V> open selected file in vertical split
-  * <CTRL-T> open selected file in new tab page
+  * <CTRL-S> or <CTRL-X> opens selected file in horizontal split
+  * <CTRL-V> opens selected file in vertical split
+  * <CTRL-T> opens selected file in new tab page
 * FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix
-  * <CTRL-Q> send results to quickfix list
+  * <CTRL-Q> sends results to quickfix list
 
 Send results to quickfix list only includes results currently in the menu buffer,
 which effectively limits the results to a few hundred at most (this is probably

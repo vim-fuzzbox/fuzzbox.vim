@@ -122,6 +122,7 @@ export def Start(opts: dict<any> = {})
         actions: {
             "\<c-v>": function('OpenVSplit'),
             "\<c-s>": function('OpenSplit'),
+            "\<c-x>": function('OpenSplit'),
             "\<c-t>": function('OpenTab'),
             "\<c-q>": null_function,
         }

@@ -211,6 +211,7 @@ enddef
 default_actions = {
     "\<c-v>": actions.OpenFileVSplit,
     "\<c-s>": actions.OpenFileSplit,
+    "\<c-x>": actions.OpenFileSplit,
     "\<c-t>": actions.OpenFileTab,
     "\<c-q>": actions.SendToQuickfix,
     "\<c-\>": actions.MenuToggleWrap,

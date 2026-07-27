@@ -126,6 +126,7 @@ export def Start(opts: dict<any> = {})
             "\<c-l>": function('DeleteBuffer'),
             "\<c-v>": function('OpenBufVSplit'),
             "\<c-s>": function('OpenBufSplit'),
+            "\<c-x>": function('OpenBufSplit'),
             "\<c-t>": function('OpenBufTab'),
         }
     }))
