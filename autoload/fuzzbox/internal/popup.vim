@@ -28,12 +28,14 @@ var keymaps: dict<any> = {
     'menu_page_down': [],
     'menu_scroll_up': ["\<PageUp>"],
     'menu_scroll_down': ["\<PageDown>"],
-    'menu_shift_up': ["\<S-Up>"],
-    'menu_shift_down': ["\<S-Down>"],
+    'menu_shift_up': [],
+    'menu_shift_down': [],
     'preview_page_up': [],
     'preview_page_down': [],
-    'preview_scroll_up': ["\<C-u>"], # :h CTRL-U
-    'preview_scroll_down': ["\<C-d>"], # :h CTRL-D
+    'preview_scroll_up': ["\<S-Up>"],
+    'preview_scroll_down': ["\<S-Down>"],
+    'preview_shift_up': [],
+    'preview_shift_down': [],
     'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
     'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
     'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>
@@ -42,7 +44,7 @@ var keymaps: dict<any> = {
     'delete': ["\<Del>"], # :h c_<Del>
     'delete_all': [],
     'delete_word': ["\<C-w>"], # :h c_CTRL-W
-    'delete_prefix': [],
+    'delete_prefix': ["\<C-u>"], # :h c_CTRL-U
     'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
 }
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
@@ -540,6 +542,10 @@ def PreviewFilter(wid: number, key: string): number
         win_execute(wid, "norm! \<c-u>")
     elseif index(keymaps['preview_scroll_down'], key) >= 0
         win_execute(wid, "norm! \<c-d>")
+    elseif index(keymaps['preview_shift_up'], key) >= 0
+        win_execute(wid, "norm! 3k")
+    elseif index(keymaps['preview_shift_down'], key) >= 0
+        win_execute(wid, "norm! 3j")
     elseif key ==? "\<ScrollWheelUp>"
         var pos = getmousepos()
         if pos.winid != wid

@@ -135,15 +135,14 @@ Fuzzbox will not overwrite mappings from your vimrc when adding default mappings
 - \<CTRL-N> or \<Down> moves down by one line in the menu window
 - \<PageUp> scrolls up half a page in the menu window
 - \<PageDown> scrolls down half a page in the menu window
-- \<S-Up> scrolls up three lines in the menu window
-- \<S-Down> scrolls down three lines in the menu window
-- \<CTRL-U> scrolls up half a page in the preview window
-- \<CTRL-D> scrolls down half a page in the preview window
+- \<S-Up> scrolls up half a page in the preview window
+- \<S-Down> scrolls down half a page in the preview window
 - \<CTRL-B> or \<Home> moves the cursor to the start of the prompt
 - \<CTRL-E> or \<End> moves the cursor to the end of the prompt
 - \<CTRL-Left> moves the cursor one word left in the prompt
 - \<CTRL-Right> moves the cursor one word right in the prompt
 - \<CTRL-W> deletes the word before the cursor in the prompt
+- \<CTRL-U> deletes all characters before the cursor in the prompt
 - \<CTRL-\\> toggles text wrap in the menu window (off by default)
 - \<CTRL-C> or \<ESC> exits Fuzzbox, closing all the windows
 
@@ -477,12 +476,14 @@ let g:fuzzbox_keymaps = {
   \ 'menu_page_down': [],
   \ 'menu_scroll_up': ["\<PageUp>"],
   \ 'menu_scroll_down': ["\<PageDown>"],
-  \ 'menu_shift_up': ["\<S-Up>"],
-  \ 'menu_shift_down': ["\<S-Down>"],
+  \ 'menu_shift_up': [],
+  \ 'menu_shift_down': [],
   \ 'preview_page_up': [],
   \ 'preview_page_down': [],
-  \ 'preview_scroll_up': ["\<C-u>"],
-  \ 'preview_scroll_down': ["\<C-d>"],
+  \ 'preview_scroll_up': ["\<S-Up>"],
+  \ 'preview_scroll_down': ["\<S-Down>"],
+  \ 'preview_shift_up': [],
+  \ 'preview_shift_down': [],
   \ 'cursor_end': ["\<C-e>", "\<End>"],
   \ 'cursor_begining': ["\<C-b>", "\<Home>"],
   \ 'cursor_word_left': ["\<C-Left>"],
@@ -491,7 +492,7 @@ let g:fuzzbox_keymaps = {
   \ 'delete': ["\<Del>"],
   \ 'delete_all': [],
   \ 'delete_word': ["\<C-w>"],
-  \ 'delete_prefix': [],
+  \ 'delete_prefix': ["\<C-u>"],
   \ 'exit': ["\<Esc>", "\<c-c>", "\<c-[>"],
   \ }
 ```
