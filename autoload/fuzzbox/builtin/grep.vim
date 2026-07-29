@@ -194,7 +194,7 @@ def UpdateMenu(...li: list<any>)
         endif
         popup.SetCounter('> ' .. max_results)
     elseif !job_running
-        popup.SetCounter(len(cur_result))
+        popup.SetCounter(cur_result_len)
     endif
 
     if last_pattern == cur_pattern

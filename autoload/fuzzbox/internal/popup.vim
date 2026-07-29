@@ -830,8 +830,7 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     if empty(prop)
         prop_type_add(type, {'highlight': hlgroup})
     elseif prop.highlight != hlgroup
-        prop_type_delete(type, {'highlight': prop.highlight})
-        prop_type_add(type, {'highlight': hlgroup})
+        prop_type_change(type, {'highlight': hlgroup})
     endif
     var text: string
     if type(count) == v:t_none
