@@ -7,18 +7,12 @@ import autoload './devicons.vim'
 import autoload './launcher.vim'
 import autoload './utils.vim'
 
-var popup_wins: dict<any>
 var wins = { menu: -1, prompt: -1, preview: -1 }
-var popup_opts: dict<any>
+var options: dict<any>
+var prompt_info: dict<any>
 var t_ve: string
 var hlcursor: dict<any>
-var has_devicons: bool
-var dropdown: bool
-var scrollbar: bool
 export var active = false
-
-# user can register a custom action for any key
-var actions: dict<any>
 
 var keymaps: dict<any> = {
     'menu_up': ["\<C-p>", "\<Up>"],
@@ -157,7 +151,7 @@ def InvokeAction(Action: func, wid: number)
     if Action == null # allow for null_function
         return
     endif
-    var linetext = GetCursorItem()
+    var linetext = GetResult()
 
     var sig = typename(Action)->matchlist('func(\(.*\))$')[1]->split(', ')
 
@@ -174,18 +168,15 @@ def InvokeAction(Action: func, wid: number)
         endif
     endif
     if len(sig) > 2
-        args->add(popup_opts)
+        args->add(options)
     endif
 
     call(Action, args)
 enddef
 
-# Called usually when popup window is closed
-# It will only execute when menu window is closed
-# params:
-#   - wid: window id of the popup window
-#   - select: the selected item in the popup window eg. ['selected str']
-def GeneralPopupCallback(wid: number, select: any)
+# Called when the menu window is closed, e.g. Esc key handled by MenuFilter
+# Closes all Fuzzbox windows, triggers user autocmds, and resets everything
+def MenuCallback(wid: number, result: any)
     if wid != wins.menu
         return
     endif
@@ -196,13 +187,13 @@ def GeneralPopupCallback(wid: number, select: any)
 
     launcher.Save(wins)
 
-    if has_key(popup_opts, 'close_cb')
-            && type(popup_opts.close_cb) == v:t_func
-        InvokeAction(popup_opts.close_cb, wins.menu)
+    if has_key(options, 'close_cb')
+            && type(options.close_cb) == v:t_func
+        InvokeAction(options.close_cb, wins.menu)
     endif
 
     # we need to redraw if the windows overlap the statusline and cmdline
-    var total_height = popup_wins[wins.menu].height + popup_wins[wins.prompt].height + 4 # 4 = borderchars
+    var total_height = popup_getoptions(wins.menu).maxheight + popup_getoptions(wins.prompt).maxheight + 4 # 4 = borderchars
     var redraw_required = total_height >= &lines - &cmdheight
 
     # close each of the popup windows
@@ -214,15 +205,15 @@ def GeneralPopupCallback(wid: number, select: any)
     endfor
 
     # call cleanup function from selector.vim, stop running timers etc.
-    if has_key(popup_opts, 'cleanup') && type(popup_opts.cleanup) == v:t_func
-        call(popup_opts.cleanup, [])
+    if has_key(options, 'cleanup') && type(options.cleanup) == v:t_func
+        call(options.cleanup, [])
     endif
 
     # restore things to normal
     ShowCursor()
     active = false
-    popup_wins = {}
-    popup_opts = {}
+    options = {}
+    wins = { menu: -1, prompt: -1, preview: -1 }
 
     if redraw_required
         redraw
@@ -235,7 +226,7 @@ enddef
 
 # update menu window with list of items and positions for matchaddpos()
 export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
-    if has_devicons
+    if options.devicons
         # avoid modifying source/raw list when adding devicons, and limit
         # columns to avoid slow rendering of highlights on very long lines
         var new_list = str_list->mapnew('slice(v:val, 0, 1000)')
@@ -256,39 +247,36 @@ enddef
 
 # Handle situation when Text under cursor in menu window is changed
 var preview_tid: number
-def MenuCursorContentChangeCb()
+def HandleChange()
     if !empty(selection_sign)
-        var bufnr = popup_wins[wins.menu].bufnr
+        var bufnr = winbufnr(wins.menu)
         var lnum = line('.', wins.menu)
         sign_unplace('PopUpFuzzbox', {buffer: bufnr, id: 1})
         sign_place(1, 'PopUpFuzzbox', 'FuzzboxSelection', bufnr, {lnum: lnum})
     endif
-    if has_key(popup_opts, 'change_cb') &&
-            type(popup_opts.change_cb) == v:t_func
-            InvokeAction(popup_opts.change_cb, wins.menu)
+    if has_key(options, 'change_cb') &&
+            type(options.change_cb) == v:t_func
+            InvokeAction(options.change_cb, wins.menu)
     endif
     if wins.preview != -1 &&
-            has_key(popup_opts, 'preview_cb') &&
-            type(popup_opts.preview_cb) == v:t_func
+            has_key(options, 'preview_cb') &&
+            type(options.preview_cb) == v:t_func
         # timer to avoid triggering preview unnecessarily during mouse scroll
         timer_stop(preview_tid)
         preview_tid = timer_start(30, (_) => {
             if active # allow for popups to have closed when lambda is invoked
-                InvokeAction(popup_opts.preview_cb, wins.preview)
+                InvokeAction(options.preview_cb, wins.preview)
             endif
         }, { repeat: 0 })
     endif
 enddef
 
-# set prompt content
-# params
-#   - content: string to be set as prompt
 export def SetPrompt(content: string)
     if wins.prompt == -1
         return
     endif
-    popup_wins[wins.prompt].prompt.line = []
-    popup_wins[wins.prompt].cursor_args.cur_pos = 0
+    prompt_info.line = []
+    prompt_info.cursor_args.cur_pos = 0
     for i in range(strchars(content))
         PromptFilter(wins.prompt, strcharpart(content, i, 1, 1))
     endfor
@@ -298,27 +286,27 @@ export def GetPrompt(): string
     if wins.prompt == -1
         return ''
     endif
-    return popup_wins[wins.prompt].prompt.line->join('')
+    return prompt_info.line->join('')
 enddef
 
-# get the line under the cursor in the menu window
-export def GetCursorItem(): string
-    var bufnr = popup_wins[wins.menu].bufnr
+# gets the selected result in the menu window (can be empty string)
+def GetResult(): string
+    var bufnr = winbufnr(wins.menu)
     var cursorlinepos = line('.', wins.menu)
     # note: getbufoneline() only added in vim 9.1.0916, neovim 0.9.0
     var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
-    if has_devicons
+    if options.devicons
         linetext = devicons.RemoveDevicon(linetext)
     endif
     return linetext
 enddef
 
 def PromptFilter(wid: number, key: string): number
-    var bufnr = popup_wins[wid].bufnr
-    var line = copy(popup_wins[wid].prompt.line)
-    var cur_pos = popup_wins[wid].cursor_args.cur_pos # index by number of char not byte
-    var max_pos = popup_wins[wid].cursor_args.max_pos
-    var last_displayed_line = popup_wins[wid].prompt.displayed_line
+    var bufnr = winbufnr(wid)
+    var line = copy(prompt_info.line)
+    var cur_pos = prompt_info.cursor_args.cur_pos # index by number of char not byte
+    var max_pos = prompt_info.cursor_args.max_pos
+    var last_displayed_line = prompt_info.displayed_line
     var ascii_val = char2nr(key)
     if index(keymaps['backspace'], key) >= 0
         if cur_pos == len(line)
@@ -381,7 +369,7 @@ def PromptFilter(wid: number, key: string): number
         if pos.winid != wid
             return 0
         endif
-        var prefix_len = popup_wins[wid].cursor_args.prefix_charlen
+        var prefix_len = prompt_info.cursor_args.prefix_charlen
         cur_pos = pos.wincol - prefix_len - 2
         if cur_pos > max_pos
             cur_pos = max_pos
@@ -406,43 +394,43 @@ def PromptFilter(wid: number, key: string): number
         # catch all unhandled keys
         return 1
     endif
-    popup_wins[wid].cursor_args.cur_pos = cur_pos
+    prompt_info.cursor_args.cur_pos = cur_pos
 
     var line_str = join(line, '')
-    if has_key(popup_opts, 'input_cb') && popup_wins[wid].prompt.line != line
-        var prompt = popup_wins[wid].prompt.prefix
+    if has_key(options, 'input_cb') && prompt_info.line != line
+        var prompt = prompt_info.prefix
         var displayed_line = prompt .. line_str .. " "
         popup_settext(wid, displayed_line)
-        popup_wins[wid].prompt.displayed_line = displayed_line
-        popup_wins[wid].prompt.line = line
+        prompt_info.displayed_line = displayed_line
+        prompt_info.line = line
         # after a keystroke, we need to update the menu popup to display
         # appropriate content and reset the cursor position
-        if dropdown
+        if options.dropdown
             win_execute(wins.menu, "silent! cursor(1, 1)")
         else
             win_execute(wins.menu, "silent! cursor('$', 1)")
         endif
-        popup_opts.input_cb(wid, line_str)
+        options.input_cb(wid, line_str)
     endif
 
-    popup_wins[wid].cursor_args.max_pos = len(line)
-    var prefix_len = popup_wins[wid].cursor_args.prefix_len
+    prompt_info.cursor_args.max_pos = len(line)
+    var prefix_len = prompt_info.cursor_args.prefix_len
 
     # cursor hl
-    var hl = popup_wins[wid].cursor_args.highlight
-    matchdelete(popup_wins[wid].cursor_args.mid, wid)
+    var hl = prompt_info.cursor_args.highlight
+    matchdelete(prompt_info.cursor_args.mid, wid)
     var hi_end_pos = prefix_len + 1
     if cur_pos > 0
         hi_end_pos += len(join(line[: cur_pos - 1], ''))
     endif
     var mid = matchaddpos(hl, [[1, hi_end_pos]], 10, -1, {window: wid})
-    popup_wins[wid].cursor_args.mid = mid
+    prompt_info.cursor_args.mid = mid
     return 1
 enddef
 
 def MenuFilter(wid: number, key: string): number
-    var bufnr = popup_wins[wid].bufnr
-    var width = popup_wins[wid].width
+    var bufnr = winbufnr(wid)
+    var width = popup_getoptions(wid).maxwidth
     var moved = 0
     var cursorline = line('.', wid)
     if index(keymaps['menu_down'], key) >= 0
@@ -484,9 +472,9 @@ def MenuFilter(wid: number, key: string): number
             return 0
         endif
         win_execute(wid, 'norm! ' .. pos.line .. 'G')
-        if has_key(popup_opts, 'select_cb')
-                && type(popup_opts.select_cb) == v:t_func
-            InvokeAction(popup_opts.select_cb, wins.menu)
+        if has_key(options, 'select_cb')
+                && type(options.select_cb) == v:t_func
+            InvokeAction(options.select_cb, wins.menu)
         endif
         popup_close(wid)
     elseif key ==? "\<ScrollWheelUp>"
@@ -504,20 +492,20 @@ def MenuFilter(wid: number, key: string): number
         win_execute(wid, "norm! 3j")
         moved = 1
     elseif index(keymaps['menu_select'], key) >= 0
-        if has_key(popup_opts, 'select_cb')
-                && type(popup_opts.select_cb) == v:t_func
-            InvokeAction(popup_opts.select_cb, wins.menu)
+        if has_key(options, 'select_cb')
+                && type(options.select_cb) == v:t_func
+            InvokeAction(options.select_cb, wins.menu)
         endif
         popup_close(wid)
     elseif index(keymaps['exit'], key) >= 0
         popup_close(wid)
-    elseif has_key(actions, key) && type(actions[key]) == v:t_func
-        InvokeAction(actions[key], wins.menu)
+    elseif has_key(options.actions, key) && type(options.actions[key]) == v:t_func
+        InvokeAction(options.actions[key], wins.menu)
     else
         return 0
     endif
 
-    if moved && !dropdown
+    if moved && !options.dropdown
         var minline = getwinvar(wins.menu, 'minline', 1)
         if line('.', wid) < minline
             win_execute(wid, 'norm! ' .. minline .. 'G')
@@ -528,7 +516,7 @@ def MenuFilter(wid: number, key: string): number
     endif
 
     if moved
-        MenuCursorContentChangeCb()
+        HandleChange()
     endif
     return 1
 enddef
@@ -564,55 +552,7 @@ def PreviewFilter(wid: number, key: string): number
     return 1
 enddef
 
-def CreatePopup(args: dict<any>): number
-    var opts = {
-        line: args.line,
-        col: args.col,
-        minwidth: args.width,
-        maxwidth: args.width,
-        minheight: args.height,
-        maxheight: args.height,
-        scrollbar: false,
-        padding: [0, 0, 0, 0],
-        zindex: 1000,
-        wrap: 0,
-        cursorline: 0,
-        callback: function('GeneralPopupCallback'),
-        border: [1],
-        borderchars: borderchars,
-        borderhighlight: ['fuzzboxBorder'],
-        highlight: 'fuzzboxNormal'
-    }
-
-    for key in ['filter', 'border', 'borderhighlight', 'highlight', 'borderchars',
-            'scrollbar', 'padding', 'wrap', 'zindex', 'title']
-        if has_key(args, key)
-            opts[key] = args[key]
-        endif
-    endfor
-
-    if has_key(opts, 'filter')
-        opts.mapping = false
-    endif
-
-    var wid = popup_create('', opts)
-    if has_key(args, 'cursorline') && args.cursorline
-       # we don't use popup option 'cursorline' because it is buggy (some
-       # colorscheme will make cursorline highlight disappear)
-       setwinvar(wid, '&cursorline', 1)
-       setwinvar(wid, '&cursorlineopt', 'line')
-    endif
-    popup_wins[wid] = {
-        line: args.line,
-        col: args.col,
-        width: args.width,
-        height: args.height,
-    }
-
-    return wid
-enddef
-
-def NewPopup(args: dict<any>): list<number>
+def NewPopup(args: dict<any>): number
     var width = get(args, 'width', 0.4)
     var height = get(args, 'height', 0.4)
     var xoffset = get(args, 'xoffset', 0.3)
@@ -633,34 +573,58 @@ def NewPopup(args: dict<any>): list<number>
     line = min([max([0, line]), lines - final_height])
     col = min([max([0, col]), columns - final_width])
 
-    var opts = extend(args, {
+    var opts = {
         line: line,
         col: col,
-        width: final_width,
-        height: final_height
-    })
+        minwidth: final_width,
+        maxwidth: final_width,
+        minheight: final_height,
+        maxheight: final_height,
+        scrollbar: false,
+        padding: [0, 0, 0, 0],
+        mapping: false,
+        zindex: 1000,
+        wrap: 0,
+        cursorline: 0,
+        callback: null_function,
+        border: [1],
+        borderchars: borderchars,
+        borderhighlight: ['fuzzboxBorder'],
+        highlight: 'fuzzboxNormal'
+    }
 
-    var wid = CreatePopup(opts)
+    for key in ['filter', 'scrollbar', 'wrap', 'zindex', 'title', 'callback']
+        if has_key(args, key)
+            opts[key] = args[key]
+        endif
+    endfor
+
+    var wid = popup_create('', opts)
+    if has_key(args, 'cursorline') && args.cursorline
+       # we don't use popup option 'cursorline' because it is buggy (some
+       # colorscheme will make cursorline highlight disappear)
+       setwinvar(wid, '&cursorline', 1)
+       setwinvar(wid, '&cursorlineopt', 'line')
+    endif
+
     var bufnr = winbufnr(wid)
     setbufvar(bufnr, '&modeline', 0)
 
-    popup_wins[wid].bufnr = bufnr
-
-    return [wid, bufnr]
+    return wid
 enddef
 
 def MenuSetText(text_list: list<string>)
     if type(text_list) != v:t_list
         echoerr 'text must be a list'
     endif
-    if !has_key(popup_wins, wins.menu)
+    if winbufnr(wins.menu) == -1
         return
     endif
     var text = text_list
     var old_cursor_pos = line('$', wins.menu) - line('.', wins.menu)
     var textrows = popup_getpos(wins.menu).height - 2
 
-    if !dropdown
+    if !options.dropdown
         var len_text = len(text_list)
         setwinvar(wins.menu, 'minline', textrows - len_text + 1)
         text = reverse(text_list)
@@ -685,7 +649,7 @@ def MenuSetText(text_list: list<string>)
     endif
 
     popup_settext(wins.menu, text)
-    if !dropdown
+    if !options.dropdown
         var new_line_length = line('$', wins.menu)
         var cursor_pos = new_line_length - old_cursor_pos
         win_execute(wins.menu, 'normal! ' .. new_line_length .. 'zb')
@@ -697,7 +661,7 @@ def MenuSetText(text_list: list<string>)
     # Without this the selection sign would not be moved to the new cursorline
     timer_start(10, (_) => {
         if active # allow for popups to have closed when lambda is invoked
-            MenuCursorContentChangeCb()
+            HandleChange()
         endif
     }, { repeat: 0 })
 enddef
@@ -706,7 +670,7 @@ enddef
 # params:
 #   - hi_list: list of position to highlight eg. [[1,2,3], [1,5]]
 def MenuSetHl(hl_list_raw: list<any>)
-    if !has_key(popup_wins, wins.menu)
+    if winbufnr(wins.menu) == -1
         return
     endif
     clearmatches(wins.menu)
@@ -719,7 +683,7 @@ def MenuSetHl(hl_list_raw: list<any>)
     # in case of reverse menu, we need to reverse the hl_list
     var textrows = popup_getpos(wins.menu).height - 2
     var height = max([hl_list_raw[-1][0], textrows])
-    if !dropdown
+    if !options.dropdown
         hl_list = reduce(hl_list_raw, (acc, v) => add(acc, [height - v[0] + 1] + v[1 :]), [])
     endif
 
@@ -748,38 +712,36 @@ def PopupPrompt(args: dict<any>): number
         filter: function('PromptFilter')
     }
     opts = extend(opts, args)
-    var [wid, bufnr] = NewPopup(opts)
+    var wid = NewPopup(opts)
     var prefix = has_key(args, 'prefix') ? args.prefix : '> '
     const prefix_len = len(prefix)
     const prefix_charlen = strcharlen(prefix)
-    var prompt_opt = {
+    prompt_info = {
+        bufnr: winbufnr(wid),
         line: [],
         prefix: prefix,
         displayed_line: prefix .. " ",
+        cursor_args: {
+            min_pos: 0,
+            max_pos: 0,
+            prefix_len: prefix_len,
+            prefix_charlen: prefix_charlen,
+            cur_pos: 0,
+            highlight: 'fuzzboxCursor',
+            mid: -1,
+        }
     }
 
-    var cursor_args = {
-        min_pos: 0,
-        max_pos: 0,
-        prefix_len: prefix_len,
-        prefix_charlen: prefix_charlen,
-        cur_pos: 0,
-        highlight: 'fuzzboxCursor',
-        mid: -1,
-    }
-
-    popup_wins[wid].cursor_args = cursor_args
-    popup_wins[wid].prompt = prompt_opt
-    popup_settext(wid, prompt_opt.displayed_line)
+    popup_settext(wid, prompt_info.displayed_line)
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
     endif
 
     # set cursor
-    var mid = matchaddpos(cursor_args.highlight,
-    [[1, prefix_len + 1 + cursor_args.cur_pos]], 10, -1,  {window: wid})
-    popup_wins[wid].cursor_args.mid = mid
+    var mid = matchaddpos(prompt_info.cursor_args.highlight,
+        [[1, prefix_len + 1 + prompt_info.cursor_args.cur_pos]], 10, -1,  {window: wid})
+    prompt_info.cursor_args.mid = mid
 
     if has_key(args, 'text') && !empty(args.text)
         for i in range(strchars(args.text))
@@ -824,7 +786,7 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
         hlgroup = 'fuzzboxCounter'
         timer_stop(loading_tid)
     endif
-    var bufnr = popup_wins[wins.prompt].bufnr
+    var bufnr = prompt_info.bufnr
     var type = 'FuzzboxCounter'
     var prop = prop_type_get(type)
     if empty(prop)
@@ -872,10 +834,11 @@ def PopupMenu(args: dict<any>): number
         yoffset: 0.3,
         cursorline: 1,
         filter: function('MenuFilter'),
+        callback: function('MenuCallback')
     }
 
     opts = extend(opts, args)
-    var [wid, bufnr] = NewPopup(opts)
+    var wid = NewPopup(opts)
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
@@ -901,7 +864,7 @@ def PopupPreview(args: dict<any>): number
     }
 
     opts = extend(opts, args)
-    var [wid, bufnr] = NewPopup(opts)
+    var wid = NewPopup(opts)
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
@@ -915,7 +878,7 @@ def PopupPreview(args: dict<any>): number
     return wid
 enddef
 
-def PopupWinOpts(opts: dict<any>): list<any>
+def GetOptions(opts: dict<any>): dict<any>
     var preview = has_key(opts, 'preview') ? opts.preview : true
     var compact = has_key(opts, 'compact') ? opts.compact : false
     var minwidth = has_key(opts, 'minwidth')
@@ -955,6 +918,10 @@ def PopupWinOpts(opts: dict<any>): list<any>
     width = width - 2
     height = height - 2
 
+    if preview
+        width = width - 2 # additional borderchars
+    endif
+
     var xoffset = width < 1 ? (1 - width) / 2 : (&columns - width) / 2
     var yoffset = height < 1 ? (1 - height) / 2 : (&lines - height) / 2
     xoffset = has_key(opts, 'xoffset') && opts.xoffset > 0 ? opts.xoffset : xoffset
@@ -962,14 +929,39 @@ def PopupWinOpts(opts: dict<any>): list<any>
     yoffset = yoffset < 1 ? float2nr(yoffset * &lines) : float2nr(yoffset)
     xoffset = xoffset < 1 ? float2nr(xoffset * &columns) : float2nr(xoffset)
 
-    return [preview, preview_ratio, width, height, xoffset, yoffset]
+    return {
+        preview: preview,
+        preview_ratio: preview_ratio,
+        minwidth: minwidth,
+        maxwidth: maxwidth,
+        minheight: minheight,
+        maxheight: maxheight,
+        width: width,
+        height: height,
+        xoffset: xoffset,
+        yoffset: yoffset,
+        compact: compact,
+        actions: has_key(opts, 'actions') ? opts.actions : {},
+        devicons: has_key(opts, 'devicons') && opts.devicons && devicons.Enabled(),
+        dropdown: has_key(opts, 'dropdown') && opts.dropdown,
+        scrollbar: has_key(opts, 'scrollbar') && opts.scrollbar,
+        menu_title: has_key(opts, 'menu_title') ? opts.menu_title : '',
+        menu_wrap: has_key(opts, 'menu_wrap') ? opts.menu_wrap : false,
+        prompt_title: has_key(opts, 'prompt_title') ? opts.prompt_title : '',
+        prompt_prefix: has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : '',
+        prompt_text: has_key(opts, 'prompt_text') ? opts.prompt_text : '',
+        preview_title: has_key(opts, 'preview_title') ? opts.preview_title : '',
+        preview_wrap: has_key(opts, 'preview_wrap') ? opts.preview_wrap : true,
+    }
 enddef
 
 # params:
-#   - opts: dict of options
-#       - select_cb: function called when a value is selected
-#       - preview_cb: function called when cursor moves to a new value
-#       - input_cb: function called when user inputs to prompt
+#   - opts: dict of options, including the following callbacks
+#       - select_cb: function called when a result is selected
+#       - change_cb: function called when cursor moves in the menu
+#       - input_cb: function called when user inputs into prompt
+#       - close_cb: function called when all windows are closed
+#       - preview_cb: function called to preview a selection
 # return:
 #   A dictionary of window ids:
 #    {
@@ -977,104 +969,77 @@ enddef
 #       prompt: prompt_wid,
 #       preview: preview_wid,
 #    }
-export def PopupSelection(opts: dict<any>): dict<any>
-    popup_opts = opts
+export def Start(opts: dict<any>): dict<any>
     if active
         return { menu: -1, prompt: -1, preview: -1 }
     endif
+    active = true
 
     if exists('#User#FuzzboxOpening')
         doautocmd <nomodeline> User FuzzboxOpening
     endif
 
-    active = true
-    actions = has_key(opts, 'actions') ? opts.actions : {}
-    has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
-
-    var [preview, preview_ratio, width, height, xoffset, yoffset] = PopupWinOpts(opts)
+    options = extendnew(opts, GetOptions(opts))
 
     var preview_width = 0
     var menu_width = 0
-    if preview
-        width = width - 2 # additional borderchars
-        preview_width = float2nr(width * preview_ratio)
-        menu_width = width - preview_width
+    if options.preview
+        preview_width = float2nr(options.width * options.preview_ratio)
+        menu_width = options.width - preview_width
     else
-        menu_width = width
+        menu_width = options.width
     endif
 
-    dropdown = has_key(opts, 'dropdown') && opts.dropdown
-
     var prompt_height = 3 # 1 row of text plus borderchars
-    var menu_height = height - prompt_height
+    var menu_height = options.height - prompt_height
 
     var prompt_yoffset: number
     var menu_yoffset: number
 
-    if dropdown
-        prompt_yoffset = yoffset
-        menu_yoffset = yoffset + prompt_height
+    if options.dropdown
+        prompt_yoffset = options.yoffset
+        menu_yoffset = options.yoffset + prompt_height
     else
-        menu_yoffset = yoffset
-        prompt_yoffset = yoffset + menu_height + 2
+        menu_yoffset = options.yoffset
+        prompt_yoffset = options.yoffset + menu_height + 2
     endif
 
-    scrollbar = has_key(opts, 'scrollbar') && opts.scrollbar
-
     var menu_opts = {
-        scrollbar: scrollbar,
+        scrollbar: options.scrollbar,
         yoffset: menu_yoffset,
-        xoffset: xoffset,
+        xoffset: options.xoffset,
         width: menu_width,
         height: menu_height,
         zindex: 1200,
+        title: options.menu_title,
+        wrap: options.menu_wrap
     }
-    if has_key(opts, 'menu_title')
-        menu_opts['title'] = opts.menu_title
-    endif
-    if has_key(opts, 'menu_wrap')
-        menu_opts['wrap'] = opts.menu_wrap
-    endif
     wins.menu = PopupMenu(menu_opts)
 
     var prompt_opts = {
         yoffset: prompt_yoffset,
-        xoffset: xoffset,
+        xoffset: options.xoffset,
         width: menu_width,
         zindex: 1010,
+        title: options.prompt_title,
+        prefix: options.prompt_prefix,
+        text: options.prompt_text
     }
-    if has_key(opts, 'prompt_title')
-        prompt_opts['title'] = opts.prompt_title
-    endif
-    if has_key(opts, 'prompt_prefix')
-        prompt_opts['prefix'] = opts.prompt_prefix
-    endif
-    if has_key(opts, 'prompt_text')
-        prompt_opts['text'] = opts.prompt_text
-    endif
     wins.prompt = PopupPrompt(prompt_opts)
 
-    if preview
-        var preview_xoffset = popup_wins[wins.menu].col + popup_wins[wins.menu].width
-        var menu_row = popup_wins[wins.menu].line
-        var prompt_row = popup_wins[wins.prompt].line
-        prompt_height = popup_wins[wins.prompt].height
-        # var preview_height = prompt_row - menu_row + prompt_height
+    if options.preview
+        var preview_xoffset = popup_getoptions(wins.menu).col + popup_getoptions(wins.menu).maxwidth
+        prompt_height = popup_getoptions(wins.prompt).maxheight
         var preview_height = menu_height + prompt_height + 2
         var preview_opts = {
             width: preview_width,
             height: preview_height,
-            yoffset: yoffset,
+            yoffset: options.yoffset,
             xoffset: preview_xoffset + 2,
             zindex: 1100,
-            wrap: 1
+            title: options.preview_title,
+            wrap: options.preview_wrap
         }
-        if has_key(opts, 'preview_wrap')
-            preview_opts['wrap'] = opts.preview_wrap
-        endif
-        if has_key(opts, 'preview_title')
-            preview_opts['title'] = opts.preview_title
-        endif
         wins.preview = PopupPreview(preview_opts)
     endif
 

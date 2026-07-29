@@ -236,7 +236,7 @@ enddef
 # This function spawn a popup picker for user to select an item from a list.
 # params:
 #   - list: list of string to be selected, can be empty
-#   - opts: dict of options, mostly for popup.PopupSelection()
+#   - opts: dict of options, mostly for popup.Start()
 # return:
 #   A dictionary of window ids:
 #    {
@@ -282,7 +282,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
 
     opts.cleanup = () => timer_stop(async_tid)
 
-    var wids = popup.PopupSelection(extendnew(defaults, opts))
+    var wids = popup.Start(extendnew(defaults, opts))
 
     if opts.input_cb == function('InputAsync')
         UpdateResults(raw_list->slice(0, async_limit), [], len_list, len_list)
