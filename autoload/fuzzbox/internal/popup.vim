@@ -9,7 +9,10 @@ import autoload './utils.vim'
 
 var wins = { menu: -1, prompt: -1, preview: -1 }
 var options: dict<any>
-var prompt_info: dict<any>
+var cursor_pos: number
+var cursor_mid: number
+var loading_tid: number
+var preview_tid: number
 var t_ve: string
 var hlcursor: dict<any>
 export var active = false
@@ -246,7 +249,6 @@ export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
 enddef
 
 # Handle situation when Text under cursor in menu window is changed
-var preview_tid: number
 def HandleChange()
     if !empty(selection_sign)
         var bufnr = winbufnr(wins.menu)
@@ -275,8 +277,8 @@ export def SetPrompt(content: string)
     if wins.prompt == -1
         return
     endif
-    prompt_info.line = []
-    prompt_info.cursor_args.cur_pos = 0
+    cursor_pos = 0
+    popup_settext(wid, options.prompt_prefix .. " ")
     for i in range(strchars(content))
         PromptFilter(wins.prompt, strcharpart(content, i, 1, 1))
     endfor
@@ -286,7 +288,8 @@ export def GetPrompt(): string
     if wins.prompt == -1
         return ''
     endif
-    return prompt_info.line->join('')
+    var bufnr = winbufnr(wins.prompt)
+    return getbufline(bufnr, 1, 1)[0]->substitute('^' .. options.prompt_prefix, '', '')[: -2]
 enddef
 
 # gets the selected result in the menu window (can be empty string)
@@ -303,17 +306,17 @@ enddef
 
 def PromptFilter(wid: number, key: string): number
     var bufnr = winbufnr(wid)
-    var line = copy(prompt_info.line)
-    var cur_pos = prompt_info.cursor_args.cur_pos # index by number of char not byte
-    var max_pos = prompt_info.cursor_args.max_pos
-    var last_displayed_line = prompt_info.displayed_line
+    var bufline = getbufline(bufnr, 1, 1)[0]->substitute('^' .. options.prompt_prefix, '', '')[: -2]
+    var line = copy(bufline)
+    var cur_pos = cursor_pos # index by number of char not byte
+    var max_pos = len(line)
     var ascii_val = char2nr(key)
     if index(keymaps['backspace'], key) >= 0
         if cur_pos == len(line)
             line = line[: -2]
         else
-            var before = cur_pos - 2 >= 0 ? line[: cur_pos - 2] : []
-            line = before + line[cur_pos :]
+            var before = cur_pos - 2 >= 0 ? line[: cur_pos - 2] : ''
+            line = before .. line[cur_pos :]
         endif
         cur_pos = max([ 0, cur_pos - 1 ])
     elseif index(keymaps['delete'], key) >= 0
@@ -323,10 +326,9 @@ def PromptFilter(wid: number, key: string): number
         elseif cur_pos == 0
             line = line[1 : ]
         else
-            var before = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : []
-            line = before + line[cur_pos + 1 :]
+            var before = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : ''
+            line = before .. line[cur_pos + 1 :]
         endif
-        max_pos -= 1
     elseif index(keymaps['cursor_begining'], key) >= 0
         cur_pos = 0
     elseif index(keymaps['cursor_end'], key) >= 0
@@ -346,17 +348,17 @@ def PromptFilter(wid: number, key: string): number
             cur_pos = cur_pos + 1
         endwhile
     elseif index(keymaps['delete_all'], key) >= 0
-        line = []
+        line = ''
         cur_pos = 0
     elseif index(keymaps['delete_word'], key) >= 0
+        var old_pos = cur_pos
         while cur_pos > 0 && line[cur_pos - 1] == ' '
-            remove(line, cur_pos - 1)
             cur_pos = cur_pos - 1
         endwhile
         while cur_pos > 0 && line[cur_pos - 1] != ' '
-            remove(line, cur_pos - 1)
             cur_pos = cur_pos - 1
         endwhile
+        line = cur_pos - 1 >= 0 ? line[: cur_pos - 1] .. line[old_pos :] : line[old_pos :]
     elseif index(keymaps['delete_prefix'], key) >= 0
         line = line[cur_pos :]
         cur_pos = 0
@@ -369,8 +371,7 @@ def PromptFilter(wid: number, key: string): number
         if pos.winid != wid
             return 0
         endif
-        var prefix_len = prompt_info.cursor_args.prefix_charlen
-        cur_pos = pos.wincol - prefix_len - 2
+        cur_pos = pos.wincol - strcharlen(options.prompt_prefix) - 2
         if cur_pos > max_pos
             cur_pos = max_pos
         endif
@@ -379,52 +380,42 @@ def PromptFilter(wid: number, key: string): number
         endif
     elseif key == "P" && has('gui') && line->slice(cur_pos - 3, cur_pos) == ['"', '+', 'g']
         # handle gvim & macvim paste, copied from scope.vim, thanks @girishji
-        var pasted = getreg('+')->split('\zs')
-        line = line->slice(0, cur_pos - 3) + pasted + line->slice(cur_pos)
+        var pasted = getreg('+')
+        line = line->slice(0, cur_pos - 3) .. pasted .. line->slice(cur_pos)
         cur_pos = (cur_pos - 3) + len(pasted)
     elseif (ascii_val >= 32 && ascii_val <= 126) || (ascii_val >= 160) || (ascii_val == 9)
         if cur_pos == len(line)
-            line->add(key)
+            line ..= key
         else
-            var pre = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : []
-            line = pre + [key] + line[cur_pos :]
+            var before = cur_pos - 1 >= 0 ? line[: cur_pos - 1] : ''
+            line = before .. key .. line[cur_pos :]
         endif
         cur_pos += 1
     else
         # catch all unhandled keys
         return 1
     endif
-    prompt_info.cursor_args.cur_pos = cur_pos
+    cursor_pos = cur_pos
 
-    var line_str = join(line, '')
-    if has_key(options, 'input_cb') && prompt_info.line != line
-        var prompt = prompt_info.prefix
-        var displayed_line = prompt .. line_str .. " "
-        popup_settext(wid, displayed_line)
-        prompt_info.displayed_line = displayed_line
-        prompt_info.line = line
-        # after a keystroke, we need to update the menu popup to display
-        # appropriate content and reset the cursor position
-        if options.dropdown
-            win_execute(wins.menu, "silent! cursor(1, 1)")
-        else
-            win_execute(wins.menu, "silent! cursor('$', 1)")
+    if bufline != line
+        popup_settext(wid, options.prompt_prefix .. line .. " ")
+        if has_key(options, 'input_cb')
+            if options.dropdown
+                win_execute(wins.menu, "silent! cursor(1, 1)")
+            else
+                win_execute(wins.menu, "silent! cursor('$', 1)")
+            endif
+            options.input_cb(wid, line)
         endif
-        options.input_cb(wid, line_str)
     endif
-
-    prompt_info.cursor_args.max_pos = len(line)
-    var prefix_len = prompt_info.cursor_args.prefix_len
 
     # cursor hl
-    var hl = prompt_info.cursor_args.highlight
-    matchdelete(prompt_info.cursor_args.mid, wid)
-    var hi_end_pos = prefix_len + 1
+    matchdelete(cursor_mid, wid)
+    var hi_end_pos = len(options.prompt_prefix) + 1
     if cur_pos > 0
-        hi_end_pos += len(join(line[: cur_pos - 1], ''))
+        hi_end_pos += len(line[: cur_pos - 1])
     endif
-    var mid = matchaddpos(hl, [[1, hi_end_pos]], 10, -1, {window: wid})
-    prompt_info.cursor_args.mid = mid
+    cursor_mid = matchaddpos('fuzzboxCursor', [[1, hi_end_pos]], 10, -1, {window: wid})
     return 1
 enddef
 
@@ -651,9 +642,9 @@ def MenuSetText(text_list: list<string>)
     popup_settext(wins.menu, text)
     if !options.dropdown
         var new_line_length = line('$', wins.menu)
-        var cursor_pos = new_line_length - old_cursor_pos
+        var new_cursor_pos = new_line_length - old_cursor_pos
         win_execute(wins.menu, 'normal! ' .. new_line_length .. 'zb')
-        win_execute(wins.menu, 'normal! ' .. cursor_pos .. 'G')
+        win_execute(wins.menu, 'normal! ' .. new_cursor_pos .. 'G')
     endif
 
     # Delay triggering content changed callback to allow selectors to move the
@@ -713,35 +704,16 @@ def PopupPrompt(args: dict<any>): number
     }
     opts = extend(opts, args)
     var wid = NewPopup(opts)
-    var prefix = has_key(args, 'prefix') ? args.prefix : '> '
-    const prefix_len = len(prefix)
-    const prefix_charlen = strcharlen(prefix)
-    prompt_info = {
-        bufnr: winbufnr(wid),
-        line: [],
-        prefix: prefix,
-        displayed_line: prefix .. " ",
-        cursor_args: {
-            min_pos: 0,
-            max_pos: 0,
-            prefix_len: prefix_len,
-            prefix_charlen: prefix_charlen,
-            cur_pos: 0,
-            highlight: 'fuzzboxCursor',
-            mid: -1,
-        }
-    }
-
-    popup_settext(wid, prompt_info.displayed_line)
+    cursor_pos = 0
+    popup_settext(wid, options.prompt_prefix .. " ")
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
     endif
 
     # set cursor
-    var mid = matchaddpos(prompt_info.cursor_args.highlight,
-        [[1, prefix_len + 1 + prompt_info.cursor_args.cur_pos]], 10, -1,  {window: wid})
-    prompt_info.cursor_args.mid = mid
+    cursor_mid = matchaddpos('fuzzboxCursor',
+        [[1, len(options.prompt_prefix) + 1 + cursor_pos]], 10, -1,  {window: wid})
 
     if has_key(args, 'text') && !empty(args.text)
         for i in range(strchars(args.text))
@@ -786,7 +758,7 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
         hlgroup = 'fuzzboxCounter'
         timer_stop(loading_tid)
     endif
-    var bufnr = prompt_info.bufnr
+    var bufnr = winbufnr(wins.prompt)
     var type = 'FuzzboxCounter'
     var prop = prop_type_get(type)
     if empty(prop)
@@ -813,7 +785,6 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     })
 enddef
 
-var loading_tid: number
 export def SetLoading()
     timer_stop(loading_tid)
     var loading_idx = 0
