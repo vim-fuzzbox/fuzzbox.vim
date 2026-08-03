@@ -783,6 +783,12 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
         text: text .. ' ',
         text_align: 'right'
     })
+    # workaround for virtual text in popup redraw issue
+    # fixed in PR https://github.com/vim/vim/pull/20931
+    if has('patch-9.2.0080') && !has('patch-9.2.0907')
+        # changing zindex forces a redraw, but must be lowest zindex
+        popup_setoptions(wins.prompt, {zindex: rand() % 1000})
+    endif
 enddef
 
 export def SetLoading()
