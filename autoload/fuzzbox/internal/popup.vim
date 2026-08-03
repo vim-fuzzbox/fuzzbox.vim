@@ -378,7 +378,7 @@ def PromptFilter(wid: number, key: string): number
         if cur_pos < 0
             cur_pos = 0
         endif
-    elseif key == "P" && has('gui') && line->slice(cur_pos - 3, cur_pos) == ['"', '+', 'g']
+    elseif key == "P" && has('gui') && line->slice(cur_pos - 3, cur_pos) == '"+g'
         # handle gvim & macvim paste, copied from scope.vim, thanks @girishji
         var pasted = getreg('+')
         line = line->slice(0, cur_pos - 3) .. pasted .. line->slice(cur_pos)
