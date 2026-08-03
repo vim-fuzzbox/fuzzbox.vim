@@ -772,7 +772,7 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     elseif type(count) == v:t_string
         text = count
     elseif empty(total)
-        text = type(count) == v:t_string ? count : string(count)
+        text = string(count)
     else
         text = string(count) .. ' / ' .. string(total)
     endif
