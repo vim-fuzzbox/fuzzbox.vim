@@ -9,20 +9,15 @@ import autoload '../internal/actions.vim'
 import autoload './grep/cmdbuilder.vim'
 
 var cwd: string
-var cwdlen: number
-var cur_pattern = ''
-var cur_result = []
-var menu_wid = -1
-var cur_menu_item = ''
-var job_running = 0
-var update_tid = 0
-var last_pattern = ''
-var last_result_len = -1
-var last_result = []
-var cur_dict = {}
-var jid: job
+var cur_pattern: string
+var cur_result: list<string>
+var cur_menu_item: string
+var last_pattern: string
+var last_result_len: number
+var last_result: list<string>
+var cur_dict: dict<any>
+var cur_job: job
 var pid: number
-var preview_wid = -1
 
 var async_limit = g:fuzzbox_async_limit
 
@@ -31,7 +26,6 @@ def ParseResult(str: string): list<any>
     if seq[1] == -1
         return [null, -1, -1]
     endif
-    # var path = str[: seq[1] - 1]
     var path = strpart(str, 0, seq[1])
     var linecol = split(seq[0], ':')
     var line = str2nr(linecol[0])
@@ -84,14 +78,13 @@ def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
 enddef
 
 def JobStart(pattern: string)
-    if type(jid) == v:t_job && job_status(jid) == 'run'
-        job_stop(jid)
+    if job_status(cur_job) == 'run'
+        job_stop(cur_job)
     endif
     cur_result = []
     if pattern == ''
         return
     endif
-    job_running = 1
     var cmd_str: string
     # fudge smart-case for grep programs that don't natively support it
     # adds ignore case option to arguments when no upper case chars found
@@ -101,19 +94,20 @@ def JobStart(pattern: string)
         cmd_str = printf(cmd_template, '', escape(pattern, '"'), escape(cwd, '"'))
     endif
     utils.Debug('grep command: ' .. cmd_str)
-    jid = job_start(cmd_str, {
+    cur_job = job_start(cmd_str, {
         out_cb: function('JobOutCb'),
         out_mode: 'raw',
         exit_cb: function('JobExitCb'),
         err_cb: function('JobErrCb'),
     })
-    pid = job_info(jid).process
+    pid = job_info(cur_job).process
 enddef
 
 def JobOutCb(channel: channel, msg: string)
     if job_info(ch_getjob(channel)).process == pid
         var lists = utils.Split(msg)
         cur_result += lists
+        UpdateMenu()
     endif
 enddef
 
@@ -121,9 +115,9 @@ def JobErrCb(channel: channel, msg: string)
     echoerr msg
 enddef
 
-def JobExitCb(id: job, status: number)
-    if id == jid
-        job_running = 0
+def JobExitCb(job: job, status: number)
+    if job == cur_job
+        UpdateMenu()
     endif
 enddef
 
@@ -149,22 +143,23 @@ def Input(wid: number, result: string)
     cur_pattern = result
     popup.SetLoading()
     JobStart(result)
+    UpdateMenu()
 enddef
 
-def UpdatePreviewHl()
-    if !has_key(cur_dict, cur_menu_item) || preview_wid < 0
+def UpdatePreviewHl(wid: number)
+    if !has_key(cur_dict, cur_menu_item)
         return
     endif
     var [path, linenr, colnr] = ParseResult(cur_menu_item)
-    clearmatches(preview_wid)
-    if !previewer.IsTextFile(preview_wid)
+    clearmatches(wid)
+    if !previewer.IsTextFile(wid)
         return
     endif
     if colnr > 0
         var hl_list = [cur_dict[cur_menu_item]]
-        matchaddpos('fuzzboxPreviewMatch', hl_list, 9999, -1,  {window: preview_wid})
+        matchaddpos('fuzzboxPreviewMatch', hl_list, 9999, -1,  {window: wid})
     else
-        matchaddpos('fuzzboxPreviewLine', [linenr], 9999, -1,  {window: preview_wid})
+        matchaddpos('fuzzboxPreviewLine', [linenr], 9999, -1,  {window: wid})
     endif
 enddef
 
@@ -173,10 +168,13 @@ def Preview(wid: number, result: string, opts: dict<any>)
 
     actions.PreviewFile(wid, result, opts)
 
-    UpdatePreviewHl()
+    UpdatePreviewHl(wid)
 enddef
 
-def UpdateMenu(...li: list<any>)
+def UpdateMenu()
+    if !popup.active
+        return
+    endif
     var cur_result_len = len(cur_result)
     if cur_pattern == ''
         popup.UpdateMenu([], [])
@@ -189,11 +187,9 @@ def UpdateMenu(...li: list<any>)
     # limit results to prevent ballooning memory usage
     var max_results = 10000
     if cur_result_len > max_results
-        if type(jid) == v:t_job && job_status(jid) == 'run'
-            job_stop(jid)
-        endif
+        job_stop(cur_job)
         popup.SetCounter('> ' .. max_results)
-    elseif !job_running
+    elseif job_status(cur_job) != 'run'
         popup.SetCounter(cur_result_len)
     endif
 
@@ -205,8 +201,6 @@ def UpdateMenu(...li: list<any>)
     var strs: list<string>
     var cols: list<list<number>>
     if cur_result_len == 0
-        # we should use last result to do fuzzy search
-        # [strs, cols, cur_dict] = ResultHandle(last_result[: 2000])
         strs = []
         cols = []
     else
@@ -215,30 +209,17 @@ def UpdateMenu(...li: list<any>)
     endif
 
     popup.UpdateMenu(strs, cols)
-    UpdatePreviewHl()
     last_pattern = cur_pattern
     last_result_len = cur_result_len
 enddef
 
 def Close(wid: number)
-    timer_stop(update_tid)
-    if type(jid) == v:t_job && job_status(jid) == 'run'
-        job_stop(jid)
+    if job_status(cur_job) == 'run'
+        job_stop(cur_job)
     endif
     # release memory
     cur_result = []
     last_result = []
-enddef
-
-def Profiling()
-    profile start ~/.vim/vim.log
-    profile func Start
-    profile func UpdateMenu
-    profile func Preview
-    profile func UpdatePreviewHl
-    profile func JobHandler
-    profile func ResultHandle
-    profile func Reducer
 enddef
 
 # Script scoped vars reset for each invocation of Start(). Allows directory
@@ -262,13 +243,10 @@ export def Start(opts: dict<any> = {})
     endif
 
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    cwdlen = len(cwd)
     cur_pattern = ''
     cur_result = []
     cur_menu_item = ''
-    job_running = 0
 
-    update_tid = 0
     last_pattern = ''
     last_result_len = -1
     last_result = []
@@ -282,11 +260,4 @@ export def Start(opts: dict<any> = {})
         devicons: true,
         counter: false
      }))
-    menu_wid = wids.menu
-    if menu_wid == -1
-        return
-    endif
-    preview_wid = wids.preview
-    update_tid = timer_start(100, function('UpdateMenu'), {repeat: -1})
-    # Profiling()
 enddef
