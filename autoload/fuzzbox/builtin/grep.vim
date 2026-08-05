@@ -9,6 +9,7 @@ import autoload '../internal/actions.vim'
 import autoload './grep/cmdbuilder.vim'
 
 var cwd: string
+var custom_cmd: string
 var cur_pattern: string
 var cur_result: list<string>
 var cur_menu_item: string
@@ -21,8 +22,19 @@ var pid: number
 
 var async_limit = g:fuzzbox_async_limit
 
+def MatchSepPos(str: string): list<any>
+    var matchdata: list<any>
+    for pattern in ['\:\d\+:\d\+:', '\:\d\+:']
+        matchdata = matchstrpos(str, pattern)
+        if matchdata[1] != -1
+            return matchdata
+        endif
+    endfor
+    return ['', -1, -1]
+enddef
+
 def ParseResult(str: string): list<any>
-    var seq = matchstrpos(str, sep_pattern)
+    var seq = MatchSepPos(str)
     if seq[1] == -1
         return [null, -1, -1]
     endif
@@ -39,7 +51,7 @@ def ParseResult(str: string): list<any>
 enddef
 
 def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
-    var seq = matchstrpos(val, sep_pattern)
+    var seq = MatchSepPos(val)
     if seq[1] == -1
         return acc
     endif
@@ -52,21 +64,15 @@ def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
     endif
     var path = strpart(val, 0, seq[1])
     var str = strpart(val, seq[2])
-    var centerd_str = str
 
-    # note: git-grep command returns relative paths, but we want to generate
-    # a path relative to the cwd provided (not the current Vim working dir)
-    # note2: also currently required for Git-Bash and friends, as this fixes
-    # windows file separator in paths returned from external commands like rg
-    var relative_path = strpart(fnamemodify(path, ':p'), len(fnamemodify(cwd, ':p')))
+    # Workaround for ripgrep, must use . for relative path when stdout not a tty
+    var relative_path = substitute(path, '\v^\.(\\|\/)', '', '')
 
     var prefix = relative_path .. seq[0]
     var col_list = [col + len(prefix), len(pattern)]
-    var final_str = prefix .. centerd_str
+    var final_str = prefix .. str
     acc.dict[final_str] = [line, col, len(pattern)]
     var obj = {
-        prefix: prefix,
-        centerd_str: centerd_str,
         col_list: col_list,
         final_str: final_str,
         line: line,
@@ -85,20 +91,19 @@ def JobStart(pattern: string)
     if pattern == ''
         return
     endif
-    var cmd_str: string
-    # fudge smart-case for grep programs that don't natively support it
-    # adds ignore case option to arguments when no upper case chars found
-    if !empty(ignore_case) && match(pattern, '\u') == -1
-        cmd_str = printf(cmd_template, ignore_case, escape(pattern, '"'), escape(cwd, '"'))
+    var cmd: string
+    if empty(custom_cmd)
+        cmd = cmdbuilder.Build(pattern)
     else
-        cmd_str = printf(cmd_template, '', escape(pattern, '"'), escape(cwd, '"'))
+        cmd = substitute(custom_cmd, '\V$*', '"' .. escape(pattern, '"') .. '"', '')
     endif
-    utils.Debug('grep command: ' .. cmd_str)
-    cur_job = job_start(cmd_str, {
+    utils.Debug('grep command: ' .. cmd)
+    cur_job = job_start(cmd, {
         out_cb: function('JobOutCb'),
         out_mode: 'raw',
         exit_cb: function('JobExitCb'),
         err_cb: function('JobErrCb'),
+        cwd: cwd
     })
     pid = job_info(cur_job).process
 enddef
@@ -222,27 +227,18 @@ def Close(wid: number)
     last_result = []
 enddef
 
-# Script scoped vars reset for each invocation of Start(). Allows directory
-# change between invocations and git-grep only to be used when in git repo.
-var cmd_template: string
-var sep_pattern: string
-# Set to ignore case option for grep programs that do not support smart case
-# When set, smart case will be emulated by adding ignore case option when
-# search pattern does not include any characters Vim considers upper case
-var ignore_case: string
-
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Live Grep'
 
+    cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+
     if len(get(opts, 'command', '')) > 0
-        cmd_template = opts.command .. '%s "%s" "%s"'
-        sep_pattern = '\:\d\+:\d\+:'
-        ignore_case = ''
-    else
-        [cmd_template, sep_pattern, ignore_case] = cmdbuilder.Build()
+        custom_cmd = opts.command
+        if stridx(custom_cmd, '$*') == -1
+            custom_cmd ..= ' $*'
+        endif
     endif
 
-    cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     cur_pattern = ''
     cur_result = []
     cur_menu_item = ''
