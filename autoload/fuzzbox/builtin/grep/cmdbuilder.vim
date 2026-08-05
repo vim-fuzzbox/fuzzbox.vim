@@ -41,7 +41,7 @@ def Build_rg(): string
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-g !" .. file .. " ", "")
     return result .. ' ' .. dir_list_parsed .. file_list_parsed ..
-        ' ' .. join(ripgrep_options, ' ') .. ' %s -e "%s" "%s"'
+        ' ' .. join(ripgrep_options, ' ') .. ' %s -e "%s" .'
 enddef
 
 def Build_ag(): string
@@ -59,7 +59,7 @@ def Build_ag(): string
         (acc, dir) => acc .. "--ignore " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--ignore " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -- "%s" "%s"'
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -- "%s"'
 enddef
 
 var bsd_grep: any
@@ -84,7 +84,7 @@ def Build_grep(): string
         (acc, dir) => acc .. "--exclude-dir " .. ParseDir(dir) .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -e "%s" "%s"'
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -e "%s"'
 enddef
 
 var git_version: string
@@ -103,37 +103,36 @@ def Build_git(): string
     if str2nr(major) > 2 || ( str2nr(major) == 2 && str2nr(minor) >= 38 )
         result ..= ' --max-count=' .. max_count
     endif
-    return result ..  ' %s -e "%s" "%s"'
+    return result ..  ' %s -e "%s"'
 enddef
 
-var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" "%s/*"'
+var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" *'
 
-export def Build(): list<any>
-    var cmd_template: string
-    var sep_pattern: string
-    var ignore_case: string
+export def Build(pattern: string): string
+    var fmtstr: string
+    var ignore_case_opt: string
     if executable('rg')
-        cmd_template = Build_rg()
-        ignore_case = ''
-        sep_pattern = '\:\d\+:\d\+:'
+        fmtstr = Build_rg()
     elseif executable('ag')
-        cmd_template = Build_ag()
-        ignore_case = ''
-        sep_pattern = '\:\d\+:\d\+:'
+        fmtstr = Build_ag()
     elseif respect_gitignore && executable('git') && utils.InsideGitRepo()
-        cmd_template = Build_git()
-        ignore_case = '-i'
-        sep_pattern = '\:\d\+:\d\+:'
+        fmtstr = Build_git()
+        ignore_case_opt = '-i'
     elseif executable('grep')
-        cmd_template = Build_grep()
-        ignore_case = '-i'
-        sep_pattern = '\:\d\+:'
+        fmtstr = Build_grep()
+        ignore_case_opt = '-i'
     elseif executable('findstr') # for Windows
-        cmd_template = findstr_cmd
-        ignore_case = '/I'
-        sep_pattern = '\:\d\+:'
+        fmtstr = findstr_cmd
+        ignore_case_opt = '/I'
     else
         echoerr 'Please install ag, rg, grep or findstr to run :FuzzyGrep'
     endif
-    return [cmd_template, sep_pattern, ignore_case]
+
+    # fudge smart-case for grep programs that don't natively support it
+    # adds ignore case option to arguments when no upper case chars found
+    if !empty(ignore_case_opt) && match(pattern, '\u') == -1
+        return printf(fmtstr, ignore_case_opt, escape(pattern, '"'))
+    else
+        return printf(fmtstr, '', escape(pattern, '"'))
+    endif
 enddef
