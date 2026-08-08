@@ -6,8 +6,14 @@ vim9script
 # selectors with custom options, and create arbitrary selectors without
 # creating a full Fuzzbox extension, e.g.
 #
-#   " Custom Fuzzbox command to search all files in CWD using ripgrep
-#   command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files', title: 'All Files'})
+#   " Custom Fuzzbox command to find all files in CWD using ripgrep
+#   command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files', title: 'Find Files (All)'})
+#
+#   " Custom Fuzzbox command to search in all files in CWD using ripgrep
+#   " Note the use of $* as placeholder to specify where the text to be searched
+#   " will be included, this is necessary for ripgrep as it requires a path when
+#   " stdout is not a tty, and we run the grep program via a job, not in a shell
+#   command! FuzzyGrepAll call fuzzbox#Launch('grep', #{command: 'rg -uu --vimgrep $* .', title: 'Live Grep (All)'})
 #
 #   " Custom Fuzzbox selector to toggle some pre-defined Vim options
 #   function! FuzzyToggleCb(wid, result)
