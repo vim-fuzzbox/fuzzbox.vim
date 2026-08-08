@@ -23,7 +23,7 @@ g:loaded_fuzzyy = 1
 
 var warnings = []
 if &encoding != 'utf-8'
-    warnings += ['fuzzbox: Vim encoding is ' .. &encoding .. ', utf-8 is required for popup borders etc.']
+    warnings += ['fuzzbox: Vim encoding is ' .. &encoding .. ', utf-8 is recommended for nice popup borders etc.']
 endif
 
 var fuzzyy_options = getcompletion('g:fuzzyy_', 'var')
