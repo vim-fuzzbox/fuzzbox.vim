@@ -647,18 +647,9 @@ the resolved properties of Cursor are copied to fuzzboxCursor where possible.
 
 ## Custom commands
 
-Fuzzbox commands just launch selectors with options. For example, this is the
-definition of the `:FuzzyGrep` command (see plugin/fuzzbox.vim for source):
-
-```vim
-command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
-```
-
-This code is vim9script and requires importing the launcher script, but the
-plugin also includes an autoload function which you can use create custom
-commands in your `vimrc` without importing.
-
-Here is an example command to find all files in CWD using ripgrep:
+Fuzzbox commands just launch selectors with options. You can create custom
+commands in your `vimrc` using the `fuzzbox#Launch()` autoload function. Here
+is an example command to find all files in CWD using ripgrep:
 
 ```vim
 command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files', title: 'Find Files (All)'})
