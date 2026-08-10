@@ -16,14 +16,14 @@ vim9script
 #   command! FuzzyGrepAll call fuzzbox#Launch('grep', #{command: 'rg -uu --vimgrep $* .', title: 'Live Grep (All)'})
 #
 #   " Custom Fuzzbox selector to toggle some pre-defined Vim options
-#   function! FuzzyToggleCb(wid, result)
+#   function! s:FuzzyToggleCb(wid, result)
 #       execute 'setlocal inv' .. a:result
 #   endfunction
 #   command! FuzzyToggle call fuzzbox#Select(
 #       \ ['cursorcolumn', 'list', 'number', 'relativenumber', 'spell', 'wrap'],
 #       \ #{
 #       \   title: 'Toggle Option',
-#       \   callback: function("FuzzyToggleCb")
+#       \   callback: function('s:FuzzyToggleCb')
 #       \ })
 #
 # The above examples assume you are using legacy Vim script in your vimrc

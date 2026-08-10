@@ -673,20 +673,20 @@ lists, and you can use the same interface to create your own custom selectors in
 your `vimrc` using the `fuzzbox#Select()` autoload function.
 
 The function requires a callback option which is a function to call when an item
-is selected. The callback is normally invoked with two arguments, the ID of the
-window containing the results, and the result as a string.
+is selected. The callback is invoked with two arguments, the ID of the window
+containing the results, and the selected result as a string.
 
 Here is a simple example selector to toggle some pre-defined Vim options:
 
 ```vim
-function! FuzzyToggleCb(wid, result)
+function! s:FuzzyToggleCb(wid, result)
   execute 'setlocal inv' .. a:result
 endfunction
 command! FuzzyToggle call fuzzbox#Select(
   \ ['cursorcolumn', 'list', 'number', 'relativenumber', 'spell', 'wrap'],
   \ #{
   \   title: 'Toggle Option',
-  \   callback: function("FuzzyToggleCb")
+  \   callback: function('s:FuzzyToggleCb')
   \ })
 ```
 

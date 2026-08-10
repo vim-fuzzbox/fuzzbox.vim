@@ -156,7 +156,12 @@ def InvokeAction(Action: func, wid: number)
     endif
     var linetext = GetResult()
 
-    var sig = typename(Action)->matchlist('func(\(.*\))$')[1]->split(', ')
+    var sig = typename(Action)->matchlist('func(\(.*\))')[1]->split(', ')
+
+    # deal with legacy script functions, only two args is supported here
+    if len(sig) == 1 && sig[0] == '...'
+        sig = ['number', 'string']
+    endif
 
     var args: list<any>
     if len(sig) > 0
