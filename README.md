@@ -645,6 +645,70 @@ and clear the Cursor highlight group. This is to work around limitations in how
 |popupwin| operates. To allow fuzzboxCursor to be linked to Cursor (the default),
 the resolved properties of Cursor are copied to fuzzboxCursor where possible.
 
+## Custom commands
+
+Fuzzbox commands just launch selectors with options. For example, this is the
+definition of the `:FuzzyGrep` command (see plugin/fuzzbox.vim for source):
+
+```vim
+command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
+```
+
+This code is vim9script and requires importing the launcher script, but the
+plugin also includes an autoload function which you can use create custom
+commands in your `vimrc` without importing.
+
+Here is an example command to find all files in CWD using ripgrep:
+
+```vim
+command! FuzzyFilesAll call fuzzbox#Launch('files', #{command: 'rg -uu --files', title: 'Find Files (All)'})
+```
+
+And another example to search in all files in CWD using ripgrep:
+
+```vim
+command! FuzzyGrepAll call fuzzbox#Launch('grep', #{command: 'rg -uu --vimgrep $* .', title: 'Live Grep (All)'})
+```
+
+Note the use of $* as placeholder to specify where the text to be searched will
+be included, this is necessary for ripgrep as it requires a path when stdout is
+not a tty, and Fuzzbox runs the grep command via a job, not in a shell. This is
+similar to the placeholder in Vim's `&grepprg`, see `:help 'grepprg'`.
+
+## Custom selectors
+
+At its core, Fuzzbox is a nice interface to fuzzy search and select items from
+lists, and you can use the same interface to create your own custom selectors in
+your `vimrc` using the `fuzzbox#Select()` autoload function.
+
+The function requires a callback option which is a function to call when an item
+is selected. The callback is normally invoked with two arguments, the ID of the
+window containing the results, and the result as a string.
+
+Here is a simple example selector to toggle some pre-defined Vim options:
+
+```vim
+function! FuzzyToggleCb(wid, result)
+  execute 'setlocal inv' .. a:result
+endfunction
+command! FuzzyToggle call fuzzbox#Select(
+  \ ['cursorcolumn', 'list', 'number', 'relativenumber', 'spell', 'wrap'],
+  \ #{
+  \   title: 'Toggle Option',
+  \   callback: function("FuzzyToggleCb")
+  \ })
+```
+
+This uses legacy Vim script, but you can easily rewrite for Vim9 script if you
+are using that in your `vimrc`.
+
+## Extensions
+
+More comprehensive customisation is supported via extensions, which are somewhat
+experimental and currently undocumented. If you are interested in creating an
+extension check out the example at https://github.com/vim-fuzzbox/fuzzbox-foo.vim
+and please open an issue if you have any questions.
+
 ## Credits
 
 Fuzzbox was originally created as Fuzzyy by Nachuan Tang (@Donaldttt) and is
