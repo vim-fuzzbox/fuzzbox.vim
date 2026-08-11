@@ -158,7 +158,8 @@ def InvokeAction(Action: func, wid: number)
 
     var sig = typename(Action)->matchlist('func(\(.*\))')[1]->split(', ')
 
-    # deal with legacy script functions, only two args is supported here
+    # deal with legacy script functions, typename() returns "func(...): any"
+    # only expected with use of fuzzbox#Select() in a legacy script vimrc
     if len(sig) == 1 && sig[0] == '...'
         sig = ['number', 'string']
     endif
