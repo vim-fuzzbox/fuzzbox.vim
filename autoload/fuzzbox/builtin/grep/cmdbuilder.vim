@@ -118,14 +118,12 @@ export def Build(pattern: string, cwd: string): string
     elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
         fmtstr = Build_git()
         ignore_case_opt = '-i'
-    elseif executable('grep')
+    elseif has('unix')
         fmtstr = Build_grep()
         ignore_case_opt = '-i'
-    elseif executable('findstr') # for Windows
+    else
         fmtstr = findstr_cmd
         ignore_case_opt = '/I'
-    else
-        echoerr 'Please install ag, rg, grep or findstr to run :FuzzyGrep'
     endif
 
     # fudge smart-case for grep programs that don't natively support it
