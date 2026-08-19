@@ -108,14 +108,14 @@ enddef
 
 var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" *'
 
-export def Build(pattern: string): string
+export def Build(pattern: string, cwd: string): string
     var fmtstr: string
     var ignore_case_opt: string
     if executable('rg')
         fmtstr = Build_rg()
     elseif executable('ag')
         fmtstr = Build_ag()
-    elseif respect_gitignore && executable('git') && utils.InsideGitRepo()
+    elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
         fmtstr = Build_git()
         ignore_case_opt = '-i'
     elseif executable('grep')

@@ -93,7 +93,7 @@ def JobStart(pattern: string)
     endif
     var cmd: string
     if empty(custom_cmd)
-        cmd = cmdbuilder.Build(pattern)
+        cmd = cmdbuilder.Build(pattern, cwd)
     else
         cmd = substitute(custom_cmd, '\V$*', '"' .. escape(pattern, '"') .. '"', '')
     endif

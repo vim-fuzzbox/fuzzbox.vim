@@ -167,7 +167,7 @@ def Build_gci(): string
     return "powershell -command " .. '"' .. cmd .. '"'
 enddef
 
-export def Build(): string
+export def Build(cwd: string): string
     var cmdstr = ''
     if executable('rg') # rg is cross-plaform
         cmdstr = Build_rg()
@@ -178,7 +178,7 @@ export def Build(): string
     elseif executable('fdfind') # debian installs fd as fdfind
         cmdstr = Build_fd()
         cmdstr = substitute(cmdstr, '^fd ', 'fdfind ', '')
-    elseif respect_gitignore && executable('git') && utils.InsideGitRepo()
+    elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
         cmdstr = Build_git()
     elseif has('win32')
         cmdstr = Build_gci()

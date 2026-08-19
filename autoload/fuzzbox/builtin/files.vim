@@ -117,7 +117,7 @@ export def Start(opts: dict<any> = {})
     if len(get(opts, 'command', '')) > 0
         cmd = opts.command
     else
-        cmd = cmdbuilder.Build()
+        cmd = cmdbuilder.Build(cwd)
     endif
     utils.Debug('files command: ' .. cmd)
     JobStart(cwd, cmd)

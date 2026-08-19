@@ -18,18 +18,8 @@ export def PathSep(): string
     return fs
 enddef
 
-g:__fuzzbox_inside_git_repo = null
-autocmd_add([{
-    group: 'fuzzboxInsideGitRepo',
-    event: 'DirChanged',
-    cmd: 'g:__fuzzbox_inside_git_repo = null',
-    pattern: '*'
-}])
-export def InsideGitRepo(): bool
-    if g:__fuzzbox_inside_git_repo == null
-        g:__fuzzbox_inside_git_repo = stridx(system('git rev-parse --is-inside-work-tree'), 'true') == 0
-    endif
-    return g:__fuzzbox_inside_git_repo
+export def InsideGitRepo(cwd: string): bool
+    return stridx(system($'git -C "{cwd}" rev-parse --is-inside-work-tree'), 'true') == 0
 enddef
 
 export def Warn(msg: string)
