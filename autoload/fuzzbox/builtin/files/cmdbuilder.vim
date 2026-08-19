@@ -180,10 +180,10 @@ export def Build(cwd: string): string
         cmdstr = substitute(cmdstr, '^fd ', 'fdfind ', '')
     elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
         cmdstr = Build_git()
-    elseif has('win32')
-        cmdstr = Build_gci()
-    else
+    elseif has('unix')
         cmdstr = Build_find()
+    else
+        cmdstr = Build_gci()
     endif
     return cmdstr
 enddef
