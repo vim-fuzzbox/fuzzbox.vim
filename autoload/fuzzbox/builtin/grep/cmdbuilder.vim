@@ -88,9 +88,15 @@ def Build_grep(): string
 enddef
 
 var git_version: string
-def Build_git(): string
-    var result = 'git grep -n -I --column --exclude-standard -F'
-    if recurse_submodules
+def Build_git(cwd: string): string
+    var no_index = !utils.InsideGitRepo(cwd)
+    var result = 'git grep -n -I --column -F'
+    # Note: recurse submodules incompatible with --no-index in old git versions
+    if !respect_gitignore
+        result ..= ' --no-index --no-recurse-submodules'
+    elseif no_index
+        result ..= ' --no-index --no-recurse-submodules --exclude-standard'
+    elseif recurse_submodules
         result ..= ' --recurse-submodules'
     else
         result ..= ' --untracked --no-recurse-submodules'
@@ -115,8 +121,8 @@ export def Build(pattern: string, cwd: string): string
         fmtstr = Build_rg()
     elseif executable('ag')
         fmtstr = Build_ag()
-    elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
-        fmtstr = Build_git()
+    elseif executable('git')
+        fmtstr = Build_git(cwd)
         ignore_case_opt = '-i'
     elseif executable('grep')
         fmtstr = Build_grep()
