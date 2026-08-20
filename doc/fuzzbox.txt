@@ -7,9 +7,8 @@ CONTENTS                                                      *fuzzbox-contents*
 1. fuzzbox.vim.............................................|fuzzbox-fuzzbox.vim|
   1.1. Screenshot...........................................|fuzzbox-screenshot|
   1.2. Requirements.......................................|fuzzbox-requirements|
-    1.2.1. Suggested dependencies...............|fuzzbox-suggested_dependencies|
-    1.2.2. Optional dependencies.................|fuzzbox-optional_dependencies|
-    1.2.3. Compatible plugins.......................|fuzzbox-compatible_plugins|
+    1.2.1. Optional dependencies.................|fuzzbox-optional_dependencies|
+    1.2.2. Compatible plugins.......................|fuzzbox-compatible_plugins|
   1.3. Install.................................................|fuzzbox-install|
   1.4. Commands...............................................|fuzzbox-commands|
   1.5. Mappings...............................................|fuzzbox-mappings|
@@ -82,20 +81,19 @@ Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
 systems for finding files and searching in files by default (e.g. `grep`,
 `findstr`), but uses faster alternatives where possible (e.g. `git grep`).
 
-SUGGESTED DEPENDENCIES                          *fuzzbox-suggested_dependencies*
-
-* ripgrep (https://github.com/BurntSushi/ripgrep) - used for FuzzyGrep and
-  FuzzyFiles if installed, faster than the defaults and respects gitignore
-
 OPTIONAL DEPENDENCIES                            *fuzzbox-optional_dependencies*
 
-* ag (https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep and
-  FuzzyFiles if ripgrep not installed
-* fd (https://github.com/sharkdp/fd) - used for FuzzyFiles if neither ripgrep
-  or ag are installed
-* git (https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles where allowed
-  and no alternative dependency installed
-* ctags (https://ctags.io) - used to generate tags for FuzzyTags (Universal
+* ripgrep (https://github.com/BurntSushi/ripgrep) - used to find files and
+  search in files, recommended
+* ugrep (https://ugrep.com/) - used to find files and search in files if
+  ripgrep not installed
+* ag (https://github.com/ggreer/the_silver_searcher) - used to find files and
+  search in files if neither ripgrep or ugrep installed
+* fd (https://github.com/sharkdp/fd) - used to find files if none of ripgrep,
+  ugrep, or ag are installed
+* git (https://git-scm.com/) - used to find files and search in files where
+  allowed and no alternative dependency installed
+* ctags (https://ctags.io) - used to generate tags for tag search (Universal
   Ctags implementation is required)
 
 COMPATIBLE PLUGINS                                  *fuzzbox-compatible_plugins*

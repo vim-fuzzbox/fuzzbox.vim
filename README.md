@@ -19,22 +19,21 @@ Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
 systems for finding files and searching in files by default (e.g. `grep`,
 `findstr`), but uses faster alternatives where possible (e.g. `git grep`).
 
-### Suggested dependencies
-
-- [ripgrep](https://github.com/BurntSushi/ripgrep) - used for FuzzyGrep and
-  FuzzyFiles if installed, faster than the defaults and respects gitignore
-
 ### Optional dependencies
 
-- [ag](https://github.com/ggreer/the_silver_searcher) - used for FuzzyGrep and
-  FuzzyFiles if ripgrep not installed
-- [fd](https://github.com/sharkdp/fd) - used for FuzzyFiles if neither ripgrep 
-  or ag are installed
-- [git](https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles where allowed
-  and no alternative dependency installed
-- [ctags](https://ctags.io) - used to generate tags for FuzzyTags (Universal
+- [ripgrep](https://github.com/BurntSushi/ripgrep) - used to find files and
+  search in files, recommended
+- [ugrep](https://ugrep.com/) - used to find files and search in files if
+  ripgrep not installed
+- [ag](https://github.com/ggreer/the_silver_searcher) - used to find files and
+  search in files if neither ripgrep or ugrep installed
+- [fd](https://github.com/sharkdp/fd) - used to find files if none of ripgrep,
+  ugrep, or ag are installed
+- [git](https://git-scm.com/) - used to find files and search in files where
+  allowed and no alternative dependency installed
+- [ctags](https://ctags.io) - used to generate tags for tag search (Universal
   Ctags implementation is required)
-  
+
 ### Compatible plugins
 - [vim-devicons](https://github.com/ryanoasis/vim-devicons) - used to show
   [devicons](https://devicon.dev/) when listing files if installed
@@ -42,7 +41,7 @@ systems for finding files and searching in files by default (e.g. `grep`,
   plugin to show devicons, used if installed and vim-devicons not installed
 - [vim-glyph-palette](https://github.com/lambdalisue/vim-glyph-palette) - used
   to colorize devicons if installed, instead of Fuzzbox's own color mappings
-- [vim-nerdtree-syntax-highlight](https://github.com/tiagofumo/vim-nerdtree-syntax-highlight) - 
+- [vim-nerdtree-syntax-highlight](https://github.com/tiagofumo/vim-nerdtree-syntax-highlight) -
   used to colorize devicons if installed, and [vim-nerdtree](https://github.com/preservim/nerdtree)
   installed
 - [yegappan/lsp](https://github.com/yegappan/lsp) - used as backend for LSP
@@ -545,7 +544,7 @@ include those you wish to change.
 - width, height, and x and y offsets >= 1 are fixed numbers of lines and cols
 - invalid values for preview_ratio, width, height, and x & y offsets are ignored
 - min and max width and height values are always resolved as percentages
-  
+
 Note: you can use this to change the default Fuzzbox window dimensions when the
 Vim window is resized, e.g.
 
