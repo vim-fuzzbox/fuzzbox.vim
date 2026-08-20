@@ -17,7 +17,7 @@ Visit the [showcase](https://github.com/vim-fuzzbox/fuzzbox-showcase) for other 
 
 Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
 systems for finding files and searching in files by default (e.g. `grep`,
-`findstr`), but uses faster alternatives if they are available.
+`findstr`), but uses faster alternatives where possible (e.g. `git grep`).
 
 ### Suggested dependencies
 
@@ -30,8 +30,8 @@ systems for finding files and searching in files by default (e.g. `grep`,
   FuzzyFiles if ripgrep not installed
 - [fd](https://github.com/sharkdp/fd) - used for FuzzyFiles if neither ripgrep 
   or ag are installed
-- [git](https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles when inside git
-  repo and no alternative dependency installed
+- [git](https://git-scm.com/) - used for FuzzyGrep and FuzzyFiles where allowed
+  and no alternative dependency installed
 - [ctags](https://ctags.io) - used to generate tags for FuzzyTags (Universal
   Ctags implementation is required)
   
