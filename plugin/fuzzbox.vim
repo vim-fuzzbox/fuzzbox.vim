@@ -55,6 +55,8 @@ g:fuzzbox_exclude_dir = exists('g:fuzzbox_exclude_dir')
     && type(g:fuzzbox_exclude_dir) == v:t_list ? g:fuzzbox_exclude_dir : ['.git', '.hg', '.svn']
 g:fuzzbox_ripgrep_options = exists('g:fuzzbox_ripgrep_options')
     && type(g:fuzzbox_ripgrep_options) == v:t_list ? g:fuzzbox_ripgrep_options : []
+g:fuzzbox_ugrep_options = exists('g:fuzzbox_ugrep_options')
+    && type(g:fuzzbox_ugrep_options) == v:t_list ? g:fuzzbox_ugrep_options : []
 g:fuzzbox_menu_separator = exists('g:fuzzbox_menu_separator') ? g:fuzzbox_menu_separator : (
     &encoding == 'utf-8' ? '│' : '|'
 )

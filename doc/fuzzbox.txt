@@ -40,16 +40,17 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.24. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
     1.7.25. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
     1.7.26. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.27. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.28. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.29. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.30. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.31. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.32. g:fuzzbox_mru_cwd_only..............|fuzzbox-g:fuzzbox_mru_cwd_only|
-    1.7.33. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
-    1.7.34. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
-    1.7.35. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
-    1.7.36. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
+    1.7.27. g:fuzzbox_ugrep_options............|fuzzbox-g:fuzzbox_ugrep_options|
+    1.7.28. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.29. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.30. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.31. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.32. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.33. g:fuzzbox_mru_cwd_only..............|fuzzbox-g:fuzzbox_mru_cwd_only|
+    1.7.34. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
+    1.7.35. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
+    1.7.36. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.37. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Custom commands................................|fuzzbox-custom_commands|
@@ -526,6 +527,26 @@ Example usage
 
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_ripgrep_options` and `g:fuzzbox_grep_ripgrep_options`
+
+G:FUZZBOX_UGREP_OPTIONS                        *fuzzbox-g:fuzzbox_ugrep_options*
+
+Add custom ugrep options for FuzzyFiles & FuzzyGrep. Appended to the generated
+options. Default `[]`. Note that ripgrep is preferred to ugrep, if you have
+installed both ripgrep will be used and this option will be ignored.
+>
+  let g:fuzzbox_ugrep_options = []
+<
+
+Example usage
+>
+  let g:fuzzbox_ugrep_options = [
+    \ "--no-config",
+    \ "--max-size=1M"
+    \ ]
+<
+
+This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
+`g:fuzzbox_files_ugrep_options` and `g:fuzzbox_grep_ugrep_options`
 
 G:FUZZBOX_DEVICONS_COLOR_TABLE          *fuzzbox-g:fuzzbox_devicons_color_table*
 

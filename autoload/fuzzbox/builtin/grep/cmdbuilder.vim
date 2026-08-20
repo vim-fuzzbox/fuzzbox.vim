@@ -18,6 +18,9 @@ var follow_symlinks = exists('g:fuzzbox_grep_follow_symlinks') ?
 var ripgrep_options = exists('g:fuzzbox_grep_ripgrep_options')
     && type(g:fuzzbox_grep_ripgrep_options) == v:t_list ?
     g:fuzzbox_grep_ripgrep_options : g:fuzzbox_ripgrep_options
+var ugrep_options = exists('g:fuzzbox_files_ugrep_options')
+    && type(g:fuzzbox_files_ugrep_options) == v:t_list ?
+    g:fuzzbox_files_ugrep_options : g:fuzzbox_ugrep_options
 var recurse_submodules = exists('g:fuzzbox_grep_recurse_submodules') ?
     g:fuzzbox_grep_recurse_submodules : g:fuzzbox_recurse_submodules
 
@@ -61,7 +64,8 @@ def Build_ugrep(): string
         (acc, dir) => acc .. "--exclude-dir " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed  .. ' %s -e "%s" .'
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed  ..
+        ' ' .. join(ugrep_options, ' ') .. ' %s -e "%s" .'
 enddef
 
 def Build_ag(): string

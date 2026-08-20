@@ -423,6 +423,23 @@ let g:fuzzbox_ripgrep_options = [
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_ripgrep_options` and `g:fuzzbox_grep_ripgrep_options`
 
+### g:fuzzbox_ugrep_options
+Add custom ugrep options for FuzzyFiles & FuzzyGrep. Appended to the generated
+options. Default `[]`. Note that ripgrep is preferred to ugrep, if you have
+installed both ripgrep will be used and this option will be ignored.
+```vim
+let g:fuzzbox_ugrep_options = []
+```
+Example usage
+```vim
+let g:fuzzbox_ugrep_options = [
+  \ "--no-config",
+  \ "--max-size=1M"
+  \ ]
+```
+This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
+`g:fuzzbox_files_ugrep_options` and `g:fuzzbox_grep_ugrep_options`
+
 ### g:fuzzbox_devicons_color_table
 Add custom mappings for colorizing devicon glyphs. A dictionary of filename
 patterns and colors. Colors must be either color names in Vim's `v:colornames`
