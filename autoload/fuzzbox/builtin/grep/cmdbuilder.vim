@@ -44,6 +44,26 @@ def Build_rg(): string
         ' ' .. join(ripgrep_options, ' ') .. ' %s -e "%s" .'
 enddef
 
+def Build_ugrep(): string
+    var result = 'ugrep -Inku --tabs=1 --width=200 -j --no-messages --max-count=' .. max_count .. ' -F'
+    if include_hidden
+        result ..= ' --hidden'
+    endif
+    if follow_symlinks
+        result ..= ' -R'
+    else
+        result ..= ' -r'
+    endif
+    if respect_gitignore
+        result ..= ' --ignore-files'
+    endif
+    var dir_list_parsed = reduce(dir_exclude,
+        (acc, dir) => acc .. "--exclude-dir " .. dir .. " ", "")
+    var file_list_parsed = reduce(file_exclude,
+        (acc, file) => acc .. "--exclude " .. file .. " ", "")
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed  .. ' %s -e "%s" .'
+enddef
+
 def Build_ag(): string
     var result = 'ag -W200 -S --vimgrep --silent --max-count=' .. max_count .. ' -F'
     if include_hidden
@@ -119,6 +139,8 @@ export def Build(pattern: string, cwd: string): string
     var ignore_case_opt: string
     if executable('rg')
         fmtstr = Build_rg()
+    elseif executable('ugrep')
+        fmtstr = Build_ugrep()
     elseif executable('ag')
         fmtstr = Build_ag()
     elseif executable('git')

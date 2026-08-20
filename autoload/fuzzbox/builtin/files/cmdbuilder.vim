@@ -44,6 +44,27 @@ def Build_rg(): string
         ' ' .. join(ripgrep_options, ' ')
 enddef
 
+def Build_ugrep(): string
+    var result = 'ugrep --files-with-matches --match --no-messages'
+    if include_hidden
+        result ..= ' --hidden'
+    endif
+    if follow_symlinks
+        result ..= ' -R'
+    else
+        result ..= ' -r'
+    endif
+    if respect_gitignore
+        result ..= ' --ignore-files'
+    endif
+    var dir_list_parsed = reduce(dir_exclude,
+        (acc, dir) => acc .. "--exclude-dir " .. dir .. " ", "")
+    var file_list_parsed = reduce(file_exclude,
+        (acc, file) => acc .. "--exclude " .. file .. " ", "")
+
+    return result .. ' ' .. dir_list_parsed .. file_list_parsed
+enddef
+
 def Build_ag(): string
     # Note: --search-files is required here to work with Vim jobs, otherwise ag
     # does not read from stdin, and does not flush to stdout line by line (using
@@ -169,11 +190,13 @@ enddef
 
 export def Build(cwd: string): string
     var cmdstr = ''
-    if executable('rg') # rg is cross-plaform
+    if executable('rg')
         cmdstr = Build_rg()
-    elseif executable('ag') # ag is cross-plaform
+    elseif executable('ugrep')
+        cmdstr = Build_ugrep()
+    elseif executable('ag')
         cmdstr = Build_ag()
-    elseif executable('fd') # fd is also cross-platform
+    elseif executable('fd')
         cmdstr = Build_fd()
     elseif executable('fdfind') # debian installs fd as fdfind
         cmdstr = Build_fd()

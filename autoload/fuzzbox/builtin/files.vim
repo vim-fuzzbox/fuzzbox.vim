@@ -9,7 +9,6 @@ import autoload '../internal/actions.vim'
 import autoload './files/cmdbuilder.vim'
 
 var cur_pattern: string
-var last_pattern: string
 var cwd: string
 var cur_result: list<string>
 var total_count: number
@@ -74,10 +73,6 @@ def UpdateMenu()
         else
             popup.SetCounter(cur_result_len, total_count)
         endif
-        if cur_pattern == last_pattern
-            return
-        endif
-        last_pattern = cur_pattern
     endif
 
     if cur_pattern != ''
@@ -103,7 +98,6 @@ export def Start(opts: dict<any> = {})
     total_count = 0
     cur_result = []
     cur_pattern = ''
-    last_pattern = '@!#-='
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
     var wids = selector.Start([], extend(opts, {
         select_cb: actions.OpenFile,
