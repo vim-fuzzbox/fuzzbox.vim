@@ -116,6 +116,12 @@ def Build_fd(): string
     return result .. ' ' .. dir_list_parsed .. file_list_parsed
 enddef
 
+# debian installs fd as fdfind
+def Build_fdfind(): string
+    var result = Build_fd()
+    return substitute(result, '^fd ', 'fdfind ', '')
+enddef
+
 def Build_git(): string
     var result = 'git ls-files --cached --exclude-standard'
     if recurse_submodules
@@ -208,8 +214,7 @@ export def Build(cwd: string): string
     elseif executable('fd')
         cmdstr = Build_fd()
     elseif executable('fdfind') # debian installs fd as fdfind
-        cmdstr = Build_fd()
-        cmdstr = substitute(cmdstr, '^fd ', 'fdfind ', '')
+        cmdstr = Build_fdfind()
     elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
         cmdstr = Build_git()
     elseif has('unix')
