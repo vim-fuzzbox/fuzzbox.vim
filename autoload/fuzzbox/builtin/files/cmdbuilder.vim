@@ -94,7 +94,11 @@ def Build_ag(): string
     return result .. ' ' .. dir_list_parsed .. file_list_parsed
 enddef
 
+var fd_version: string
 def Build_fd(): string
+    if empty(fd_version)
+        fd_version = system('fd --version')->matchstr('\M\(\d\+\.\)\{2}\d\+')
+    endif
     var result = 'fd --type f' # fd suppresses filesytem errors by default
     if include_hidden
         result ..= ' --hidden'
@@ -103,7 +107,11 @@ def Build_fd(): string
         result ..= ' --follow'
     endif
     if respect_gitignore
-        result ..= ' --no-require-git'
+        var [major, minor] = split(fd_version, '\M.')[0 : 1]
+        # --no-require-git option added in fd version 8.7.0
+        if str2nr(major) > 8 || ( str2nr(major) == 8 && str2nr(minor) >= 7 )
+            result ..= ' --no-require-git'
+        endif
     else
         result ..= ' --no-ignore'
     endif
@@ -118,6 +126,9 @@ enddef
 
 # debian installs fd as fdfind
 def Build_fdfind(): string
+    if empty(fd_version)
+        fd_version = system('fdfind --version')->matchstr('\M\(\d\+\.\)\{2}\d\+')
+    endif
     var result = Build_fd()
     return substitute(result, '^fd ', 'fdfind ', '')
 enddef
