@@ -452,7 +452,7 @@ let g:fuzzbox_files_executable = 'ugrep'
 ```
 
 ### g:fuzzbox_grep_executable
-Fuzzbox identifies a suitable executable program to search for files in the
+Fuzzbox identifies a suitable executable program to search in files in the
 target directory in the following order of preference: `rg`, `ugrep`, `ag`,
 `git`, and then `grep` on Unix or `findstr` on Windows.
 
