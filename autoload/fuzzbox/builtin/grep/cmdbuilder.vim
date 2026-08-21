@@ -23,6 +23,8 @@ var ugrep_options = exists('g:fuzzbox_grep_ugrep_options')
     g:fuzzbox_grep_ugrep_options : g:fuzzbox_ugrep_options
 var recurse_submodules = exists('g:fuzzbox_grep_recurse_submodules') ?
     g:fuzzbox_grep_recurse_submodules : g:fuzzbox_recurse_submodules
+var executable = exists('g:fuzzbox_grep_executable') ?
+    g:fuzzbox_grep_executable : ''
 
 var max_count = 1000
 
@@ -136,12 +138,21 @@ def Build_git(cwd: string): string
     return result ..  ' %s -e "%s"'
 enddef
 
-var findstr_cmd = 'FINDSTR /S /N /O /P /L %s "%s" *'
+def Build_findstr(): string
+    return 'FINDSTR /S /N /O /P /L %s "%s" *'
+enddef
 
 export def Build(pattern: string, cwd: string): string
     var fmtstr: string
     var ignore_case_opt: string
-    if executable('rg')
+    if !empty(executable)
+        var Build_fn = function($'Build_{executable}')
+        if stridx(typename(Build_fn), 'func(string)') == 0
+            fmtstr = Build_fn(cwd)
+        else
+            fmtstr = Build_fn()
+        endif
+    elseif executable('rg')
         fmtstr = Build_rg()
     elseif executable('ugrep')
         fmtstr = Build_ugrep()
@@ -154,7 +165,7 @@ export def Build(pattern: string, cwd: string): string
         fmtstr = Build_grep()
         ignore_case_opt = '-i'
     else
-        fmtstr = findstr_cmd
+        fmtstr = Build_findstr()
         ignore_case_opt = '/I'
     endif
 

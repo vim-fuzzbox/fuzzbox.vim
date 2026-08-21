@@ -425,8 +425,9 @@ This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 
 ### g:fuzzbox_ugrep_options
 Add custom ugrep options for FuzzyFiles & FuzzyGrep. Appended to the generated
-options. Default `[]`. Note that ripgrep is preferred to ugrep, if you have
-installed both ripgrep will be used and this option will be ignored.
+options. Default `[]`. Ripgrep is normally preferred to ugrep, if you have
+installed both ripgrep will be used and this option will be ignored unless you
+set `g:fuzzbox_files_executable` and/or `g:fuzzbox_grep_executable` to `ugrep`.
 ```vim
 let g:fuzzbox_ugrep_options = []
 ```
@@ -439,6 +440,26 @@ let g:fuzzbox_ugrep_options = [
 ```
 This option can also be set specifically for FuzzyFiles and/or FuzzyGrep using
 `g:fuzzbox_files_ugrep_options` and `g:fuzzbox_grep_ugrep_options`
+
+### g:fuzzbox_files_executable
+Fuzzbox identifies a suitable executable program for obtaining a list of files
+in the target directory in the following order of preference: `rg`, `ugrep`,
+`ag`, `fd`, `fdfind`, `git`, and then `find` on Unix or `powershell` on Windows.
+
+This option allows you to override that and set your preferred executable, e.g.
+```vim
+let g:fuzzbox_files_executable = 'ugrep'
+```
+
+### g:fuzzbox_grep_executable
+Fuzzbox identifies a suitable executable program to search for files in the
+target directory in the following order of preference: `rg`, `ugrep`, `ag`,
+`git`, and then `grep` on Unix or `findstr` on Windows.
+
+This option allows you to override that and set your preferred executable, e.g.
+```vim
+let g:fuzzbox_grep_executable = 'ugrep'
+```
 
 ### g:fuzzbox_devicons_color_table
 Add custom mappings for colorizing devicon glyphs. A dictionary of filename

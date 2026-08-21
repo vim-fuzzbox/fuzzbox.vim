@@ -23,6 +23,8 @@ var ugrep_options = exists('g:fuzzbox_files_ugrep_options')
     g:fuzzbox_files_ugrep_options : g:fuzzbox_ugrep_options
 var recurse_submodules = exists('g:fuzzbox_files_recurse_submodules') ?
     g:fuzzbox_files_recurse_submodules : g:fuzzbox_recurse_submodules
+var executable = exists('g:fuzzbox_files_executable') ?
+    g:fuzzbox_files_executable : ''
 
 def Build_rg(): string
     var result = 'rg --files --no-messages'
@@ -194,7 +196,10 @@ enddef
 
 export def Build(cwd: string): string
     var cmdstr = ''
-    if executable('rg')
+    if !empty(executable)
+        var Build_fn = function($'Build_{executable}')
+        cmdstr = Build_fn()
+    elseif executable('rg')
         cmdstr = Build_rg()
     elseif executable('ugrep')
         cmdstr = Build_ugrep()
