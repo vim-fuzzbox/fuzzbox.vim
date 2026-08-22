@@ -26,6 +26,8 @@ var recurse_submodules = exists('g:fuzzbox_grep_recurse_submodules') ?
 var executable = exists('g:fuzzbox_grep_executable') ?
     g:fuzzbox_grep_executable : ''
 
+var cur_pattern: string
+var cur_cwd: string
 var max_count = 1000
 
 def Build_rg(): string
@@ -45,8 +47,11 @@ def Build_rg(): string
         (acc, dir) => acc .. "-g !" .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-g !" .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed ..
-        ' ' .. join(ripgrep_options, ' ') .. ' %s -e "%s" .'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    if !empty(ripgrep_options)
+        result ..= ' ' .. join(ripgrep_options, ' ')
+    endif
+    return $'{result} -e "{escape(cur_pattern, '"')}" .'
 enddef
 
 def Build_ugrep(): string
@@ -66,8 +71,11 @@ def Build_ugrep(): string
         (acc, dir) => acc .. "--exclude-dir " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed  ..
-        ' ' .. join(ugrep_options, ' ') .. ' %s -e "%s" .'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    if !empty(ugrep_options)
+        result ..= ' ' .. join(ugrep_options, ' ')
+    endif
+    return $'{result} -e "{escape(cur_pattern, '"')}" .'
 enddef
 
 def Build_ag(): string
@@ -85,7 +93,8 @@ def Build_ag(): string
         (acc, dir) => acc .. "--ignore " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--ignore " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -- "%s"'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    return $'{result} -- "{escape(cur_pattern, '"')}"'
 enddef
 
 var bsd_grep: any
@@ -110,12 +119,17 @@ def Build_grep(): string
         (acc, dir) => acc .. "--exclude-dir " .. ParseDir(dir) .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' %s -e "%s"'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    # smart case, case-insensitive search if no upper case chars
+    if match(cur_pattern, '\u') == -1
+        result ..= ' -i'
+    endif
+    return $'{result} -e "{escape(cur_pattern, '"')}"'
 enddef
 
 var git_version: string
-def Build_git(cwd: string): string
-    var no_index = !utils.InsideGitRepo(cwd)
+def Build_git(): string
+    var no_index = !utils.InsideGitRepo(cur_cwd)
     var result = 'git grep -n -I --column -F'
     # Note: recurse submodules incompatible with --no-index in old git versions
     if !respect_gitignore
@@ -135,45 +149,39 @@ def Build_git(cwd: string): string
     if str2nr(major) > 2 || ( str2nr(major) == 2 && str2nr(minor) >= 38 )
         result ..= ' --max-count=' .. max_count
     endif
-    return result ..  ' %s -e "%s"'
+    # smart case, case-insensitive search if no upper case chars
+    if match(cur_pattern, '\u') == -1
+        result ..= ' -i'
+    endif
+    return $'{result} -e "{escape(cur_pattern, '"')}"'
 enddef
 
 def Build_findstr(): string
-    return 'FINDSTR /S /N /O /P /L %s "%s" *'
+    var result = 'FINDSTR /S /N /O /P /L'
+    # smart case, case-insensitive search if no upper case chars
+    if match(cur_pattern, '\u') == -1
+        result ..= ' /I'
+    endif
+    return $'{result} "{escape(cur_pattern, '"')}" *'
 enddef
 
 export def Build(pattern: string, cwd: string): string
-    var fmtstr: string
-    var ignore_case_opt: string
+    cur_pattern = pattern
+    cur_cwd = cwd
     if !empty(executable)
         var Build_fn = function($'Build_{executable}')
-        if stridx(typename(Build_fn), 'func(string)') == 0
-            fmtstr = Build_fn(cwd)
-        else
-            fmtstr = Build_fn()
-        endif
+        return Build_fn()
     elseif executable('rg')
-        fmtstr = Build_rg()
+        return Build_rg()
     elseif executable('ugrep')
-        fmtstr = Build_ugrep()
+        return Build_ugrep()
     elseif executable('ag')
-        fmtstr = Build_ag()
+        return Build_ag()
     elseif executable('git')
-        fmtstr = Build_git(cwd)
-        ignore_case_opt = '-i'
+        return Build_git()
     elseif has('unix')
-        fmtstr = Build_grep()
-        ignore_case_opt = '-i'
+        return Build_grep()
     else
-        fmtstr = Build_findstr()
-        ignore_case_opt = '/I'
-    endif
-
-    # fudge smart-case for grep programs that don't natively support it
-    # adds ignore case option to arguments when no upper case chars found
-    if !empty(ignore_case_opt) && match(pattern, '\u') == -1
-        return printf(fmtstr, ignore_case_opt, escape(pattern, '"'))
-    else
-        return printf(fmtstr, '', escape(pattern, '"'))
+        return Build_findstr()
     endif
 enddef

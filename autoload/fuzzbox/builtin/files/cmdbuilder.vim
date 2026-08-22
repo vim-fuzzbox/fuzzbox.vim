@@ -41,12 +41,13 @@ def Build_rg(): string
     endif
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "-g !" .. dir .. " ", "")
-
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-g !" .. file .. " ", "")
-
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed ..
-        ' ' .. join(ripgrep_options, ' ')
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    if !empty(ripgrep_options)
+        result ..= ' ' .. join(ripgrep_options, ' ')
+    endif
+    return result
 enddef
 
 def Build_ugrep(): string
@@ -66,9 +67,11 @@ def Build_ugrep(): string
         (acc, dir) => acc .. "--exclude-dir " .. dir .. " ", "")
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--exclude " .. file .. " ", "")
-
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed ..
-        ' ' .. join(ugrep_options, ' ')
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    if !empty(ugrep_options)
+        result ..= ' ' .. join(ugrep_options, ' ')
+    endif
+    return result
 enddef
 
 def Build_ag(): string
@@ -87,11 +90,10 @@ def Build_ag(): string
     endif
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "--ignore " .. dir .. " ", "")
-
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "--ignore " .. file .. " ", "")
-
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    return result
 enddef
 
 var fd_version: string
@@ -117,11 +119,10 @@ def Build_fd(): string
     endif
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "-E " .. dir .. " ", "")
-
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-E " .. file .. " ", "")
-
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    return result
 enddef
 
 # debian installs fd as fdfind
@@ -142,10 +143,10 @@ def Build_git(): string
     endif
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "-x " .. dir .. " ", "")
-
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-x " .. file .. " ", "")
-    return result .. ' ' .. dir_list_parsed .. file_list_parsed .. ' .'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    return result
 enddef
 
 def Build_find(): string
@@ -158,13 +159,13 @@ def Build_find(): string
     var ParseDir = (dir): string => {
         return stridx(dir, '*') == -1 ? "*/" .. dir .. "/*" : dir
     }
+
     var dir_list_parsed = reduce(dir_exclude,
         (acc, dir) => acc .. "-not -path " .. ParseDir(dir) .. " ", " ")
-
     var file_list_parsed = reduce(file_exclude,
         (acc, file) => acc .. "-not -name " .. file .. " ", "")
-
-    return result .. dir_list_parsed .. file_list_parsed .. '-print'
+    result ..= ' ' .. dir_list_parsed .. file_list_parsed
+    return result
 enddef
 
 # GCI doc isn't clear. Get-ChildItem -Recurse -Exclude only matches exclusion
@@ -212,26 +213,24 @@ def Build_gci(): string
 enddef
 
 export def Build(cwd: string): string
-    var cmdstr = ''
     if !empty(executable)
         var Build_fn = function($'Build_{executable}')
-        cmdstr = Build_fn()
+        return Build_fn()
     elseif executable('rg')
-        cmdstr = Build_rg()
+        return Build_rg()
     elseif executable('ugrep')
-        cmdstr = Build_ugrep()
+        return Build_ugrep()
     elseif executable('ag')
-        cmdstr = Build_ag()
+        return Build_ag()
     elseif executable('fd')
-        cmdstr = Build_fd()
+        return Build_fd()
     elseif executable('fdfind') # debian installs fd as fdfind
-        cmdstr = Build_fdfind()
+        return Build_fdfind()
     elseif respect_gitignore && executable('git') && utils.InsideGitRepo(cwd)
-        cmdstr = Build_git()
+        return Build_git()
     elseif has('unix')
-        cmdstr = Build_find()
+        return Build_find()
     else
-        cmdstr = Build_gci()
+        return Build_gci()
     endif
-    return cmdstr
 enddef
