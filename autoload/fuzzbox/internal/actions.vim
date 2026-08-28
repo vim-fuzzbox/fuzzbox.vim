@@ -24,7 +24,7 @@ def ParseResult(result: string): list<any>
         return [drive .. ':' .. path, str2nr(line), str2nr(col)]
     endif
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    return [file, str2nr(line), str2nr(col)]
+    return [file, str2nr(line), str2nr(col), bufnr(file)]
 enddef
 
 def FnameForOpen(path: string): string
@@ -43,7 +43,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
         return
     endif
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = ParseResult(result)
+    var [file, line, col, bufnr] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     previewer.PreviewFile(wid, fnamemodify(path, ':p'), line, col)
 enddef
@@ -54,10 +54,15 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = ParseResult(result)
+    var [file, line, col, bufnr] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    var fname = FnameForOpen(path)
     utils.MoveToUsableWindow()
-    execute 'edit ' .. FnameForOpen(path)
+    if bufnr != -1
+        execute 'buffer ' .. bufnr
+    else
+        execute 'edit ' .. fname
+    endif
     if line > 0
         if col > 0
             cursor(line, col)
@@ -74,8 +79,15 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = ParseResult(result)
+    var [file, line, col, bufnr] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    var fname = FnameForOpen(path)
+    execute 'tabnew'
+    if bufnr != -1
+        execute 'buffer ' .. bufnr
+    else
+        execute 'edit ' .. fname
+    endif
     execute 'tabnew ' .. FnameForOpen(path)
     if line > 0
         if col > 0
@@ -93,9 +105,15 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = ParseResult(result)
+    var [file, line, col, bufnr] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'vsplit ' .. FnameForOpen(path)
+    var fname = FnameForOpen(path)
+    execute 'vsplit'
+    if bufnr != -1
+        execute 'buffer ' .. bufnr
+    else
+        execute 'edit ' .. fname
+    endif
     if line > 0
         if col > 0
             cursor(line, col)
@@ -112,9 +130,15 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col] = ParseResult(result)
+    var [file, line, col, bufnr] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
-    execute 'split ' .. FnameForOpen(path)
+    var fname = FnameForOpen(path)
+    execute 'split'
+    if bufnr != -1
+        execute 'buffer ' .. bufnr
+    else
+        execute 'edit ' .. fname
+    endif
     if line > 0
         if col > 0
             cursor(line, col)
