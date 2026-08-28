@@ -88,7 +88,6 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     else
         execute 'edit ' .. fname
     endif
-    execute 'tabnew ' .. FnameForOpen(path)
     if line > 0
         if col > 0
             cursor(line, col)
