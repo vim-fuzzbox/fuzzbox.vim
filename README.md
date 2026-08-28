@@ -100,12 +100,12 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
   ```vim
   nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
   ```
-- FuzzyGrep requires one of `rg`, `ag`, `grep` or `findstr` commands. If neither
-  `rg` or `ag` are installed it will also use `git-grep` when in a git repo and
-  `g:fuzzbox_respect_gitignore` is true.
-- FuzzyFiles requires one of `rg`, `ag`, `fd`, `find` or `powershell` commands.
-  If none of `rg`, `ag`, or `fd` are installed it will also use `git-ls-files`
-  when in a git repo and `g:fuzzbox_respect_gitignore` is true.
+- FuzzyGrep requires one of `rg`, `ugrep`, `ag`, `grep` or `findstr`. If none of
+  `rg`, `ugrep` or `ag` are installed it will also use `git grep` when in a git
+  repo and `g:fuzzbox_respect_gitignore` is true.
+- FuzzyFiles requires one of `rg`, `ugrep`, `ag`, `fd`, `find` or `powershell`.
+  If none of `rg`, `ugrep`, `ag`, or `fd` are installed it will also use
+  `git ls-files` when in a git repo and `g:fuzzbox_respect_gitignore` is true.
 - FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
 - FuzzyGitFiles and FuzzyGitGrep are only useful when
   `g:fuzzbox_respect_gitignore` is false.
