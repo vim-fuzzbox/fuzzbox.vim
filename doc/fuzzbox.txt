@@ -168,12 +168,12 @@ COMMANDS                                                      *fuzzbox-commands*
 >
     nnoremap <leader>fw :FuzzyGrep <C-R><C-W><CR>
 <
-* FuzzyGrep requires one of `rg`, `ugrep`, `ag`, `grep` or `findstr`. If none of
-  `rg`, `ugrep` or `ag` are installed it will also use `git grep` when in a git
-  repo and `g:fuzzbox_respect_gitignore` is true.
 * FuzzyFiles requires one of `rg`, `ugrep`, `ag`, `fd`, `find` or `powershell`.
   If none of `rg`, `ugrep`, `ag`, or `fd` are installed it will also use
   `git ls-files` when in a git repo and `g:fuzzbox_respect_gitignore` is true.
+* FuzzyGrep requires one of `rg`, `ugrep`, `ag`, `git`, `grep` or `findstr`. If
+  none of `rg`, `ugrep` or `ag` are installed it will use `git grep` in preference
+  to `grep` or `findstr`, even when not in a git repo.
 * FuzzyTags requires `ctags` (Universal Ctags) to generate a tags file.
 * FuzzyGitFiles and FuzzyGitGrep are only useful when
   `g:fuzzbox_respect_gitignore` is false.
