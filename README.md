@@ -461,6 +461,15 @@ This option allows you to override that and set your preferred executable, e.g.
 let g:fuzzbox_grep_executable = 'ugrep'
 ```
 
+### g:fuzzbox_devicons_colorize
+Set to 0 if you don't want Fuzzbox to colorize devicons. You might want to do
+this if you use a separate plugin or script to colorize devicons. Default 1
+```vim
+let g:fuzzbox_devicons_colorize = 1
+```
+If using another plugin to colorize devicons, you'll probably want to apply
+those colors using a `FileType` autocmd using the `fuzzbox_menu` filetype.
+
 ### g:fuzzbox_devicons_color_table
 Add custom mappings for colorizing devicon glyphs. A dictionary of filename
 patterns and colors. Colors must be either color names in Vim's `v:colornames`
@@ -494,13 +503,13 @@ and colors, but you may want more extensive support for file name patterns not
 recognised by Fuzzbox and to apply the same colors to Fuzzbox as other plugins.
 Default ''
 ```vim
-let g: fuzzbox_devicons_color_func = ''
+let g:fuzzbox_devicons_color_func = ''
 ```
 Example usage
 ```vim
-let g: fuzzbox_devicons_color_func = 'glyph_palette#apply'
+let g:fuzzbox_devicons_color_func = 'glyph_palette#apply'
 ```
-The function should take no arguments and use matchadd() to add highlighting.
+The function should take no arguments or accept any number of arguments.
 
 ### g:fuzzbox_keymaps
 Change navigation keymaps. The following are the defaults

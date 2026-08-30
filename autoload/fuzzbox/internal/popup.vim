@@ -247,7 +247,6 @@ export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
         devicons.AddDevicons(new_list)
         MenuSetText(new_list)
         MenuSetHl(new_hl_list)
-        devicons.AddColor(wins.menu)
     else
         MenuSetText(str_list)
         MenuSetHl(hl_list)
@@ -670,7 +669,10 @@ def MenuSetHl(hl_list_raw: list<any>)
     if winbufnr(wins.menu) == -1
         return
     endif
-    clearmatches(wins.menu)
+    var matches = filter(getmatches(wins.menu), (_, val) => val.group == 'fuzzboxMatching')
+    for mid in mapnew(matches, (_, val) => val.id)
+        matchdelete(mid, wins.menu)
+    endfor
     # pass empty list to matchaddpos will cause error
     if len(hl_list_raw) == 0
         return
@@ -694,7 +696,6 @@ def MenuSetHl(hl_list_raw: list<any>)
         endwhile
         return
     endif
-
     matchaddpos('fuzzboxMatching', hl_list, 99, -1,  {window: wins.menu})
 enddef
 
@@ -832,6 +833,10 @@ def PopupMenu(args: dict<any>): number
         if exists('&winhighlight')
             setwinvar(wid, '&winhighlight', 'SignColumn:fuzzboxNormal,Normal:fuzzboxNormal')
         endif
+    endif
+
+    if options.devicons
+        devicons.Colorize(wid)
     endif
 
     return wid
@@ -998,6 +1003,7 @@ export def Start(opts: dict<any>): dict<any>
         wrap: options.menu_wrap
     }
     wins.menu = PopupMenu(menu_opts)
+    win_execute(wins.menu, 'set filetype=fuzzbox_menu')
 
     var prompt_opts = {
         yoffset: prompt_yoffset,
@@ -1009,6 +1015,7 @@ export def Start(opts: dict<any>): dict<any>
         text: options.prompt_text
     }
     wins.prompt = PopupPrompt(prompt_opts)
+    win_execute(wins.prompt, 'set filetype=fuzzbox_prompt')
 
     if options.preview
         var preview_xoffset = popup_getoptions(wins.menu).col + popup_getoptions(wins.menu).maxwidth
