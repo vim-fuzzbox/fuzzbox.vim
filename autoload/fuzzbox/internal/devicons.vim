@@ -8,6 +8,7 @@ var devicon_byte_width = 0
 # Options
 var glyph_func = exists('g:fuzzbox_devicons_glyph_func') ? g:fuzzbox_devicons_glyph_func : ''
 var color_func = exists('g:fuzzbox_devicons_color_func') ? g:fuzzbox_devicons_color_func : ''
+var colorize = exists('g:fuzzbox_devicons_colorize') ? g:fuzzbox_devicons_colorize : true
 
 var supported = !empty(glyph_func) && &encoding == 'utf-8'
 
@@ -28,21 +29,24 @@ endif
 # Allows the colors to be changed before loading devicons, see compat/fuzzbox.vim
 var devicons_color_table = colors.DeviconsColorTable()
 
-def SetHl()
+def AddDeviconHlGroups()
     for val in uniq(values(devicons_color_table))
         exe 'hi fuzzboxDevicon_' .. substitute(val, '#', '', '') .. ' ctermfg=' .. colors.TermColor(val) .. ' guifg=' .. val
     endfor
 enddef
 
 if supported
-    SetHl()
+    AddDeviconHlGroups()
     augroup FuzzboxDevicons
         autocmd!
-        autocmd ColorScheme * SetHl()
+        autocmd ColorScheme * AddDeviconHlGroups()
     augroup END
 endif
 
-export def AddColor(wid: number)
+export def Colorize(wid: number)
+    if !colorize
+        return
+    endif
     if !empty(color_func)
         win_execute(wid, color_func .. '()')
         return
