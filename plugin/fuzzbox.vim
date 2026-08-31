@@ -85,6 +85,7 @@ highlight default link fuzzboxSelectionSign CursorLine
 
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
 import autoload '../autoload/fuzzbox/internal/utils.vim'
+import autoload '../autoload/fuzzbox/internal/devicons.vim'
 
 command! -nargs=? FuzzyGrep launcher.Start('grep', { prompt_text: <q-args> })
 command! -nargs=? FuzzyGrepRoot launcher.Start('grep', { cwd: utils.GetRootDir(), prompt_text: <q-args> })
@@ -113,6 +114,19 @@ command! -nargs=0 FuzzyChanges launcher.Start('changes')
 command! -nargs=0 FuzzyArglist launcher.Start('arglist')
 command! -nargs=0 FuzzyRegisters launcher.Start('registers')
 command! -nargs=0 FuzzyPrevious launcher.Resume()
+
+# FileType autocmd to colorize devicons. By default only applies to the Fuzzbox
+# menu, but you can use this to apply Fuzzbox devicon colors to other filetypes
+var devicons_colorize = exists('g:fuzzbox_devicons_colorize')
+    && type(g:fuzzbox_devicons_colorize) == v:t_list ? g:fuzzbox_devicons_colorize : ['fuzzbox_menu']
+if !empty(devicons_colorize)
+    autocmd_add([{
+        group: 'FuzzboxDeviconsColorize',
+        event: 'FileType',
+        cmd: 'devicons.Colorize()',
+        pattern: join(devicons_colorize, ',')
+    }])
+endif
 
 # Hack to only show a single line warning when launching the selector
 # Avoids showing warnings on Vim startup and does not break selector

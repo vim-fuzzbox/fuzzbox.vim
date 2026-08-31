@@ -836,10 +836,6 @@ def PopupMenu(args: dict<any>): number
         endif
     endif
 
-    if options.devicons
-        devicons.Colorize(wid)
-    endif
-
     return wid
 enddef
 
