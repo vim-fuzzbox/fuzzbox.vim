@@ -8,7 +8,6 @@ var devicon_byte_width = 0
 # Options
 var glyph_func = exists('g:fuzzbox_devicons_glyph_func') ? g:fuzzbox_devicons_glyph_func : ''
 var color_func = exists('g:fuzzbox_devicons_color_func') ? g:fuzzbox_devicons_color_func : ''
-var colorize = exists('g:fuzzbox_devicons_colorize') ? g:fuzzbox_devicons_colorize : true
 
 var supported = !empty(glyph_func) && &encoding == 'utf-8'
 
@@ -37,16 +36,13 @@ enddef
 
 if supported
     AddDeviconHlGroups()
-    augroup FuzzboxDevicons
+    augroup FuzzboxAddDeviconHlGroups
         autocmd!
         autocmd ColorScheme * AddDeviconHlGroups()
     augroup END
 endif
 
-export def Colorize(wid: number)
-    if !colorize
-        return
-    endif
+export def Colorize(wid: number = win_getid())
     if !empty(color_func)
         win_execute(wid, color_func .. '()')
         return

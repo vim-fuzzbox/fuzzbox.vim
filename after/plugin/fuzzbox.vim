@@ -29,3 +29,18 @@ if exists('g:loaded_nerd_tree') && !exists('g:fuzzbox_devicons_color_func') &&
         endif
     })->filter((key, val) => key != '__default__')
 endif
+
+# FileType autocmd to colorize devicons. By default only applies to the Fuzzbox
+# menu, but you can use this to apply Fuzzbox devicon colors to other filetypes.
+# Check for devicons enabled must come after detecting devicons glyph function
+import autoload '../../autoload/fuzzbox/internal/devicons.vim'
+var devicons_colorize = exists('g:fuzzbox_devicons_colorize')
+    && type(g:fuzzbox_devicons_colorize) == v:t_list ? g:fuzzbox_devicons_colorize : ['fuzzbox_menu']
+if !empty(devicons_colorize) && devicons.Enabled()
+    autocmd_add([{
+        group: 'FuzzboxDeviconsColorize',
+        event: 'FileType',
+        cmd: 'devicons.Colorize()',
+        pattern: join(devicons_colorize, ',')
+    }])
+endif
