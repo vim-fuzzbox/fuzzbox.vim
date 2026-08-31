@@ -462,19 +462,13 @@ let g:fuzzbox_grep_executable = 'ugrep'
 ```
 
 ### g:fuzzbox_devicons_colorize
-List of filetypes to be used in autocmd to colorize devicons. By default Fuzzbox
-only applies devicon colors to the Fuzzbox menu window, but you can use this to
-apply Fuzzbox devicon colors outside of Fuzzbox, or to disable Fuzzbox devicon
-colors, which you might want to do if using another plugin to colorize devicons.
+Set to 0 if you don't want Fuzzbox to colorize devicons. You might want to do
+this if you use a separate plugin or script to colorize devicons. Default 1
 ```vim
-let g:fuzzbox_devicons_colorize = ['fuzzbox_menu']
+let g:fuzzbox_devicons_colorize = 1
 ```
-Example usage
-```vim
-let g:fuzzbox_devicons_colorize = ['fuzzbox_menu', 'bufexplorer', nerdtree']
-```
-If using another plugin to colorize devicons, you'll probably want to set this
-to an empty list and use the `fuzzbox_menu` filetype with the other plugin.
+If using another plugin to colorize devicons, you'll probably want to apply
+those colors using a `FileType` autocmd using the `fuzzbox_menu` filetype.
 
 ### g:fuzzbox_devicons_color_table
 Add custom mappings for colorizing devicon glyphs. A dictionary of filename
