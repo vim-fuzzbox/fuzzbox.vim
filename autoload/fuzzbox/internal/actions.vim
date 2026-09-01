@@ -24,7 +24,18 @@ def ParseResult(result: string): list<any>
         return [drive .. ':' .. path, str2nr(line), str2nr(col)]
     endif
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    return [file, str2nr(line), str2nr(col), bufnr(file)]
+    return [file, str2nr(line), str2nr(col), BufNrExact(file)]
+enddef
+
+def BufNrExact(path: string): number
+    if !bufexists(path)
+        return -1
+    endif
+    var match = getbufinfo()->filter((_, val) => val.name == fnamemodify(path, ':p'))
+    if empty(match) # shouldn't happen, but just in case
+        return -1
+    endif
+    return match[0].bufnr
 enddef
 
 def FnameForOpen(path: string): string
