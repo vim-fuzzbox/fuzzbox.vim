@@ -28,11 +28,12 @@ def ParseResult(result: string): list<any>
 enddef
 
 def BufNrExact(path: string): number
-    if !bufexists(path)
+    if bufnr(path) == -1
         return -1
     endif
-    var match = getbufinfo()->filter((_, val) => val.name == fnamemodify(path, ':p'))
-    if empty(match) # shouldn't happen, but just in case
+    var fullpath = fnamemodify(path, ':p')
+    var match = getbufinfo()->filter((_, val) => val.name == fullpath)
+    if empty(match)
         return -1
     endif
     return match[0].bufnr
