@@ -150,11 +150,10 @@ def ShowCursor()
     endif
 enddef
 
-def InvokeAction(Action: func, wid: number)
+def InvokeAction(Action: func, wid: number, result: any = GetResult())
     if Action == null # allow for null_function
         return
     endif
-    var linetext = GetResult()
 
     var sig = typename(Action)->matchlist('func(\(.*\))')[1]->split(', ')
 
@@ -171,9 +170,9 @@ def InvokeAction(Action: func, wid: number)
     if len(sig) > 1
         if sig[1] =~ '^list<\l\+>$'
             # backwards compatibility with old sig, result as list
-            args->add([linetext])
+            args->add([result])
         else
-            args->add(linetext)
+            args->add(result)
         endif
     endif
     if len(sig) > 2
@@ -404,13 +403,14 @@ def PromptFilter(wid: number, key: string): number
 
     if bufline != line
         popup_settext(wid, options.prompt_prefix .. line .. " ")
+        if options.dropdown
+            win_execute(wins.menu, "silent! cursor(1, 1)")
+        else
+            win_execute(wins.menu, "silent! cursor('$', 1)")
+        endif
         if has_key(options, 'input_cb')
-            if options.dropdown
-                win_execute(wins.menu, "silent! cursor(1, 1)")
-            else
-                win_execute(wins.menu, "silent! cursor('$', 1)")
-            endif
-            options.input_cb(wid, line)
+                && type(options.input_cb) == v:t_func
+            InvokeAction(options.input_cb, wins.prompt, line)
         endif
     endif
 
