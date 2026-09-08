@@ -128,7 +128,7 @@ endif
 var enable_mappings = exists('g:fuzzbox_mappings') ? g:fuzzbox_mappings : true
 
 if enable_mappings
-    var mappings = {
+    var nmaps = {
         '<leader>fb': ':FuzzyBuffers<CR>',
         '<leader>ff': ':FuzzyFiles<CR>',
         '<leader>fg': ':FuzzyGrep<CR>',
@@ -138,9 +138,21 @@ if enable_mappings
         '<leader>fq': ':FuzzyQuickfix<CR>',
         '<leader>fr': ':FuzzyMru<CR>'
     }
-    for [lhs, rhs] in items(mappings)
+    for [lhs, rhs] in items(nmaps)
         if empty(maparg(lhs, 'n'))
             exe 'nnoremap <silent> ' .. lhs .. ' ' .. rhs
+        endif
+    endfor
+
+    # Experimental: visual mode mappings, launcher sets prompt text
+    var xmaps = {
+        '<leader>ff': '<Cmd>FuzzyFiles<CR>',
+        '<leader>fg': '<Cmd>FuzzyGrep<CR>',
+        '<leader>fi': '<Cmd>FuzzyInBuffer<CR>',
+    }
+    for [lhs, rhs] in items(xmaps)
+        if empty(maparg(lhs, 'x'))
+            exe 'xnoremap <silent>' .. lhs .. ' ' .. rhs
         endif
     endfor
 endif

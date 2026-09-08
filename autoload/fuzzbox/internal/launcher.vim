@@ -16,6 +16,16 @@ export def Start(selector: string, opts: dict<any> = {})
         g:__fuzzbox_launcher_cache = []
     endif
     var merged_opts = extendnew(get(window_opts, selector, {}), opts)
+    # Experimental: automatically use selection as prompt text if launched in visual mode
+    if mode() =~ '[vV\x16]' && ( !has_key(merged_opts, 'prompt_text') || empty(merged_opts.prompt_text) )
+        # Note: getregion() function only added in Vim 9.1.0120
+        var reginfo = getreginfo('"')
+        var yankinfo = getreginfo('0')
+        execute $'normal! ""y'
+        merged_opts['prompt_text'] = getreg('"')
+        setreg('"', reginfo)
+        setreg('0', yankinfo)
+    endif
     insert(g:__fuzzbox_launcher_cache, { selector: selector, opts: merged_opts, prompt: '' })
     if filereadable(expand('<script>:p:h') .. '/../builtin/' .. selector .. '.vim')
         function('fuzzbox#builtin#' .. selector .. '#Start')(merged_opts)

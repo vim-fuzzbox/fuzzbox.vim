@@ -114,6 +114,7 @@ git clone https://github.com/vim-fuzzbox/fuzzbox.vim ~/.vim/pack/plugins/start/f
 ## Mappings
 
 ```vim
+" Normal mode
 nnoremap <silent> <leader>fb :FuzzyBuffers<CR>
 nnoremap <silent> <leader>ff :FuzzyFiles<CR>
 nnoremap <silent> <leader>fg :FuzzyGrep<CR>
@@ -122,6 +123,10 @@ nnoremap <silent> <leader>fi :FuzzyInBuffer<CR>
 nnoremap <silent> <leader>fr :FuzzyMru<CR>
 nnoremap <silent> <leader>fp :FuzzyPrevious<CR>
 nnoremap <silent> <leader>fq :FuzzyQuickfix<CR>
+" Visual mode
+xnoremap <silent> <leader>ff <Cmd>FuzzyFiles<CR>
+xnoremap <silent> <leader>fg <Cmd>FuzzyGrep<CR>
+xnoremap <silent> <leader>fi <Cmd>FuzzyInBuffer<CR>
 ```
 
 You can set `g:fuzzbox_mappings = 0` to disable these default mappings.

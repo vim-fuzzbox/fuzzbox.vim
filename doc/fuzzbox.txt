@@ -183,6 +183,7 @@ COMMANDS                                                      *fuzzbox-commands*
 ------------------------------------------------------------------------------
 MAPPINGS                                                      *fuzzbox-mappings*
 >
+  " Normal mode
   nnoremap <silent> <leader>fb :FuzzyBuffers<CR>
   nnoremap <silent> <leader>ff :FuzzyFiles<CR>
   nnoremap <silent> <leader>fg :FuzzyGrep<CR>
@@ -191,6 +192,10 @@ MAPPINGS                                                      *fuzzbox-mappings*
   nnoremap <silent> <leader>fr :FuzzyMru<CR>
   nnoremap <silent> <leader>fp :FuzzyPrevious<CR>
   nnoremap <silent> <leader>fq :FuzzyQuickfix<CR>
+  " Visual mode
+  xnoremap <silent> <leader>ff <Cmd>FuzzyFiles<CR>
+  xnoremap <silent> <leader>fg <Cmd>FuzzyGrep<CR>
+  xnoremap <silent> <leader>fi <Cmd>FuzzyInBuffer<CR>
 <
 
 You can set `g:fuzzbox_mappings = 0` to disable these default mappings.
