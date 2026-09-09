@@ -16,7 +16,7 @@ export def Start(selector: string, opts: dict<any> = {})
         g:__fuzzbox_launcher_cache = []
     endif
     var merged_opts = extendnew(get(window_opts, selector, {}), opts)
-    # Experimental: automatically use selection as prompt text if launched in visual mode
+    # automatically use selection as prompt text if launched in visual mode
     if mode() =~ '[vV\x16]' && ( !has_key(merged_opts, 'prompt_text') || empty(merged_opts.prompt_text) )
         # Note: getregion() function only added in Vim 9.1.0120
         var reginfo = getreginfo('"')

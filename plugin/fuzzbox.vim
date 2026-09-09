@@ -144,7 +144,7 @@ if enable_mappings
         endif
     endfor
 
-    # Experimental: visual mode mappings, launcher sets prompt text
+    # visual mode mappings, launcher sets prompt text
     var xmaps = {
         '<leader>ff': '<Cmd>FuzzyFiles<CR>',
         '<leader>fg': '<Cmd>FuzzyGrep<CR>',
