@@ -250,7 +250,7 @@ let g:fuzzbox_prompt_prefix = '> '
 
 ### g:fuzzbox_selection_sign
 Sign used to indicate the current selection in the menu window. Default '>',
-must be a string, but an empty string is valid if you want to disable this.
+must be a string occupying one or two display cells, or an empty string.
 ```vim
 let g:fuzzbox_selection_sign = '>'
 ```
