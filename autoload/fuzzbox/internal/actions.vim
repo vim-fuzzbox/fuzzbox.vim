@@ -167,7 +167,7 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var [file, line, col] = ParseResult(val)
+        var [file, line, col, _] = ParseResult(val)
         line = line > 0 ? line : 1
         col = col > 0 ? col : 1
         var text = split(val, ':' .. line .. ':' .. col .. ':')[-1]
