@@ -226,8 +226,6 @@ def GetDefaultOpts(): dict<any>
     globals.scrollbar = exists('g:fuzzbox_scrollbar') ? g:fuzzbox_scrollbar : false
     globals.menu_wrap = exists('g:fuzzbox_menu_wrap') ? g:fuzzbox_menu_wrap : false
     globals.preview_wrap = exists('g:fuzzbox_preview_wrap') ? g:fuzzbox_preview_wrap : true
-    globals.prompt_prefix = exists('g:fuzzbox_prompt_prefix')
-        && type(g:fuzzbox_prompt_prefix) == v:t_string ? g:fuzzbox_prompt_prefix : '> '
 
     var defaults = exists('g:fuzzbox_window_defaults') ? g:fuzzbox_window_defaults : {}
     return extendnew(globals, defaults)
@@ -274,7 +272,6 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.dropdown = has_key(opts, 'dropdown') ? opts.dropdown : defaults.dropdown
     opts.compact = has_key(opts, 'compact') ? opts.compact : defaults.compact
     opts.scrollbar = has_key(opts, 'scrollbar') ? opts.scrollbar : defaults.scrollbar
-    opts.prompt_prefix = has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : defaults.prompt_prefix
     opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : defaults.menu_wrap
     opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : defaults.preview_wrap
 

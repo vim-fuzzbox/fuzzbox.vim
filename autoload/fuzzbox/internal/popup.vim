@@ -75,9 +75,22 @@ var loadingchars = exists('g:fuzzbox_loadingchars') &&
             ['|', '/', '-', '\']
     )
 
+# Deprecated, use g:fuzzbox_prompt_sign instead
+var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
+    && type(g:fuzzbox_prompt_prefix) == v:t_string ?
+    g:fuzzbox_prompt_prefix : '> '
+
+var prompt_sign = exists('g:fuzzbox_prompt_sign')
+    && type(g:fuzzbox_prompt_sign) == v:t_string ?
+    g:fuzzbox_prompt_sign[0 : 1] : prompt_prefix[0 : 1]
+
+if !empty(prompt_sign)
+    sign_define('FuzzboxPrompt', {text: prompt_sign, texthl: 'fuzzboxPromptSign'})
+endif
+
 var selection_sign = exists('g:fuzzbox_selection_sign')
     && type(g:fuzzbox_selection_sign) == v:t_string ?
-    g:fuzzbox_selection_sign : '>'
+    g:fuzzbox_selection_sign[0 : 1] : '>'
 
 if !empty(selection_sign)
     sign_define('FuzzboxSelection', {text: selection_sign, texthl: 'fuzzboxSelectionSign'})
@@ -282,7 +295,7 @@ export def SetPrompt(content: string)
         return
     endif
     cursor_pos = 0
-    popup_settext(wid, options.prompt_prefix .. " ")
+    popup_settext(wid, " ")
     for i in range(strchars(content))
         PromptFilter(wins.prompt, strcharpart(content, i, 1, 1))
     endfor
@@ -293,7 +306,7 @@ export def GetPrompt(): string
         return ''
     endif
     var bufnr = winbufnr(wins.prompt)
-    return getbufline(bufnr, 1, 1)[0]->substitute('^' .. options.prompt_prefix, '', '')[: -2]
+    return getbufline(bufnr, 1, 1)[0][: -2]
 enddef
 
 # gets the selected result in the menu window (can be empty string)
@@ -310,7 +323,7 @@ enddef
 
 def PromptFilter(wid: number, key: string): number
     var bufnr = winbufnr(wid)
-    var bufline = getbufline(bufnr, 1, 1)[0]->substitute('^' .. options.prompt_prefix, '', '')[: -2]
+    var bufline = getbufline(bufnr, 1, 1)[0][: -2]
     var line = copy(bufline)
     var cur_pos = cursor_pos # index by number of char not byte
     var max_pos = len(line)
@@ -375,7 +388,7 @@ def PromptFilter(wid: number, key: string): number
         if pos.winid != wid
             return 0
         endif
-        cur_pos = pos.wincol - strcharlen(options.prompt_prefix) - 2
+        cur_pos = pos.wincol - 2
         if cur_pos > max_pos
             cur_pos = max_pos
         endif
@@ -402,7 +415,7 @@ def PromptFilter(wid: number, key: string): number
     cursor_pos = cur_pos
 
     if bufline != line
-        popup_settext(wid, options.prompt_prefix .. line .. " ")
+        popup_settext(wid, line .. " ")
         if options.dropdown
             win_execute(wins.menu, "silent! cursor(1, 1)")
         else
@@ -416,7 +429,7 @@ def PromptFilter(wid: number, key: string): number
 
     # cursor hl
     matchdelete(cursor_mid, wid)
-    var hi_end_pos = len(options.prompt_prefix) + 1
+    var hi_end_pos = 1
     if cur_pos > 0
         hi_end_pos += len(line[: cur_pos - 1])
     endif
@@ -713,15 +726,25 @@ def PopupPrompt(args: dict<any>): number
     opts = extend(opts, args)
     var wid = NewPopup(opts)
     cursor_pos = 0
-    popup_settext(wid, options.prompt_prefix .. " ")
+
+    if !empty(prompt_sign)
+        setwinvar(wid, '&signcolumn', 'yes')
+        if exists('&winhighlight')
+            setwinvar(wid, '&winhighlight', 'SignColumn:fuzzboxNormal,Normal:fuzzboxNormal')
+        endif
+        var bufnr = winbufnr(wid)
+        # Note: sign must be placed before popup_settext()
+        sign_place(1, 'PopUpFuzzbox', 'FuzzboxPrompt', bufnr, {lnum: 1})
+    endif
 
     if has_key(args, 'title') && !empty(args.title)
         SetTitle(wid, args.title)
     endif
 
     # set cursor
+    popup_settext(wid, " ")
     cursor_mid = matchaddpos('fuzzboxCursor',
-        [[1, len(options.prompt_prefix) + 1 + cursor_pos]], 10, -1,  {window: wid})
+        [[1, cursor_pos + 1]], 10, -1,  {window: wid})
 
     if has_key(args, 'text') && !empty(args.text)
         for i in range(strchars(args.text))
@@ -743,7 +766,6 @@ export def SetTitle(wid: number, str: string)
         popup_setoptions(wid, {title: ''})
         return
     endif
-    # var title = substitute(prompt_prefix, '\m.', borderchars[0], 'g') .. args.title
     var title = ' ' .. str .. ' '
     var padding = ( popup_getoptions(wid).maxwidth / 2 ) - ( len(title) / 2 )
     title = repeat([borderchars[0]], padding)->join('') .. title
@@ -933,7 +955,6 @@ def GetOptions(opts: dict<any>): dict<any>
         menu_title: has_key(opts, 'menu_title') ? opts.menu_title : '',
         menu_wrap: has_key(opts, 'menu_wrap') ? opts.menu_wrap : false,
         prompt_title: has_key(opts, 'prompt_title') ? opts.prompt_title : '',
-        prompt_prefix: has_key(opts, 'prompt_prefix') ? opts.prompt_prefix : '',
         prompt_text: has_key(opts, 'prompt_text') ? opts.prompt_text : '',
         preview_title: has_key(opts, 'preview_title') ? opts.preview_title : '',
         preview_wrap: has_key(opts, 'preview_wrap') ? opts.preview_wrap : true,
@@ -1008,7 +1029,6 @@ export def Start(opts: dict<any>): dict<any>
         width: menu_width,
         zindex: 1010,
         title: options.prompt_title,
-        prefix: options.prompt_prefix,
         text: options.prompt_text
     }
     wins.prompt = PopupPrompt(prompt_opts)
