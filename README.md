@@ -241,11 +241,11 @@ let g:fuzzbox_scrollbar = 0
 This option does not affect whether the menu window is scrollable, it always
 is, just whether a scrollbar is shown.
 
-### g:fuzzbox_prompt_prefix
-Set the prefix for the input in the prompt window. Default '> ', must be a
-string, but an empty string is valid.
+### g:fuzzbox_prompt_sign
+Sign used as prefix for the input in the prompt window. Default '>', must be a
+string occupying one or two display cells, or an empty string to disable.
 ```vim
-let g:fuzzbox_prompt_prefix = '> '
+let g:fuzzbox_prompt_sign = '>'
 ```
 
 ### g:fuzzbox_selection_sign
@@ -254,9 +254,9 @@ must be a string occupying one or two display cells, or an empty string.
 ```vim
 let g:fuzzbox_selection_sign = '>'
 ```
-This option uses Vim's signcolumn feature. Most color schemes don't set a
-background for the sign column, so it is seamless. If your sign column has
-a background color, you might want to remove signcolumn highlighting, e.g.
+The prompt and selection sign options use Vim's signcolumn feature. Most color
+schemes don't set a background for the sign column. If your sign column has a
+background color, you might want to clear the highlighting, e.g.
 ```vim
 highlight clear SignColumn
 ```

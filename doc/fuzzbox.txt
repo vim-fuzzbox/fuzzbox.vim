@@ -23,7 +23,7 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.7. g:fuzzbox_compact_after.............|fuzzbox-g:fuzzbox_compact_after|
     1.7.8. g:fuzzbox_counter.........................|fuzzbox-g:fuzzbox_counter|
     1.7.9. g:fuzzbox_scrollbar.....................|fuzzbox-g:fuzzbox_scrollbar|
-    1.7.10. g:fuzzbox_prompt_prefix............|fuzzbox-g:fuzzbox_prompt_prefix|
+    1.7.10. g:fuzzbox_prompt_sign................|fuzzbox-g:fuzzbox_prompt_sign|
     1.7.11. g:fuzzbox_selection_sign..........|fuzzbox-g:fuzzbox_selection_sign|
     1.7.12. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
     1.7.13. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
@@ -321,12 +321,12 @@ Show a scrollbar in the menu window when the results do not fit. Default 0
 This option does not affect whether the menu window is scrollable, it always
 is, just whether a scrollbar is shown.
 
-G:FUZZBOX_PROMPT_PREFIX                        *fuzzbox-g:fuzzbox_prompt_prefix*
+G:FUZZBOX_PROMPT_SIGN                            *fuzzbox-g:fuzzbox_prompt_sign*
 
-Set the prefix for the input in the prompt window. Default '> ', must be a
-string, but an empty string is valid.
+Sign used as prefix for the input in the prompt window. Default '>', must be a
+string occupying one or two display cells, or an empty string to disable.
 >
-  let g:fuzzbox_prompt_prefix = '> '
+  let g:fuzzbox_prompt_sign = '>'
 <
 
 G:FUZZBOX_SELECTION_SIGN                      *fuzzbox-g:fuzzbox_selection_sign*
@@ -337,9 +337,9 @@ must be a string occupying one or two display cells, or an empty string.
   let g:fuzzbox_selection_sign = '>'
 <
 
-This option uses Vim's signcolumn feature. Most color schemes don't set a
-background for the sign column, so it is seamless. If your sign column has
-a background color, you might want to remove signcolumn highlighting, e.g.
+The prompt and selection sign options use Vim's signcolumn feature. Most color
+schemes don't set a background for the sign column. If your sign column has a
+background color, you might want to clear the highlighting, e.g.
 >
   highlight clear SignColumn
 <
