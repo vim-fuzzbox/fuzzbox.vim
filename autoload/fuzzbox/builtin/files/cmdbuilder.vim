@@ -168,14 +168,14 @@ def Build_find(): string
     return result
 enddef
 
-# GCI doc isn't clear. Get-ChildItem -Recurse -Exclude only matches exclusion
+# Powershell GCI doc isn't clear. Get-ChildItem -Recurse -Exclude only matches exclusion
 # on the leaf, not the parent path.
 #
 # Link:
 # https://stackoverflow.com/questions/15294836/how-can-i-exclude-multiple-folders-using-get-childitem-exclude#:~:text=The%20documentation%20isn%27t%20clear%20on%20this%2C%20but%20Get%2DChildItem%20%2DRecurse%20%2DExclude%20only%20matches%20exclusion%20on%20the%20leaf%20(Split%2DPath%20%24_.FullName%20%2DLeaf)%2C%20not%20the%20parent%20path%20(Split%2DPath%20%24_.FullName%20%2DParent).
 #
 # That's why module builds GCI cmd and piping it into Where-filter
-def Build_gci(): string
+def Build_powershell(): string
     var build_dir_filter = reduce(dir_exclude, (acc, dir) => acc .. "$_ -notlike '*\\"
         .. dir ..  "\\*' -and $_ -notlike '" .. dir .. "\\*'"
         .. " -and ", "")
@@ -231,6 +231,6 @@ export def Build(cwd: string): string
     elseif has('unix')
         return Build_find()
     else
-        return Build_gci()
+        return Build_powershell()
     endif
 enddef
