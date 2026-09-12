@@ -105,7 +105,10 @@ export def Start(opts: dict<any> = {})
         var text: string
         if bufloaded(bufnr)
             # note: getbufoneline() only added in vim 9.1.0916
-            text = getbufline(bufnr, lnum)[0]
+            var lines = getbufline(bufnr, lnum)
+            if !empty(lines)
+                text = lines[0]
+            endif
         endif
         return printf($" %s %s %s:%d:%d:%s", mark, separator, fname, lnum, col, text)
     })
