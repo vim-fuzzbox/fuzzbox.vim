@@ -214,7 +214,6 @@ default_actions = {
     "\<c-x>": actions.OpenFileSplit,
     "\<c-t>": actions.OpenFileTab,
     "\<c-q>": actions.SendToQuickfix,
-    "\<c-\>": actions.MenuToggleWrap,
 }
 
 def GetDefaultOpts(): dict<any>

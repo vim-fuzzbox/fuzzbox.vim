@@ -27,6 +27,7 @@ var keymaps: dict<any> = {
     'menu_scroll_down': ["\<PageDown>"],
     'menu_shift_up': [],
     'menu_shift_down': [],
+    'menu_toggle_wrap': ["\<C-\>"],
     'preview_page_up': [],
     'preview_page_down': [],
     'preview_scroll_up': ["\<S-Up>"],
@@ -506,6 +507,17 @@ def MenuFilter(wid: number, key: string): number
             InvokeAction(options.select_cb, wins.menu)
         endif
         popup_close(wid)
+    elseif index(keymaps['menu_toggle_wrap'], key) >= 0
+        var linenr = line('.', wins.menu)
+        win_execute(wid, 'set wrap!')
+        if options.dropdown
+            win_execute(wins.menu, 'norm! G')
+            win_execute(wins.menu, 'norm! gg')
+        else
+            win_execute(wins.menu, 'norm! gg')
+            win_execute(wins.menu, 'norm! G')
+        endif
+        win_execute(wins.menu, 'norm! ' .. linenr .. 'G')
     elseif index(keymaps['exit'], key) >= 0
         popup_close(wid)
     elseif has_key(options.actions, key) && type(options.actions[key]) == v:t_func
