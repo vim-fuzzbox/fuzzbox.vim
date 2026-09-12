@@ -191,6 +191,7 @@ export def Start(opts: dict<any> = {})
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         close_cb: function('Close'),
+        default_actions: false,
         actions: {
             "\<c-v>": function('OpenFileVSplit'),
             "\<c-s>": function('OpenFileSplit'),

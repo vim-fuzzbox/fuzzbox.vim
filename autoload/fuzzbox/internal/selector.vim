@@ -274,7 +274,11 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
     opts.menu_wrap = has_key(opts, 'menu_wrap') ? opts.menu_wrap : defaults.menu_wrap
     opts.preview_wrap = has_key(opts, 'preview_wrap') ? opts.preview_wrap : defaults.preview_wrap
 
-    opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
+    if has_key(opts, 'default_actions') && !opts.default_actions
+        opts.actions = has_key(opts, 'actions') ? opts.actions : {}
+    else
+        opts.actions = has_key(opts, 'actions') ? extendnew(default_actions, opts.actions) : default_actions
+    endif
 
     opts.cleanup = () => timer_stop(async_tid)
 

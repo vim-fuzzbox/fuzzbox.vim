@@ -22,6 +22,7 @@ export def Start(opts: dict<any> = {})
 
     selector.Start(lines, extend(opts, {
         preview: false,
-        select_cb: function('Select')
+        select_cb: function('Select'),
+        default_actions: false,
     }))
 enddef

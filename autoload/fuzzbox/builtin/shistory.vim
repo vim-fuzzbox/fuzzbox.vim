@@ -21,6 +21,7 @@ export def Start(opts: dict<any> = {})
 
     selector.Start(reverse(cmds), extend(opts, {
         select_cb: function('Select'),
-        preview: 0
+        default_actions: false,
+        preview: 0,
     }))
 enddef

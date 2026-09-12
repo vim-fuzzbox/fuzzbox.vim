@@ -110,6 +110,7 @@ export def Start(opts: dict<any> = {})
     var wids = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
+        default_actions: false,
         actions: {
             "\<c-v>": function('OpenFileVSplit'),
             "\<c-s>": function('OpenFileSplit'),

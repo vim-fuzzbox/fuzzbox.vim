@@ -122,6 +122,7 @@ export def Start(opts: dict<any> = {})
     var wids = selector.Start(GetBufList(), extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
+        default_actions: false,
         actions: {
             "\<c-l>": function('DeleteBuffer'),
             "\<c-v>": function('OpenBufVSplit'),

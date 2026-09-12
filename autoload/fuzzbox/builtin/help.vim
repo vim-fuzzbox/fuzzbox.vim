@@ -72,6 +72,7 @@ export def Start(opts: dict<any> = {})
         async: true,
         preview_cb: function('Preview'),
         select_cb: function('Select'),
-        close_cb: function('Close')
+        close_cb: function('Close'),
+        default_actions: false,
     }))
 enddef

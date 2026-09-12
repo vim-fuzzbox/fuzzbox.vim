@@ -136,6 +136,7 @@ export def Start(opts: dict<any> = {})
         async: true,
         select_cb: function('Select'),
         preview_cb: function('Preview'),
+        default_actions: false,
         actions: {
             "\<c-v>": function('OpenVSplit'),
             "\<c-s>": function('OpenSplit'),

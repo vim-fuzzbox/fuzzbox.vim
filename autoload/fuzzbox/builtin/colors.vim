@@ -55,6 +55,7 @@ export def Start(opts: dict<any> = {})
         change_cb: function('Change'),
         select_cb: function('Select'),
         close_cb: function('Close'),
-        preview: 0
+        default_actions: false,
+        preview: 0,
     }))
 enddef

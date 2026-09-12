@@ -105,7 +105,7 @@ export def Start(opts: dict<any> = {})
         input_cb: function('Input'),
         close_cb: function('Close'),
         devicons: true,
-        counter: true
+        counter: true,
     }))
     var cmd: string
     if len(get(opts, 'command', '')) > 0

@@ -42,6 +42,7 @@ export def Start(opts: dict<any> = {})
     var wids = selector.Start(li, extend(opts, {
         preview_cb: function('Preview'),
         select_cb: function('Select'),
+        default_actions: false,
         actions: {
             "\<c-k>": function('TogglePreviewBg'),
         }

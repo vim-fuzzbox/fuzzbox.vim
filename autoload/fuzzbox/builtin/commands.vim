@@ -71,5 +71,6 @@ export def Start(opts: dict<any> = {})
     var wids = selector.Start(li, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
+        default_actions: false,
     }))
 enddef
