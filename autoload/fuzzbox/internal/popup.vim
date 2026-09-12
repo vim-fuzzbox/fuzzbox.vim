@@ -307,7 +307,7 @@ export def GetPrompt(): string
         return ''
     endif
     var bufnr = winbufnr(wins.prompt)
-    return getbufline(bufnr, 1, 1)[0][: -2]
+    return getbufline(bufnr, 1)[0][: -2]
 enddef
 
 # gets the selected result in the menu window (can be empty string)
@@ -315,7 +315,7 @@ def GetResult(): string
     var bufnr = winbufnr(wins.menu)
     var cursorlinepos = line('.', wins.menu)
     # note: getbufoneline() only added in vim 9.1.0916, neovim 0.9.0
-    var linetext = getbufline(bufnr, cursorlinepos, cursorlinepos)[0]
+    var linetext = getbufline(bufnr, cursorlinepos)[0]
     if options.devicons
         linetext = devicons.RemoveDevicon(linetext)
     endif
@@ -324,7 +324,7 @@ enddef
 
 def PromptFilter(wid: number, key: string): number
     var bufnr = winbufnr(wid)
-    var bufline = getbufline(bufnr, 1, 1)[0][: -2]
+    var bufline = getbufline(bufnr, 1)[0][: -2]
     var line = copy(bufline)
     var cur_pos = cursor_pos # index by number of char not byte
     var max_pos = len(line)
