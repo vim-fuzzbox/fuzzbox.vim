@@ -33,7 +33,7 @@ def Test_FuzzyFiles()
     Type('filesfoo')
     Enter()
     assert_equal($'files{fs}foo.txt', bufname())
-    bwipe foo.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_FuzzyGrep()
@@ -43,7 +43,7 @@ def Test_FuzzyGrep()
     Type('eggs')
     Enter()
     assert_equal($'files{fs}spam.txt', bufname())
-    bwipe spam.txt
+    execute $'bwipe files{fs}spam.txt'
 enddef
 
 def Test_FuzzyBuffers()
@@ -53,8 +53,7 @@ def Test_FuzzyBuffers()
     Type('filesfoo')
     Enter()
     assert_equal($'files{fs}foo.txt', bufname())
-    bwipe foo.txt
-    bwipe spam.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_FuzzyMruCwd()
@@ -64,8 +63,8 @@ def Test_FuzzyMruCwd()
     Type('filesfoo')
     Enter()
     assert_equal($'files{fs}foo.txt', bufname())
-    bwipe foo.txt
-    bwipe spam.txt
+    execute $'bwipe files{fs}foo.txt'
+    execute $'bwipe files{fs}spam.txt'
 enddef
 
 def Test_Devicons()
@@ -81,7 +80,7 @@ def Test_Devicons()
     assert_equal($'files{fs}foo.txt', bufname())
     g:fuzzbox_devicons = 0
     assert_false(fuzzbox#internal#devicons#Enabled())
-    bwipe foo.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_OpenFileSplit()
@@ -93,7 +92,7 @@ def Test_OpenFileSplit()
     assert_equal($'files{fs}foo.txt', bufname())
     assert_equal(wincount_before + 1, winnr('$'))
     assert_notequal(winnr_before, winnr())
-    bwipe foo.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_OpenFileVSplit()
@@ -105,7 +104,7 @@ def Test_OpenFileVSplit()
     assert_equal($'files{fs}foo.txt', bufname())
     assert_equal(wincount_before + 1, winnr('$'))
     assert_notequal(winnr_before, winnr())
-    bwipe foo.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_OpenFileTab()
@@ -117,7 +116,7 @@ def Test_OpenFileTab()
     assert_equal($'files{fs}foo.txt', bufname())
     assert_equal(tabcount_before + 1, tabpagenr('$'))
     assert_notequal(tabpage_before, tabpagenr())
-    bwipe foo.txt
+    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_SendToQuickfix()
