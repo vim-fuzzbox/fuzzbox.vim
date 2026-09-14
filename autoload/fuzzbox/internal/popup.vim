@@ -83,7 +83,7 @@ var prompt_prefix = exists('g:fuzzbox_prompt_prefix')
 
 var prompt_sign = exists('g:fuzzbox_prompt_sign')
     && type(g:fuzzbox_prompt_sign) == v:t_string ?
-    g:fuzzbox_prompt_sign[0 : 1] : prompt_prefix[0 : 1]
+    g:fuzzbox_prompt_sign[0 : 1] : trim(prompt_prefix[0 : 1])
 
 if !empty(prompt_sign)
     sign_define('FuzzboxPrompt', {text: prompt_sign, texthl: 'fuzzboxPromptSign'})
