@@ -13,7 +13,7 @@ var splitbelow_before: bool
 
 def GlobalSetup()
     cwd_before = getcwd()
-    execute ':cd ' .. fnamemodify(expand('%'), ':p:h')
+    execute ':cd ' .. fnamemodify(expand('<script>'), ':p:h')
     bufnr_before = bufnr()
     lnum_before = line('.')
     splitright_before = &splitright
