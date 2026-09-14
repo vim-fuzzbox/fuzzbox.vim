@@ -27,10 +27,12 @@ def Preview(wid: number, result: string)
         return
     endif
     var [file, bufnr, lnum, col] = ParseResult(result)
-    if empty(file)
+    if filereadable(fnamemodify(file, ':p'))
+        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum, col)
+    elseif bufloaded(bufnr) && bufname(bufnr) == file
         previewer.PreviewText(wid, getbufline(bufnr, 1, '$'), lnum, col)
     else
-        previewer.PreviewFile(wid, fnamemodify(file, ':p'), lnum, col)
+        previewer.PreviewText(wid, '')
     endif
 enddef
 
