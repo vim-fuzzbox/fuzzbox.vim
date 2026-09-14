@@ -36,7 +36,7 @@ endif
 import autoload '../../autoload/fuzzbox/internal/devicons.vim'
 var devicons_colorize = exists('g:fuzzbox_devicons_colorize')
     && type(g:fuzzbox_devicons_colorize) == v:t_list ? g:fuzzbox_devicons_colorize : ['fuzzbox_menu']
-if !empty(devicons_colorize) && devicons.Enabled()
+if !empty(devicons_colorize) && !empty(g:fuzzbox_devicons_glyph_func) && &encoding == 'utf-8'
     autocmd_add([{
         group: 'FuzzboxDeviconsColorize',
         event: 'FileType',
