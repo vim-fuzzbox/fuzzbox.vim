@@ -75,7 +75,8 @@ def Test_Devicons()
     var menu_wid = popup_list()->filter((_, wid) => getwinvar(wid, '&filetype') == 'fuzzbox_menu')[0]
     var menu_line = getbufoneline(winbufnr(menu_wid), line('$', menu_wid))
     var expected_glyph = function(g:fuzzbox_devicons_glyph_func)('files{fs}foo.txt')
-    assert_equal(expected_glyph, menu_line[0])
+    # Note: vim-devicons appends a space in gui vim by default, see g:DevIconsAppendArtifactFix
+    assert_equal(expected_glyph[0], menu_line[0])
     Enter()
     assert_equal($'files{fs}foo.txt', bufname())
     g:fuzzbox_devicons = 0
