@@ -67,6 +67,56 @@ def Test_FuzzyMruCwd()
     execute $'bwipe files{fs}spam.txt'
 enddef
 
+def Test_FuzzyMarks()
+    edit files/foo.txt
+    edit files/spam.txt
+    Execute('FuzzyMarks')
+    Type("'spam")
+    Enter()
+    assert_equal($'files{fs}spam.txt', bufname())
+    execute $'bwipe files{fs}foo.txt'
+    execute $'bwipe files{fs}spam.txt'
+enddef
+
+def Test_FuzzyMarks_OpenSplit()
+    var winnr_before = winnr()
+    var wincount_before = winnr('$')
+    edit files/foo.txt
+    Execute('FuzzyMarks')
+    Type("'foo")
+    Type("\<C-S>")
+    assert_equal($'files{fs}foo.txt', bufname())
+    assert_equal(wincount_before + 1, winnr('$'))
+    assert_notequal(winnr_before, winnr())
+    execute $'bwipe files{fs}foo.txt'
+enddef
+
+def Test_FuzzyJumps()
+    edit files/foo.txt
+    edit files/spam.txt
+    Execute('FuzzyJumps')
+    Type("filesfoo")
+    Enter()
+    assert_equal($'files{fs}foo.txt', bufname())
+    execute $'bwipe files{fs}foo.txt'
+    execute $'bwipe files{fs}spam.txt'
+enddef
+
+def Test_FuzzyJumps_OpenSplit()
+    var winnr_before = winnr()
+    var wincount_before = winnr('$')
+    edit files/foo.txt
+    edit files/spam.txt
+    Execute('FuzzyJumps')
+    Type("filesfoo")
+    Type("\<C-S>")
+    assert_equal($'files{fs}foo.txt', bufname())
+    assert_equal(wincount_before + 1, winnr('$'))
+    assert_notequal(winnr_before, winnr())
+    execute $'bwipe files{fs}foo.txt'
+    execute $'bwipe files{fs}spam.txt'
+enddef
+
 def Test_Devicons()
     g:fuzzbox_devicons = 1
     assert_true(fuzzbox#internal#devicons#Enabled())

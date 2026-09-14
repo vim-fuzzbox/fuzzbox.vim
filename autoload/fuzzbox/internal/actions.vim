@@ -7,6 +7,8 @@ import autoload './utils.vim'
 
 var iswin = utils.IsWin()
 
+var separator = g:fuzzbox_menu_separator
+
 # Note: for actions that open or preview files, fnamemodify() is used to ensure
 # a readable path. On Unix emulation envinronments like Git-Bash / Mingw-w64,
 # external programs like rg may return file paths with Windows file separators,
@@ -15,15 +17,16 @@ var iswin = utils.IsWin()
 # not all programs have such an option, so addressing it here just works, and
 # also means anyone creating a custom command does not need to think about it.
 
-# Parse result and return a list with file, line number and column number
+# Parse result and return list with file, line num, col num, and buffer num
 # Line and column are set to 0 when they are not included in the result
 # Do not change these defaults without updating any callers relying on them
 def ParseResult(result: string): list<any>
-    if iswin && result =~ '^\a:'
-        var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
+    var rest = substitute(result, '\v^\s+\S+.{-}' .. separator .. '\s+', '', '')
+    if iswin && rest =~ '^\a:'
+        var [drive, path, line, col] = split(rest .. ':0:0', ':')[0 : 3]
         return [drive .. ':' .. path, str2nr(line), str2nr(col)]
     endif
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
+    var [file, line, col] = split(rest .. ':0:0', ':')[0 : 2]
     return [file, str2nr(line), str2nr(col), BufNrExact(file)]
 enddef
 
