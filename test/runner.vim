@@ -47,9 +47,13 @@ try
     packadd libtinytest
     import 'libtinytest.vim' as tt
     GlobalSetup()
-    for file in glob('*_test.vim', false, true)
-        execute ':source ' .. file
-    endfor
+    if empty($TEST_FILE)
+        for file in glob('*_test.vim', false, true)
+            tt.Import(file)
+        endfor
+    else
+        tt.Import($TEST_FILE)
+    endif
     var test_results = tt.Run()
     GlobalTeardown()
 catch
