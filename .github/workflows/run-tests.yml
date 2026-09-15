@@ -1,0 +1,20 @@
+name: run-tests
+on: [push, pull_request]
+jobs:
+  linux:
+    name: linux
+    runs-on: ubuntu-latest
+    steps:
+      - name: Environment Info
+        run: |
+          uname -a
+          vim --version
+      - name: Checkout Code
+        uses: actions/checkout@v6
+      - name: Install Packages
+        run: |
+          git clone https://github.com/lifepillar/vim-devel.git ~/.vim/pack/devel
+          git clone https://github.com/ryanoasis/vim-devicons.git ~/.vim/pack/plugins/start/devicons
+      - name: Run Tests
+        run: |
+          ./test/run_tests.sh
