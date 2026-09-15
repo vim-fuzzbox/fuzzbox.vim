@@ -5,6 +5,9 @@ syntax enable
 set hidden
 set noloadplugins
 
-packadd fuzzbox
+" FIXME: only add for devicons specific tests
 packadd devicons
+
+let &runtimepath.=',' . fnamemodify('../', ':p')
+runtime! plugin/fuzzbox.vim
 runtime! after/plugin/fuzzbox.vim
