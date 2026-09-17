@@ -15,10 +15,10 @@ jobs:
         run: |
           git clone https://github.com/lifepillar/vim-devel.git ~/.vim/pack/devel
           git clone https://github.com/ryanoasis/vim-devicons.git ~/.vim/pack/plugins/opt/devicons
-      - name: Run Fuzzbox Tests
+      - name: Test Commands
         run: |
-          ./test/run_tests.sh fuzzbox_test.vim
-      - name: Run Devicons Tests
+          ./test/run_tests.sh commands_test.vim
+      - name: Test Devicons
         run: |
           ./test/run_tests.sh devicons_test.vim
 
