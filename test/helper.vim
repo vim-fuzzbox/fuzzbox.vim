@@ -8,6 +8,7 @@ var bufnr: number
 var winnr: number
 var buffers: list<number>
 var devicons: bool
+var mru_cwd_only: bool
 var splitright: bool
 var splitbelow: bool
 
@@ -20,6 +21,8 @@ export def Setup()
     splitbelow = &splitbelow
     set splitright
     set splitbelow
+    # mru_cwd_only = exists('g:fuzzbox_mru_cwd_only') ? g:fuzzbox_mru_cwd_only : 0
+    # g:fuzzbox_mru_cwd_only = 1
     devicons = exists('g:fuzzbox_devicons') ? g:fuzzbox_devicons : 1
     g:fuzzbox_devicons = 0
 enddef
@@ -35,6 +38,7 @@ export def Teardown()
     cd -
     &splitright = splitright
     &splitbelow = splitbelow
+    # g:fuzzbox_mru_cwd_only = mru_cwd_only
     g:fuzzbox_devicons = devicons
 enddef
 
