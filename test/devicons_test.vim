@@ -1,9 +1,12 @@
 vim9script
 
-packadd devicons
-
+import 'libtinytest.vim' as tt
 import './helper.vim' as h
+
 var fs = has('win64') ? '\' : '/'
+
+tt.Setup = h.Setup
+tt.Teardown = h.Teardown
 
 def Test_Devicons()
     g:fuzzbox_devicons = 1
@@ -19,7 +22,6 @@ def Test_Devicons()
     assert_equal($'files{fs}foo.txt', bufname())
     g:fuzzbox_devicons = 0
     assert_false(fuzzbox#internal#devicons#Enabled())
-    execute $'bwipe files{fs}foo.txt'
 enddef
 
 def Test_DeviconColors()
@@ -33,3 +35,5 @@ def Test_DeviconColors()
     g:fuzzbox_devicons = 0
     assert_false(fuzzbox#internal#devicons#Enabled())
 enddef
+
+tt.Run('Devicon*')
