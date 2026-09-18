@@ -150,7 +150,9 @@ Fuzzbox will not overwrite mappings from your vimrc when adding default mappings
 - \<CTRL-\\> toggles text wrap in the menu window (off by default)
 - \<CTRL-C> or \<ESC> exits Fuzzbox, closing all the windows
 
-You can use `g:fuzzbox_keymaps` to change these defaults.
+You can use `g:fuzzbox_keymaps` to change these defaults. The cursor movement
+and editing keymaps match those used for cmdline editing in Vim. If you prefer
+Emacs style keymaps set `g:fuzzbox_emacs_keys` to true.
 
 Navigation with the mouse is also supported. A single mouse click in the menu
 window moves the cursor line, double click selects a line. The mouse wheel can
@@ -523,7 +525,7 @@ let g:fuzzbox_devicons_color_func = 'glyph_palette#apply'
 The function should take no arguments or accept any number of arguments.
 
 ### g:fuzzbox_keymaps
-Change navigation keymaps. The following are the defaults
+Change navigation keymaps. The following are the defaults:
 ```vim
 let g:fuzzbox_keymaps = {
   \ 'menu_up': ["\<C-p>", "\<Up>"],
@@ -555,6 +557,21 @@ let g:fuzzbox_keymaps = {
   \ 'delete_prefix': ["\<C-u>"],
   \ 'exit': ["\<Esc>", "\<c-c>", "\<c-[>"],
   \ }
+```
+
+### g:fuzzbox_emacs_keys
+Use Emacs style keymaps in the prompt window, default 0. Modifies the
+default keymaps as follows:
+```vim
+{
+  'cursor_left': ["\<C-b>", "\<Left>"],
+  'cursor_right': ["\<C-f>", "\<Right>"],
+  'cursor_begining': ["\<C-a>", "\<Home>"],
+  'cursor_end': ["\<C-e>", "\<End>"],
+  'cursor_word_left': ["\<A-b>", "\<C-Left>"],
+  'cursor_word_right': ["\<A-f>", "\<C-Right>"],
+  'delete': ["\<C-d>", "\<Del>"]
+}
 ```
 
 ### g:fuzzbox_buffers_exclude
