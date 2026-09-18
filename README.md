@@ -542,6 +542,8 @@ let g:fuzzbox_keymaps = {
   \ 'preview_scroll_down': ["\<S-Down>"],
   \ 'preview_shift_up': [],
   \ 'preview_shift_down': [],
+  \ 'cursor_left': ["\<Left>"],
+  \ 'cursor_right': ["\<Right>"],
   \ 'cursor_end': ["\<C-e>", "\<End>"],
   \ 'cursor_begining': ["\<C-b>", "\<Home>"],
   \ 'cursor_word_left': ["\<C-Left>"],

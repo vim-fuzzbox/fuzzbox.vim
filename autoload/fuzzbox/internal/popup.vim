@@ -34,6 +34,8 @@ var keymaps: dict<any> = {
     'preview_scroll_down': ["\<S-Down>"],
     'preview_shift_up': [],
     'preview_shift_down': [],
+    'cursor_left': ["\<Left>"],
+    'cursor_right': ["\<Right>"],
     'cursor_begining': ["\<C-b>", "\<Home>"], # :h c_CTRL-B
     'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
     'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>
@@ -380,9 +382,9 @@ def PromptFilter(wid: number, key: string): number
     elseif index(keymaps['delete_prefix'], key) >= 0
         line = line[cur_pos :]
         cur_pos = 0
-    elseif key == "\<Left>"
+    elseif index(keymaps['cursor_left'], key) >= 0
         cur_pos = max([ 0, cur_pos - 1 ])
-    elseif key == "\<Right>"
+    elseif index(keymaps['cursor_right'], key) >= 0
         cur_pos = min([ max_pos, cur_pos + 1 ])
     elseif key ==? "\<LeftMouse>" || key ==? "\<2-LeftMouse>"
         var pos = getmousepos()
