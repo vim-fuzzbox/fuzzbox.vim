@@ -47,6 +47,17 @@ var keymaps: dict<any> = {
     'delete_prefix': ["\<C-u>"], # :h c_CTRL-U
     'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
 }
+if exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
+    extend(keymaps, {
+        'cursor_left': ["\<C-b>", "\<Left>"],
+        'cursor_right': ["\<C-f>", "\<Right>"],
+        'cursor_begining': ["\<C-a>", "\<Home>"],
+        'cursor_end': ["\<C-e>", "\<End>"],
+        'cursor_word_left': ["\<A-b>", "\<C-Left>"],
+        'cursor_word_right': ["\<A-f>", "\<C-Right>"],
+        'delete': ["\<C-d>", "\<Del>"]
+    })
+endif
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
     extend(keymaps, g:fuzzbox_keymaps) : keymaps
 
