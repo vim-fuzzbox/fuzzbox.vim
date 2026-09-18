@@ -104,8 +104,8 @@ export def Start(opts: dict<any> = {})
     file_type = &filetype
     file_name = expand('%')
     var max_line_len = len(string(line('$')))
-    var lines = reduce(raw_lines,
-       (a, v) => add(a, printf(' %' .. max_line_len .. 'd ' .. separator .. ' %s', len(a) + 1,  v)), [])
+    var lines = mapnew(raw_lines,
+       (i, v) => printf(' %' .. max_line_len .. 'd ' .. separator .. ' %s', i + 1, v))
 
     var wids = selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
