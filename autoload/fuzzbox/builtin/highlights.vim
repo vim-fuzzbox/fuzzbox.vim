@@ -2,9 +2,13 @@
 vim9script
 
 import autoload '../internal/selector.vim'
+import autoload '../internal/utils.vim'
 
 var preview_wid: number
 var preview_mid: number
+
+# For CTRL-K backwards compatibility only
+var emacs_keys = exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
 
 def Preview(wid: number, result: string)
     win_execute(wid, "silent! search('\\M\^" .. result .. "\\s\\+xxx', 'cw')")
@@ -39,13 +43,20 @@ export def Start(opts: dict<any> = {})
     var highlights = execute('hi')->split("\n")
 
     var li: list<string> = getcompletion('', 'highlight')
+
+    var _actions = { "\<c-y>": function('TogglePreviewBg') }
+    if !emacs_keys
+        _actions["\<c-k>"] = () => {
+            utils.Warn('Fuzzbox: CTRL-K mapping deprecated, use CTRL-Y')
+            function('TogglePreviewBg')()
+        }
+    endif
+
     var wids = selector.Start(li, extend(opts, {
         preview_cb: function('Preview'),
         select_cb: function('Select'),
         default_actions: false,
-        actions: {
-            "\<c-y>": function('TogglePreviewBg'),
-        }
+        actions: _actions
     }))
 
     preview_wid = wids.preview
