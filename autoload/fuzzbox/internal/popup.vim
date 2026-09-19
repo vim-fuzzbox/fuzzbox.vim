@@ -45,6 +45,7 @@ var keymaps: dict<any> = {
     'delete_all': [],
     'delete_word': ["\<C-w>"], # :h c_CTRL-W
     'delete_prefix': ["\<C-u>"], # :h c_CTRL-U
+    'delete_suffix': [],
     'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
 }
 if exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
@@ -55,7 +56,8 @@ if exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
         'cursor_end': ["\<C-e>", "\<End>"],
         'cursor_word_left': ["\<A-b>", "\<C-Left>"],
         'cursor_word_right': ["\<A-f>", "\<C-Right>"],
-        'delete': ["\<C-d>", "\<Del>"]
+        'delete': ["\<C-d>", "\<Del>"],
+        'delete_suffix': ["\<C-k>"]
     })
 endif
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
@@ -393,6 +395,14 @@ def PromptFilter(wid: number, key: string): number
     elseif index(keymaps['delete_prefix'], key) >= 0
         line = line[cur_pos :]
         cur_pos = 0
+    elseif index(keymaps['delete_suffix'], key) >= 0
+        if cur_pos != max_pos
+            if cur_pos == 0
+                line = ''
+            else
+                line = line[0 : cur_pos - 1]
+            endif
+        endif
     elseif index(keymaps['cursor_left'], key) >= 0
         cur_pos = max([ 0, cur_pos - 1 ])
     elseif index(keymaps['cursor_right'], key) >= 0

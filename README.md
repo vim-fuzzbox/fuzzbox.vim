@@ -161,10 +161,10 @@ be used to scroll in both the preview and menu windows.
 **Command specific keymaps**
 
 - FuzzyHighlights
-  - \<CTRL-K> toggles white preview background color
+  - \<CTRL-Y> toggles white preview background color
 
 - FuzzyMru
-  - \<CTRL-K> toggles between all MRU files and CWD only
+  - \<CTRL-Y> toggles between all MRU files and CWD only
 
 - FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix,
   FuzzyMarks, FuzzyTags
@@ -570,7 +570,8 @@ default keymaps as follows:
   'cursor_end': ["\<C-e>", "\<End>"],
   'cursor_word_left': ["\<A-b>", "\<C-Left>"],
   'cursor_word_right': ["\<A-f>", "\<C-Right>"],
-  'delete': ["\<C-d>", "\<Del>"]
+  'delete': ["\<C-d>", "\<Del>"],
+  'delete_suffix': ["\<C-k>"]
 }
 ```
 
@@ -589,7 +590,7 @@ let g:fuzzbox_buffers_exclude = ['terminal']
 
 ### g:fuzzbox_mru_cwd_only
 Default FuzzyMru to only show recent files in current working directory. You can
-still use `CTRL-K` to toggle between all MRU files and CWD files only. Default 0
+still use `CTRL-Y` to toggle between all MRU files and CWD files only. Default 0
 ```vim
 let g:fuzzbox_mru_cwd_only = 0
 ```
