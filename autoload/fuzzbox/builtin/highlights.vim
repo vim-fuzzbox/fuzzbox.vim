@@ -44,7 +44,7 @@ export def Start(opts: dict<any> = {})
         select_cb: function('Select'),
         default_actions: false,
         actions: {
-            "\<c-k>": function('TogglePreviewBg'),
+            "\<c-y>": function('TogglePreviewBg'),
         }
     }))
 
