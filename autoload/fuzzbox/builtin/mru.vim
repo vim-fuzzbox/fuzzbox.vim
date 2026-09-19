@@ -21,6 +21,8 @@ var dir_exclude = exists('g:fuzzbox_mru_exclude_dir')
     && type(g:fuzzbox_mru_exclude_dir) == v:t_list ?
     g:fuzzbox_mru_exclude_dir : g:fuzzbox_exclude_dir
 var cwd_only = exists('g:fuzzbox_mru_cwd_only') && g:fuzzbox_mru_cwd_only
+# For CTRL-K backwards compatibility only
+var emacs_keys = exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
 
 def ToggleScope()
     cwd_filter = cwd_filter ? 0 : 1
@@ -94,14 +96,20 @@ export def Start(opts: dict<any> = {})
         }, [])
     endif
 
+    var _actions = { "\<c-y>": function('ToggleScope') }
+    if !emacs_keys
+        _actions["\<c-k>"] = () => {
+            utils.Warn('Fuzzbox: CTRL-K mapping deprecated, use CTRL-Y')
+            function('ToggleScope')()
+        }
+    endif
+
     var wids = selector.Start(mru_list, extend(opts, {
         async: true,
         devicons: true,
         select_cb: actions.OpenFile,
         preview_cb: actions.PreviewFile,
-        actions: {
-            "\<c-y>": function('ToggleScope'),
-        }
+        actions: _actions
     }))
     menu_wid = wids.menu
 enddef
