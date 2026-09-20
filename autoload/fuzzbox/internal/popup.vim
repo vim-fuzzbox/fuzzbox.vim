@@ -8,6 +8,7 @@ import autoload './launcher.vim'
 import autoload './utils.vim'
 
 var wins = { menu: -1, prompt: -1, preview: -1 }
+var raw_opts: dict<any>
 var options: dict<any>
 var cursor_pos: number
 var cursor_mid: number
@@ -251,6 +252,7 @@ def MenuCallback(wid: number, result: any)
     active = false
     options = {}
     wins = { menu: -1, prompt: -1, preview: -1 }
+    autocmd_delete([{group: 'FuzzboxResize'}])
 
     if redraw_required
         redraw
@@ -596,6 +598,38 @@ def PreviewFilter(wid: number, key: string): number
     return 1
 enddef
 
+def MovePopup(wid: number, args: dict<any>)
+    var width = get(args, 'width', 0.4)
+    var height = get(args, 'height', 0.4)
+    var xoffset = get(args, 'xoffset', 0.3)
+    var yoffset = get(args, 'yoffset', 0.3)
+
+    # Use current window size for positioning relatively positioned popups
+    var columns = &columns
+    var lines = &lines
+
+    # Size and position
+    var final_width = min([max([1, width >= 1 ? width : float2nr(columns * width)]), columns])
+    var final_height = min([max([1, height >= 1 ? height : float2nr(lines * height)]), lines])
+
+    var line = yoffset >= 1 ? yoffset : float2nr(yoffset * lines)
+    var col = xoffset >= 1 ? xoffset : float2nr(xoffset * columns)
+
+    # Managing the differences
+    line = min([max([0, line]), lines - final_height])
+    col = min([max([0, col]), columns - final_width])
+
+    var opts = {
+        line: line,
+        col: col,
+        minwidth: final_width,
+        maxwidth: final_width,
+        minheight: final_height,
+        maxheight: final_height,
+    }
+    popup_move(wid, opts)
+enddef
+
 def NewPopup(args: dict<any>): number
     var width = get(args, 'width', 0.4)
     var height = get(args, 'height', 0.4)
@@ -748,48 +782,6 @@ def MenuSetHl(hl_list_raw: list<any>)
     matchaddpos('fuzzboxMatching', hl_list, 99, -1,  {window: wins.menu})
 enddef
 
-def PopupPrompt(args: dict<any>): number
-    if hlget('fuzzboxCursor')->get(0, {})->get('linksto', '') ==? 'Cursor'
-        ResolveCursor()
-    endif
-
-    var opts = {
-        width: 0.4,
-        height: 1,
-        filter: function('PromptFilter')
-    }
-    opts = extend(opts, args)
-    var wid = NewPopup(opts)
-    cursor_pos = 0
-
-    if !empty(prompt_sign)
-        setwinvar(wid, '&signcolumn', 'yes')
-        if exists('&winhighlight')
-            setwinvar(wid, '&winhighlight', 'SignColumn:fuzzboxNormal,Normal:fuzzboxNormal')
-        endif
-        var bufnr = winbufnr(wid)
-        # Note: sign must be placed before popup_settext()
-        sign_place(1, 'PopUpFuzzbox', 'FuzzboxPrompt', bufnr, {lnum: 1})
-    endif
-
-    if has_key(args, 'title') && !empty(args.title)
-        SetTitle(wid, args.title)
-    endif
-
-    # set cursor
-    popup_settext(wid, " ")
-    cursor_mid = matchaddpos('fuzzboxCursor',
-        [[1, cursor_pos + 1]], 10, -1,  {window: wid})
-
-    if has_key(args, 'text') && !empty(args.text)
-        for i in range(strchars(args.text))
-            PromptFilter(wid, strcharpart(args.text, i, 1, 1))
-        endfor
-    endif
-
-    return wid
-enddef
-
 export def SetTitle(wid: number, str: string)
     # Preview title cannot be changed unless dynamic preview titles are allowed
     # An update can be forced by using popup_setoptions() to clear the title first
@@ -805,6 +797,10 @@ export def SetTitle(wid: number, str: string)
     var padding = ( popup_getoptions(wid).maxwidth / 2 ) - ( len(title) / 2 )
     title = repeat([borderchars[0]], padding)->join('') .. title
     popup_setoptions(wid, {title: title})
+enddef
+
+def GetTitle(wid: number): string
+    return trim(substitute(popup_getoptions(wid).title, borderchars[0], '', 'g'))
 enddef
 
 export def SetCounter(count: any, total: any = null, isloading: bool = false)
@@ -869,11 +865,49 @@ export def SetLoading()
     }, { repeat: -1 })
 enddef
 
+def PopupPrompt(args: dict<any>): number
+    if hlget('fuzzboxCursor')->get(0, {})->get('linksto', '') ==? 'Cursor'
+        ResolveCursor()
+    endif
+
+    var opts = {
+        cursorline: 0,
+        filter: function('PromptFilter')
+    }
+    opts = extend(opts, args)
+    var wid = NewPopup(opts)
+    cursor_pos = 0
+
+    if !empty(prompt_sign)
+        setwinvar(wid, '&signcolumn', 'yes')
+        if exists('&winhighlight')
+            setwinvar(wid, '&winhighlight', 'SignColumn:fuzzboxNormal,Normal:fuzzboxNormal')
+        endif
+        var bufnr = winbufnr(wid)
+        # Note: sign must be placed before popup_settext()
+        sign_place(1, 'PopUpFuzzbox', 'FuzzboxPrompt', bufnr, {lnum: 1})
+    endif
+
+    if has_key(args, 'title') && !empty(args.title)
+        SetTitle(wid, args.title)
+    endif
+
+    # set cursor
+    popup_settext(wid, " ")
+    cursor_mid = matchaddpos('fuzzboxCursor',
+        [[1, cursor_pos + 1]], 10, -1,  {window: wid})
+
+    if has_key(args, 'text') && !empty(args.text)
+        for i in range(strchars(args.text))
+            PromptFilter(wid, strcharpart(args.text, i, 1, 1))
+        endfor
+    endif
+
+    return wid
+enddef
+
 def PopupMenu(args: dict<any>): number
     var opts = {
-        width: 0.4,
-        height: 17,
-        yoffset: 0.3,
         cursorline: 1,
         filter: function('MenuFilter'),
         callback: function('MenuCallback')
@@ -898,9 +932,6 @@ enddef
 
 def PopupPreview(args: dict<any>): number
     var opts = {
-        width: 0.4,
-        height: 19,
-        yoffset: 0.3,
         cursorline: 1,
         filter: function('PreviewFilter'),
     }
@@ -996,6 +1027,101 @@ def GetOptions(opts: dict<any>): dict<any>
     }
 enddef
 
+def GetLayout(): dict<any>
+    var preview_width = 0
+    var menu_width = 0
+    if options.preview
+        preview_width = float2nr(options.width * options.preview_ratio)
+        menu_width = options.width - preview_width
+    else
+        menu_width = options.width
+    endif
+
+    var prompt_height = 3 # 1 row of text plus borderchars
+    var menu_height = options.height - prompt_height
+
+    var prompt_yoffset: number
+    var menu_yoffset: number
+
+    if options.dropdown
+        prompt_yoffset = options.yoffset
+        menu_yoffset = options.yoffset + prompt_height
+    else
+        menu_yoffset = options.yoffset
+        prompt_yoffset = options.yoffset + menu_height + 2
+    endif
+
+    var menu = {
+        yoffset: menu_yoffset,
+        xoffset: options.xoffset,
+        width: menu_width,
+        height: menu_height,
+    }
+
+    var prompt = {
+        yoffset: prompt_yoffset,
+        xoffset: options.xoffset,
+        width: menu_width,
+        height: 1,
+    }
+
+    var layout = { menu: menu, prompt: prompt, preview: {} }
+
+    if options.preview
+        var preview_xoffset = menu.xoffset + menu.width
+        var preview_height = menu_height + prompt.height + 2
+        layout.preview = {
+            width: preview_width,
+            height: preview_height,
+            yoffset: options.yoffset,
+            xoffset: preview_xoffset + 2,
+        }
+    endif
+
+    return layout
+enddef
+
+def HandleResize()
+    if !active
+        return
+    endif
+
+    options = extendnew(raw_opts, GetOptions(raw_opts))
+    var layout = GetLayout()
+
+    MovePopup(wins.menu, layout.menu)
+    SetTitle(wins.menu, GetTitle(wins.menu))
+
+    MovePopup(wins.prompt, layout.prompt)
+    SetTitle(wins.prompt, GetTitle(wins.prompt))
+
+    # Deal with preview hide/show dependent on screen dimensions
+    if options.preview
+        if wins.preview == -1
+            # FIXME: duplication
+            var preview_opts = extendnew(layout.preview, {
+                zindex: 1100,
+                title: options.preview_title,
+                wrap: options.preview_wrap
+            })
+            wins.preview = PopupPreview(preview_opts)
+            HandleChange()
+        else
+            MovePopup(wins.preview, layout.preview)
+            SetTitle(wins.preview, GetTitle(wins.preview))
+        endif
+    elseif wins.preview != -1
+        popup_close(wins.preview)
+        wins.preview = -1
+    endif
+
+    if !options.dropdown
+        var menuline = line('.', wins.menu)
+        win_execute(wins.menu, 'normal! ' .. line('$', wins.menu) .. 'zb')
+        win_execute(wins.menu, 'normal! ' .. menuline .. 'G')
+    endif
+enddef
+
 # params:
 #   - opts: dict of options, including the following callbacks
 #       - select_cb: function called when a result is selected
@@ -1020,72 +1146,46 @@ export def Start(opts: dict<any>): dict<any>
         doautocmd <nomodeline> User FuzzboxOpening
     endif
 
+    raw_opts = opts
+
     options = extendnew(opts, GetOptions(opts))
 
-    var preview_width = 0
-    var menu_width = 0
-    if options.preview
-        preview_width = float2nr(options.width * options.preview_ratio)
-        menu_width = options.width - preview_width
-    else
-        menu_width = options.width
-    endif
+    var layout = GetLayout()
 
-    var prompt_height = 3 # 1 row of text plus borderchars
-    var menu_height = options.height - prompt_height
-
-    var prompt_yoffset: number
-    var menu_yoffset: number
-
-    if options.dropdown
-        prompt_yoffset = options.yoffset
-        menu_yoffset = options.yoffset + prompt_height
-    else
-        menu_yoffset = options.yoffset
-        prompt_yoffset = options.yoffset + menu_height + 2
-    endif
-
-    var menu_opts = {
+    var menu_opts = extendnew(layout.menu, {
         scrollbar: options.scrollbar,
-        yoffset: menu_yoffset,
-        xoffset: options.xoffset,
-        width: menu_width,
-        height: menu_height,
         zindex: 1200,
         title: options.menu_title,
         wrap: options.menu_wrap
-    }
+    })
     wins.menu = PopupMenu(menu_opts)
     win_execute(wins.menu, 'set filetype=fuzzbox_menu')
 
-    var prompt_opts = {
-        yoffset: prompt_yoffset,
-        xoffset: options.xoffset,
-        width: menu_width,
+    var prompt_opts = extendnew(layout.prompt, {
         zindex: 1010,
         title: options.prompt_title,
         text: options.prompt_text
-    }
+    })
     wins.prompt = PopupPrompt(prompt_opts)
     win_execute(wins.prompt, 'set filetype=fuzzbox_prompt')
 
     if options.preview
-        var preview_xoffset = popup_getoptions(wins.menu).col + popup_getoptions(wins.menu).maxwidth
-        prompt_height = popup_getoptions(wins.prompt).maxheight
-        var preview_height = menu_height + prompt_height + 2
-        var preview_opts = {
-            width: preview_width,
-            height: preview_height,
-            yoffset: options.yoffset,
-            xoffset: preview_xoffset + 2,
+        var preview_opts = extendnew(layout.preview, {
             zindex: 1100,
             title: options.preview_title,
             wrap: options.preview_wrap
-        }
+        })
         wins.preview = PopupPreview(preview_opts)
     endif
 
     HideCursor()
+
+    autocmd_add([{
+        group: 'FuzzboxResize',
+        event: 'VimResized',
+        cmd: 'HandleResize()',
+        pattern: '*'
+    }])
 
     if exists('#User#FuzzboxOpened')
         doautocmd <nomodeline> User FuzzboxOpened
