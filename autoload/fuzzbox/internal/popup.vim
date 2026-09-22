@@ -14,6 +14,7 @@ var cursor_pos: number
 var cursor_mid: number
 var loading_tid: number
 var preview_tid: number
+var input_tid: number
 var t_ve: string
 var hlcursor: dict<any>
 export var active = false
@@ -449,7 +450,14 @@ def PromptFilter(wid: number, key: string): number
         endif
         if has_key(options, 'input_cb')
                 && type(options.input_cb) == v:t_func
-            InvokeAction(options.input_cb, wins.prompt, line)
+            # debounce input_cb to avoid triggering fuzzy matching on every
+            # keystroke when typing quickly or pasting into the prompt
+            timer_stop(input_tid)
+            input_tid = timer_start(30, (_) => {
+                if active # allow for popups to have closed when lambda is invoked
+                    InvokeAction(options.input_cb, wins.prompt, line)
+                endif
+            }, { repeat: 0 })
         endif
     endif
 
