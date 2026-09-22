@@ -7,9 +7,11 @@ import autoload './actions.vim'
 var raw_list: list<string>
 var len_list: number
 var cwd: string
+var cur_pattern: string
 var default_actions: dict<any>
 var async_limit = g:fuzzbox_async_limit
 var async_step = g:fuzzbox_async_step
+var max_results = g:fuzzbox_max_results
 
 # track whether counter is endbled for the current selector
 var has_counter: bool
@@ -18,7 +20,11 @@ export def UpdateResults(str_list: list<string>, hl_list: list<list<any>>,
         match_count: number, total_count: number)
     popup.UpdateMenu(str_list, hl_list)
     if has_counter
-        popup.SetCounter(match_count, total_count)
+        if cur_pattern != '' && match_count > max_results
+            popup.SetCounter('> ' .. max_results, total_count)
+        else
+            popup.SetCounter(match_count, total_count)
+        endif
     endif
 enddef
 
@@ -107,10 +113,11 @@ enddef
 
 # Returns the results, matchaddpos() positions, and the match count
 export def FuzzySearch(li: list<string>, pattern: string): list<any>
+    cur_pattern = pattern
     if empty(pattern)
         return [li, [], len_list]
     endif
-    var results: list<any> = matchfuzzypos(li, pattern)
+    var results: list<any> = matchfuzzypos(li, pattern, {limit: max_results + 1})
 
     var match_count = len(results[0])
 
@@ -134,7 +141,6 @@ export def UpdateList(li: list<string>)
 enddef
 
 var async_list: list<string>
-var async_pattern: string
 var async_results: list<any>
 var async_count: number
 var async_tid: number
@@ -150,7 +156,7 @@ enddef
 
 def AsyncWorker(tid: number)
     var li = async_list[: async_step]
-    var results: list<any> = matchfuzzypos(li, async_pattern)
+    var results: list<any> = matchfuzzypos(li, cur_pattern)
 
     var strs = results[0]
     var poss = results[1]
@@ -176,6 +182,14 @@ def AsyncWorker(tid: number)
     var [str_list, hl_list] = TransformResults(async_results)
     AsyncCb(str_list, hl_list, async_count)
 
+    if async_count >= max_results
+        if has_counter
+            popup.SetCounter('> ' .. max_results, len_list)
+        endif
+        timer_stop(tid)
+        return
+    endif
+
     async_list = async_list[async_step + 1 :]
     if len(async_list) == 0
         timer_stop(tid)
@@ -194,12 +208,12 @@ enddef
 export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
     # only one outstanding call at a time
     timer_stop(async_tid)
+    cur_pattern = pattern
     if empty(pattern)
         Cb(raw_list->slice(0, async_limit), [], len_list)
         return -1
     endif
     async_list = li
-    async_pattern = pattern
     async_results = []
     async_count = 0
     AsyncCb = Cb

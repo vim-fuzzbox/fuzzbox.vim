@@ -64,6 +64,8 @@ g:fuzzbox_async_step = exists('g:fuzzbox_async_step')
     && type(g:fuzzbox_async_step) == v:t_number ? g:fuzzbox_async_step : 10000
 g:fuzzbox_async_limit = exists('g:fuzzbox_async_limit')
     && type(g:fuzzbox_async_limit) == v:t_number ? g:fuzzbox_async_limit : 200
+g:fuzzbox_max_results = exists('g:fuzzbox_max_results')
+    && type(g:fuzzbox_max_results) == v:t_number ? g:fuzzbox_max_results : 10000
 
 if g:fuzzbox_respect_wildignore
     var wildignore_dir = copy(split(&wildignore, ','))->filter('v:val =~ "[\\/]"')

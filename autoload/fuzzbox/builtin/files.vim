@@ -16,10 +16,16 @@ var cur_count: number
 var cur_job: job
 
 var async_limit = g:fuzzbox_async_limit
+var max_results = g:fuzzbox_max_results
 
 def AsyncCb(str_list: list<string>, hl_list: list<list<any>>, match_count: number)
     cur_count = match_count
     selector.UpdateResults(str_list, hl_list, cur_count, total_count)
+    if cur_count > max_results
+        popup.SetCounter('> ' .. max_results, total_count)
+    else
+        popup.SetCounter(cur_count, total_count)
+    endif
 enddef
 
 def Input(wid: number, result: string)
@@ -67,12 +73,14 @@ def UpdateMenu()
     if cur_result_len > total_count
         total_count = cur_result_len
     endif
-    if job_status(cur_job) == 'run'
-        if cur_pattern != ''
-            popup.SetCounter(cur_count, total_count)
+    if cur_pattern != ''
+        if cur_count > max_results
+            popup.SetCounter('> ' .. max_results, total_count)
         else
-            popup.SetCounter(cur_result_len, total_count)
+            popup.SetCounter(cur_count, total_count)
         endif
+    else
+        popup.SetCounter(cur_result_len, total_count)
     endif
 
     if cur_pattern != ''
@@ -105,7 +113,7 @@ export def Start(opts: dict<any> = {})
         input_cb: function('Input'),
         close_cb: function('Close'),
         devicons: true,
-        counter: true,
+        counter: false,
     }))
     var cmd: string
     if len(get(opts, 'command', '')) > 0

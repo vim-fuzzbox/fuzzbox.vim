@@ -831,7 +831,11 @@ export def SetCounter(count: any, total: any = null, isloading: bool = false)
     if type(count) == v:t_none
         text = ''
     elseif type(count) == v:t_string
-        text = count
+        if empty(total)
+            text = count
+        else
+            text = count .. ' / ' .. string(total)
+        endif
     elseif empty(total)
         text = string(count)
     else

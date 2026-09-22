@@ -21,6 +21,7 @@ var cur_job: job
 var pid: number
 
 var async_limit = g:fuzzbox_async_limit
+var max_results = g:fuzzbox_max_results
 
 def MatchSepPos(str: string): list<any>
     var matchdata: list<any>
@@ -190,7 +191,6 @@ def UpdateMenu()
     endif
 
     # limit results to prevent ballooning memory usage
-    var max_results = 10000
     if cur_result_len > max_results
         job_stop(cur_job)
         popup.SetCounter('> ' .. max_results)
