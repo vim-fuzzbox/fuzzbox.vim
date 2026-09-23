@@ -257,9 +257,7 @@ export def Start(li_raw: list<string>, opts: dict<any> = {}): dict<any>
 
     has_counter = has_key(opts, 'counter') ? opts.counter : defaults.counter
 
-    opts.async = has_key(opts, 'async') && opts.async ? opts.async : (
-        len_list >= async_step
-    )
+    opts.async = has_key(opts, 'async') ? opts.async : ( len_list >= async_step)
     opts.preview_cb = has_key(opts, 'preview_cb') ? opts.preview_cb : actions.PreviewFile
     opts.select_cb = has_key(opts, 'select_cb') ? opts.select_cb : actions.OpenFile
     opts.input_cb = has_key(opts, 'input_cb') ? opts.input_cb : (
