@@ -301,7 +301,7 @@ def HandleChange()
             type(options.preview_cb) == v:t_func
         # timer to avoid triggering preview unnecessarily during mouse scroll
         timer_stop(preview_tid)
-        preview_tid = timer_start(30, (_) => {
+        preview_tid = timer_start(20, (_) => {
             if active # allow for popups to have closed when lambda is invoked
                 InvokeAction(options.preview_cb, wins.preview)
             endif
@@ -453,7 +453,7 @@ def PromptFilter(wid: number, key: string): number
             # debounce input_cb to avoid triggering fuzzy matching on every
             # keystroke when typing quickly or pasting into the prompt
             timer_stop(input_tid)
-            input_tid = timer_start(30, (_) => {
+            input_tid = timer_start(20, (_) => {
                 if active # allow for popups to have closed when lambda is invoked
                     InvokeAction(options.input_cb, wins.prompt, line)
                 endif
