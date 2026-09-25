@@ -715,7 +715,8 @@ def MenuSetText(text_list: list<string>)
     if !options.dropdown
         var len_text = len(text_list)
         setwinvar(wins.menu, 'minline', textrows - len_text + 1)
-        text = reverse(text_list)
+        # copy as reverse() is in place, callers may reuse text_list
+        text = reverse(copy(text_list))
         if len_text < textrows
             text = repeat([''], textrows - len_text) + text
         endif
