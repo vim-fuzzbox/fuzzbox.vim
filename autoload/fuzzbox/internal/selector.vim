@@ -11,6 +11,7 @@ var cur_pattern: string
 var default_actions: dict<any>
 var async_limit = g:fuzzbox_async_limit
 var async_step = g:fuzzbox_async_step
+var async_wait = g:fuzzbox_async_wait
 var max_results = g:fuzzbox_max_results
 
 # track whether counter is endbled for the current selector
@@ -217,7 +218,7 @@ export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
     async_results = []
     async_count = 0
     AsyncCb = Cb
-    async_tid = timer_start(50, function('AsyncWorker'), {repeat: -1})
+    async_tid = timer_start(async_wait, function('AsyncWorker'), {repeat: -1})
     AsyncWorker(async_tid)
     return async_tid
 enddef

@@ -62,6 +62,8 @@ g:fuzzbox_menu_separator = exists('g:fuzzbox_menu_separator') ? g:fuzzbox_menu_s
 )
 g:fuzzbox_async_step = exists('g:fuzzbox_async_step')
     && type(g:fuzzbox_async_step) == v:t_number ? g:fuzzbox_async_step : 10000
+g:fuzzbox_async_wait = exists('g:fuzzbox_async_wait')
+    && type(g:fuzzbox_async_wait) == v:t_number ? g:fuzzbox_async_wait : 50
 g:fuzzbox_async_limit = exists('g:fuzzbox_async_limit')
     && type(g:fuzzbox_async_limit) == v:t_number ? g:fuzzbox_async_limit : 200
 g:fuzzbox_max_results = exists('g:fuzzbox_max_results')

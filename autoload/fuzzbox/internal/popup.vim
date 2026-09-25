@@ -65,6 +65,10 @@ endif
 keymaps = exists('g:fuzzbox_keymaps') && type(g:fuzzbox_keymaps) == v:t_dict ?
     extend(keymaps, g:fuzzbox_keymaps) : keymaps
 
+var input_debounce = exists('g:fuzzbox_input_debounce')
+    && type(g:fuzzbox_input_debounce) == v:t_number
+    ? g:fuzzbox_input_debounce : 20
+
 var dynamic_preview_title = exists('g:fuzzbox_dynamic_preview_title') ?
     g:fuzzbox_dynamic_preview_title : true
 
@@ -453,7 +457,7 @@ def PromptFilter(wid: number, key: string): number
             # debounce input_cb to avoid triggering fuzzy matching on every
             # keystroke when typing quickly or pasting into the prompt
             timer_stop(input_tid)
-            input_tid = timer_start(20, (_) => {
+            input_tid = timer_start(input_debounce, (_) => {
                 if active # allow for popups to have closed when lambda is invoked
                     InvokeAction(options.input_cb, wins.prompt, line)
                 endif
