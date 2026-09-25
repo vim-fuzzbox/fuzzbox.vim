@@ -275,10 +275,8 @@ export def UpdateMenu(str_list: list<string>, hl_list: list<list<any>>)
         # columns to avoid slow rendering of highlights on very long lines
         var new_list = str_list->mapnew('slice(v:val, 0, 1000)')
         var hl_offset = devicons.GetDeviconOffset()
-        var new_hl_list = reduce(hl_list, (a, v) => {
-            v[1] += hl_offset
-            return add(a, v)
-        }, [])
+        # copy rather than modify hl_list items, callers may reuse them
+        var new_hl_list = hl_list->mapnew((_, v) => [v[0], v[1] + hl_offset] + v[2 :])
         devicons.AddDevicons(new_list)
         MenuSetText(new_list)
         MenuSetHl(new_hl_list)

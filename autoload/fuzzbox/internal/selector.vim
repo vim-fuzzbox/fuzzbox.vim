@@ -45,37 +45,28 @@ def ProcessResults(results: list<list<any>>): list<list<any>>
     return processed_results
 enddef
 
-# Take positions from matchfuzzypos() and transform for use with matchaddpos()
-# Merges continuous numbers to ranges, change list indexes to column positions
-# e.g. [1,2,3,4,5,7,9] -> [[2,5], [8], [10]]
-def TransformPositions(li: list<number>): list<any>
-    var last_pos = li[0]
-    var start_pos = li[0]
-    var pos_len = 1
-    var poss_result = []
-    for idx in range(1, len(li) - 1)
-        var pos = li[idx]
-        if pos == last_pos + 1
-            pos_len += 1
-        else
-            # add 1 because vim column starts from 1 and string index starts from 0
-            if pos_len > 1
-                add(poss_result, [start_pos + 1, pos_len])
-            else
-                add(poss_result, [start_pos + 1])
-            endif
-            start_pos = pos
-            last_pos = pos
-            pos_len = 1
-        endif
-        last_pos = pos
-    endfor
-    if pos_len > 1
-        add(poss_result, [start_pos + 1, pos_len])
-    else
-        add(poss_result, [start_pos + 1])
-    endif
-    return poss_result
+# Take positions from matchfuzzypos() and add them to hl_list for use with
+# matchaddpos(). Merges continuous positions to ranges and changes char indexes
+# to byte column positions, e.g. for line 1: [1,2,3,4,5,7,9]
+#  ->  [[1, 2, 5], [1, 8], [1, 10]]
+def AddHlPositions(str: string, poss: list<number>, lnum: number,
+        hl_list: list<list<any>>)
+    var n = len(poss)
+    var i = 0
+    while i < n
+        var start = poss[i]
+        var j = i + 1
+        while j < n && poss[j] == poss[j - 1] + 1
+            j += 1
+        endwhile
+        var run = j - i
+        # add 1 because vim column starts from 1 and string index starts from 0
+        var col = byteidx(str, start)
+        add(hl_list, run > 1
+            ? [lnum, col + 1, byteidx(str, start + run) - col]
+            : [lnum, col + 1])
+        i = j
+    endwhile
 enddef
 
 # Take processed results and convert to list of strings and highlight positions
@@ -85,30 +76,12 @@ enddef
 def TransformResults(processed_results: list<list<any>>): list<list<any>>
     var str_list = []
     var hl_list = []
-    var idx = 1
+    var lnum = 1
     for item in processed_results
         add(str_list, item[0])
-
-        var positions = TransformPositions(item[1])
-
-        # convert char index to byte index for highlighting
-        for idx2 in range(len(positions))
-            var temp = []
-            var r = positions[idx2]
-            add(temp, byteidx(item[0], r[0] - 1) + 1)
-            if len(positions[idx2]) == 2
-                add(temp, byteidx(item[0], r[0] - 1 + r[1]) + 1 - temp[0])
-            endif
-            positions[idx2] = temp
-        endfor
-
-        hl_list += reduce(positions, (acc, val) => {
-            add(acc, [idx] + val)
-            return acc
-        }, [])
-        idx += 1
+        AddHlPositions(item[0], item[1], lnum, hl_list)
+        lnum += 1
     endfor
-
     return [str_list, hl_list]
 enddef
 
@@ -142,7 +115,9 @@ export def UpdateList(li: list<string>)
 enddef
 
 var async_list: list<string>
-var async_results: list<any>
+var async_offset: number
+var async_results: list<list<any>>
+var async_transformed: list<list<any>>
 var async_count: number
 var async_tid: number
 var AsyncCb: func
@@ -155,32 +130,75 @@ def InputAsync(wid: number, result: string)
     async_tid = FuzzySearchAsync(raw_list, result, function('InputAsyncCb'))
 enddef
 
-def AsyncWorker(tid: number)
-    var li = async_list[: async_step]
-    var results: list<any> = matchfuzzypos(li, cur_pattern)
+# Sort by score descending, then alphabetically
+def CompareResults(a: list<any>, b: list<any>): number
+    if a[2] < b[2]
+        return 1
+    elseif a[2] > b[2]
+        return -1
+    endif
+    return a[0] > b[0] ? 1 : -1
+enddef
 
-    var strs = results[0]
-    var poss = results[1]
-    var scores = results[2]
-
-    async_count += len(strs)
-
-    async_results += ProcessResults(results)
-    sort(async_results, (a, b) => {
-        if a[2] < b[2]
-            return 1
-        elseif a[2] > b[2]
-            return -1
-        else
-            return a[0] > b[0] ? 1 : -1
-        endif
-    })
-
-    if len(async_results) >= async_limit
-        async_results = async_results->slice(0, async_limit)
+# Merge results from matchfuzzypos() into the sorted results list, keeping only
+# the top limit items. matchfuzzypos() results are already sorted by score, so
+# only the top limit of them (plus any tied with the last one) need sorting,
+# then the two sorted lists are merged in linear time.
+# Returns the same list unchanged when no new item makes the top limit.
+def MergeResults(results: list<list<any>>, new_results: list<any>,
+        limit: number): list<list<any>>
+    var strs = new_results[0]
+    var poss = new_results[1]
+    var scores = new_results[2]
+    var len_old = len(results)
+    if empty(strs) || (len_old >= limit && scores[0] < results[-1][2])
+        return results
     endif
 
-    var [str_list, hl_list] = TransformResults(async_results)
+    var len_new = len(strs)
+    if len_new > limit
+        var cutoff = scores[limit - 1]
+        len_new = limit
+        while len_new < len(strs) && scores[len_new] == cutoff
+            len_new += 1
+        endwhile
+    endif
+    var batch: list<list<any>>
+    for idx in range(len_new)
+        add(batch, [strs[idx], poss[idx], scores[idx]])
+    endfor
+    sort(batch, CompareResults)
+
+    var merged: list<list<any>>
+    var i = 0
+    var j = 0
+    while len(merged) < limit && (i < len_old || j < len_new)
+        if j >= len_new || (i < len_old && CompareResults(results[i], batch[j]) < 0)
+            add(merged, results[i])
+            i += 1
+        else
+            add(merged, batch[j])
+            j += 1
+        endif
+    endwhile
+    return j == 0 ? results : merged
+enddef
+
+def AsyncWorker(tid: number)
+    # track position with an offset, re-slicing the remaining list for each
+    # batch copies it and makes the whole search O(n^2)
+    var li = async_list[async_offset : async_offset + async_step - 1]
+    async_offset += async_step
+    var results: list<any> = matchfuzzypos(li, cur_pattern)
+
+    async_count += len(results[0])
+
+    var merged = MergeResults(async_results, results, async_limit)
+    if merged isnot async_results || empty(async_transformed)
+        async_results = merged
+        async_transformed = TransformResults(async_results)
+    endif
+    var [str_list, hl_list] = async_transformed
     AsyncCb(str_list, hl_list, async_count)
 
     if async_count >= max_results
@@ -191,8 +209,7 @@ def AsyncWorker(tid: number)
         return
     endif
 
-    async_list = async_list[async_step + 1 :]
-    if len(async_list) == 0
+    if async_offset >= len(async_list)
         timer_stop(tid)
         return
     endif
@@ -215,7 +232,9 @@ export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
         return -1
     endif
     async_list = li
+    async_offset = 0
     async_results = []
+    async_transformed = []
     async_count = 0
     AsyncCb = Cb
     async_tid = timer_start(async_wait, function('AsyncWorker'), {repeat: -1})
