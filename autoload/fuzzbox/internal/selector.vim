@@ -188,7 +188,7 @@ def AsyncWorker(tid: number)
     # track position with an offset, re-slicing the remaining list for each
     # batch copies it and makes the whole search O(n^2)
     var li = async_list[async_offset : async_offset + async_step - 1]
-    async_offset += async_step
+    async_offset += len(li)
     var results: list<any> = matchfuzzypos(li, cur_pattern)
 
     async_count += len(results[0])
@@ -224,6 +224,24 @@ enddef
 # made before the previous one finishes, the previous one will be cancelled.
 # The timer id is returned so calling code can preemptivley cancel the timer.
 export def FuzzySearchAsync(li: list<string>, pattern: string, Cb: func): number
+    # The list may grow while it is searched, e.g. FuzzyFiles adds job output to
+    # it in place. When only the list has grown, continue the current search
+    # into the new items, as restarting would discard the results so far, and
+    # the results shown would drop back to those from the first batch
+    if li is async_list && pattern == cur_pattern && !empty(pattern)
+        AsyncCb = Cb
+        if empty(timer_info(async_tid))
+            if async_count < max_results
+                async_tid = timer_start(async_wait, function('AsyncWorker'), {repeat: -1})
+                AsyncWorker(async_tid)
+            else
+                var [str_list, hl_list] = async_transformed
+                Cb(str_list, hl_list, async_count)
+            endif
+        endif
+        return async_tid
+    endif
+
     # only one outstanding call at a time
     timer_stop(async_tid)
     cur_pattern = pattern
