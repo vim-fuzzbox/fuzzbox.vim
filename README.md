@@ -664,14 +664,38 @@ or you change the width of the preview window for FuzzyHighlights with:
 let g:fuzzbox_window_options = { 'highlights': { 'preview_ratio': 0.5 } }
 ```
 
+### g:fuzzbox_max_results
+Fuzzbox stops searching once this many matches have been found. This keeps
+searching massive lists fast, but with a short pattern the best match may not be
+included in the results. You may wish to increase it if you often search massive
+lists, e.g. all files in your home directory. Default 10000
+```vim
+let g:fuzzbox_max_results = 10000
+```
+
+### g:fuzzbox_input_debounce
+Time in milliseconds to wait after input to the prompt before matching. This
+avoids unnecessary searches when typing very quickly or pasting. Default 20
+```vim
+let g:fuzzbox_input_debounce = 20
+```
+
 ### g:fuzzbox_async_step
-Fuzzbox mimics async processing to fuzzy match in batches, which avoids problems
-running Vim's built in fuzzy matching on massive lists at once. The size of
-these batches is the async step value, which defaults to 10,000. This default
+Fuzzbox mimics async processing by fuzzy matching in batches. This avoids
+blocking input and freezing the UI when matching on very large lists. The size
+of these batches is the async step value, which defaults to 10000. This default
 should work well for most developer workstations, but you might want to reduce
-if you notice a lack of responsiveness on low spec machines
+if you notice a lack of responsiveness on low spec machines.
 ```vim
 let g:fuzzbox_async_step = 10000
+```
+
+### g:fuzzbox_async_wait
+Time in milliseconds to wait between processing each async batch. Only applies
+when searching a list with more than `g:fuzzbox_async_step` items. Increasing it
+should give Vim more time to respond to input between batches. Default 50
+```vim
+let g:fuzzbox_async_wait = 50
 ```
 
 ### g:fuzzbox_async_limit

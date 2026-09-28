@@ -53,8 +53,11 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.37. g:fuzzbox_mru_cwd_only..............|fuzzbox-g:fuzzbox_mru_cwd_only|
     1.7.38. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
     1.7.39. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
-    1.7.40. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
-    1.7.41. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
+    1.7.40. g:fuzzbox_max_results................|fuzzbox-g:fuzzbox_max_results|
+    1.7.41. g:fuzzbox_input_debounce..........|fuzzbox-g:fuzzbox_input_debounce|
+    1.7.42. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.43. g:fuzzbox_async_wait..................|fuzzbox-g:fuzzbox_async_wait|
+    1.7.44. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Custom commands................................|fuzzbox-custom_commands|
@@ -796,15 +799,42 @@ or you change the width of the preview window for FuzzyHighlights with:
   let g:fuzzbox_window_options = { 'highlights': { 'preview_ratio': 0.5 } }
 <
 
+G:FUZZBOX_MAX_RESULTS                            *fuzzbox-g:fuzzbox_max_results*
+
+Fuzzbox stops searching once this many matches have been found. This keeps
+searching massive lists fast, but with a short pattern the best match may not be
+included in the results. You may wish to increase it if you often search massive
+lists, e.g. all files in your home directory. Default 10000
+>
+  let g:fuzzbox_max_results = 10000
+<
+
+G:FUZZBOX_INPUT_DEBOUNCE                      *fuzzbox-g:fuzzbox_input_debounce*
+
+Time in milliseconds to wait after input to the prompt before matching. This
+avoids unnecessary searches when typing very quickly or pasting. Default 20
+>
+  let g:fuzzbox_input_debounce = 20
+<
+
 G:FUZZBOX_ASYNC_STEP                              *fuzzbox-g:fuzzbox_async_step*
 
-Fuzzbox mimics async processing to fuzzy match in batches, which avoids problems
-running Vim's built in fuzzy matching on massive lists at once. The size of
-these batches is the async step value, which defaults to 10,000. This default
+Fuzzbox mimics async processing by fuzzy matching in batches. This avoids
+blocking input and freezing the UI when matching on very large lists. The size
+of these batches is the async step value, which defaults to 10000. This default
 should work well for most developer workstations, but you might want to reduce
-if you notice a lack of responsiveness on low spec machines
+if you notice a lack of responsiveness on low spec machines.
 >
   let g:fuzzbox_async_step = 10000
+<
+
+G:FUZZBOX_ASYNC_WAIT                              *fuzzbox-g:fuzzbox_async_wait*
+
+Time in milliseconds to wait between processing each async batch. Only applies
+when searching a list with more than `g:fuzzbox_async_step` items. Increasing it
+should give Vim more time to respond to input between batches. Default 50
+>
+  let g:fuzzbox_async_wait = 50
 <
 
 G:FUZZBOX_ASYNC_LIMIT                            *fuzzbox-g:fuzzbox_async_limit*
