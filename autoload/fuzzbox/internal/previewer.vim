@@ -3,6 +3,9 @@ vim9script
 import autoload './popup.vim'
 import './filetype.vim'
 
+const PDF_SIGNATURE = '%PDF-'
+const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
+
 def IsBinary(path: string): bool
     # NUL byte check for binary files, used to avoid showing preview
     # Assumes a file encoding that does not allow NUL bytes, so will
@@ -11,18 +14,27 @@ def IsBinary(path: string): bool
     if !has('patch-9.0.0810')
         # Workaround for earlier versions of Vim with limited readblob()
         # Option to read only part of file finalised in patch 9.0.0810
-        return match(readfile(path, '', 10), '\%x00') != -1
+        var lines = readfile(path, '', 10)
+        if !empty(lines) && type(lines[0]) == v:t_string
+             if lines[0][0 : len(PDF_SIGNATURE) - 1] == PDF_SIGNATURE
+                 return true
+             endif
+        endif
+        return match(lines, '\%x00') != -1
     endif
     return IsBinaryBlob(path)
 enddef
 
 # Note: use of legacy function a workaround for compilation failing when
 # readblob() would be called with invalid args on earlier Vim versions
+# Check first 2096 bytes as some binary formats have a long text header
+# Specific check for PDF file signature because PDF headers can be huge
 function IsBinaryBlob(path)
-    for byte in readblob(a:path, 0, 128)
-        if byte == 0 | return v:true | endif
-    endfor
-    return v:false
+    let blob = readblob(a:path, 0, 2048)
+    if blob[0 : len(s:PDF_SIGNATURE) - 1] == s:PDF_SIGNATURE_BLOB
+        return v:true
+    endif
+    return index(blob, 0) != -1
 endfunction
 
 def FTDetectModelines(content: list<string>): string
