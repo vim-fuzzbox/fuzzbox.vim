@@ -4,6 +4,7 @@ import autoload './popup.vim'
 import './filetype.vim'
 
 const PDF_SIGNATURE = '%PDF-'
+# note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
 
 def IsBinary(path: string): bool
