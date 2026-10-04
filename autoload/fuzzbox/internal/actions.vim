@@ -21,7 +21,8 @@ var iswin = utils.IsWin()
 def ParseResult(result: string): list<any>
     if iswin && result =~ '^\a:'
         var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
-        return [drive .. ':' .. path, str2nr(line), str2nr(col)]
+        var file = drive .. ':' .. path
+        return [file, str2nr(line), str2nr(col), BufNrExact(file)]
     endif
     var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
     return [file, str2nr(line), str2nr(col), BufNrExact(file)]
