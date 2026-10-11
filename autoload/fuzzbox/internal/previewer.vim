@@ -3,6 +3,8 @@ vim9script
 import autoload './popup.vim'
 import './filetype.vim'
 
+var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
+
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
@@ -138,6 +140,89 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
     endif
 enddef
 
+var has_magick: number = -1
+def PreviewImage(wid: number, path: string)
+    if has_magick == -1
+        has_magick = executable('magick')
+    endif
+    if !has('image_popup') || !has_magick
+        PreviewMessage(wid, 'Image preview not supported')
+        return
+    endif
+
+    var cellpixels = exists_compiled('*getcellpixels') ? getcellpixels() : []
+    if empty(cellpixels)
+        # getcellpixels() returns [] where not supported or on failure
+        PreviewMessage(wid, 'Image preview not supported')
+        return
+    endif
+
+    var cmd: string
+    var tmpname = tempname()
+    var popup_pos = popup_getpos(wid)
+    var width = popup_pos.core_width * cellpixels[0]
+    var height = popup_pos.core_height * cellpixels[1]
+    var imagebackend = exists_compiled('v:imagebackend') ? v:imagebackend : 'none'
+
+    # Vim sets the backend to sixel for xterm by default, see :h imageprotocol,
+    # but the terminal program may not actually support it, e.g. Apple Terminal
+    # This checks the response to the VT100 device attributes (DA1) query for
+    # sixel support. The query is sent if needed in after/plugin/fuzzbox.vim
+    # The DA1 query is asynchronous, so check at runtime, and don't cache
+    var term_has_sixel = imagebackend == 'sixel' && exists_compiled('v:termda1')
+        && v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+
+    # ImageMagick settings like -background must come before operator options
+    # like -resize. Using +repage completely removes the virtual canvas
+    var base_cmd = $'magick {shellescape(path .. "[0]")}'
+    var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
+    if imagebackend == 'kitty' || imagebackend == 'gui'
+        # RGBA supported, use transparent background
+        cmd = $'{base_cmd} -background "transparent" {base_opts} rgba:{shellescape(tmpname)}'
+    elseif term_has_sixel
+        # RGBA not supported, RGB only, so remove alpha channel and set
+        # background to match the bg color reported by Vim if possible
+        var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
+        var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
+        cmd = $'{base_cmd} -background "{bg}" -alpha remove -alpha off {base_opts} rgb:{shellescape(tmpname)}'
+    else
+        PreviewMessage(wid, 'Image preview not supported')
+        return
+    endif
+
+    setwinvar(wid, '&number', 0)
+    setwinvar(wid, '&cursorline', 0)
+    popup_settext(wid, '')
+
+    # Use silent to avoid stray characters showing on screen, see :h system()
+    # Using system() is blocking, but acceptable as performance is adequate
+    # when limited to files not greater than the max preview fize size of 5MiB
+    silent var output = system(cmd)
+
+    if v:shell_error != 0
+        echohl ErrorMsg | echom output | echohl None
+        delete(tmpname)
+        return
+    endif
+
+    try
+        var blob = readblob(tmpname)
+        popup_setoptions(wid, {
+            image: {
+                data: blob,
+                width: width,
+                height: height,
+            },
+        })
+    catch
+        echohl ErrorMsg
+        echom v:exception .. ' ' .. v:throwpoint
+        echohl None
+    finally
+        delete(tmpname)
+    endtry
+enddef
+
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
     popup.SetTitle(wid, fnamemodify(path, ':t'))
@@ -145,12 +230,17 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         PreviewText(wid, 'File not found: ' .. path)
         return
     endif
-    if IsBinary(path)
-        PreviewMessage(wid, 'Binary cannot be previewed')
-        return
-    endif
     if getfsize(path) / pow(1024, 2) > 5 # hard-coded 5MiB limit for now
         PreviewMessage(wid, 'File exceeds preview size limit')
+        return
+    endif
+    if IsBinary(path)
+        const ext = fnamemodify(path, ':e')->tolower()
+        if preview_image && index(['png', 'jpg', 'jpeg', 'bmp', 'gif'], ext) != -1
+            PreviewImage(wid, path)
+            return
+        endif
+        PreviewMessage(wid, 'Binary cannot be previewed')
         return
     endif
     var content = readfile(path)
