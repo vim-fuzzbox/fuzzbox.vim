@@ -105,6 +105,17 @@ def Test_FuzzyBuffers_OpenSplit()
     close
 enddef
 
+def Test_FuzzyBuffers_DeleteBuffer()
+    edit files/foo.txt
+    edit files/spam.txt
+    h.Execute('FuzzyBuffers')
+    h.Type('filesfoo')
+    assert_true(buflisted($'files{fs}foo.txt'))
+    h.Type("\<C-L>")
+    assert_false(buflisted($'files{fs}foo.txt'))
+    h.Escape()
+enddef
+
 def Test_FuzzyInBuffer()
     edit files/foo.txt
     h.Type('o')

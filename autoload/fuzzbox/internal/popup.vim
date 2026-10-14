@@ -316,7 +316,7 @@ export def SetPrompt(content: string)
         return
     endif
     cursor_pos = 0
-    popup_settext(wid, " ")
+    popup_settext(wins.prompt, " ")
     for i in range(strchars(content))
         PromptFilter(wins.prompt, strcharpart(content, i, 1, 1))
     endfor
