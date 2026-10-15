@@ -85,6 +85,7 @@ highlight default link fuzzboxMatching Special
 highlight default link fuzzboxPreviewMatch Search
 highlight default link fuzzboxPreviewLine Search
 highlight default link fuzzboxPreviewCol CurSearch
+highlight default link fuzzboxPromptSign Normal
 highlight default link fuzzboxSelectionSign CursorLine
 
 import autoload '../autoload/fuzzbox/internal/launcher.vim'
