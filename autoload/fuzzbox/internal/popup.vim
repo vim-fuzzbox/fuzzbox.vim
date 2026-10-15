@@ -317,6 +317,11 @@ export def SetPrompt(content: string)
     endif
     cursor_pos = 0
     popup_settext(wins.prompt, " ")
+    if options.dropdown
+        win_execute(wins.menu, "silent! cursor(1, 1)")
+    else
+        win_execute(wins.menu, "silent! cursor('$', 1)")
+    endif
     for i in range(strchars(content))
         PromptFilter(wins.prompt, strcharpart(content, i, 1, 1))
     endfor
