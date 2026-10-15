@@ -36,54 +36,6 @@ def Preview(wid: number, result: string)
     endif
 enddef
 
-def OpenFileTab(wid: number, result: string)
-    if empty(result)
-        return
-    endif
-    popup_close(wid)
-    var [file, bufnr, lnum, col] = ParseResult(result)
-    exe 'tabnew'
-    if empty(file)
-        exe 'buffer ' .. bufnr
-    else
-        exe 'edit ' .. fnameescape(file)
-    endif
-    cursor(lnum, col)
-    exe 'norm! zz'
-enddef
-
-def OpenFileVSplit(wid: number, result: string)
-    if empty(result)
-        return
-    endif
-    popup_close(wid)
-    var [file, bufnr, lnum, col] = ParseResult(result)
-    exe 'vsplit'
-    if empty(file)
-        exe 'buffer ' .. bufnr
-    else
-        exe 'edit ' .. fnameescape(file)
-    endif
-    cursor(lnum, col)
-    exe 'norm! zz'
-enddef
-
-def OpenFileSplit(wid: number, result: string)
-    if empty(result)
-        return
-    endif
-    popup_close(wid)
-    var [file, bufnr, lnum, col] = ParseResult(result)
-    exe 'split'
-    if empty(file)
-        exe 'buffer ' .. bufnr
-    else
-        exe 'edit ' .. fnameescape(file)
-    endif
-    cursor(lnum, col)
-    exe 'norm! zz'
-enddef
-
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Marks'
 
@@ -118,12 +70,5 @@ export def Start(opts: dict<any> = {})
     selector.Start(lines, extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
-        default_actions: false,
-        actions: {
-            "\<c-v>": function('OpenFileVSplit'),
-            "\<c-s>": function('OpenFileSplit'),
-            "\<c-x>": function('OpenFileSplit'),
-            "\<c-t>": function('OpenFileTab'),
-        }
     }))
 enddef
