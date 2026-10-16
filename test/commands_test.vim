@@ -148,6 +148,7 @@ def Test_FuzzyInBuffer_SendToQuickfix()
     h.Type("\<C-Q>")
     cwindow
     assert_notequal(stridx(getline('.'), $'files{fs}foo.txt'), -1)
+    assert_notequal(stridx(getline('.'), 'bar'), -1)
     cclose
 enddef
 
