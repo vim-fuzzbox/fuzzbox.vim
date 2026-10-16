@@ -56,6 +56,7 @@ def Test_FuzzyFiles_SendToQuickfix()
     h.Type("\<C-Q>")
     cwindow
     assert_notequal(stridx(getline('.'), $'files{fs}foo.txt'), -1)
+    assert_equal(1, len(getqflist()))
     cclose
 enddef
 
@@ -91,6 +92,7 @@ def Test_FuzzyGreps_SendToQuickfix()
     cwindow
     assert_notequal(stridx(getline('.'), $'files{fs}spam.txt'), -1)
     assert_notequal(stridx(getline('.'), 'ham'), -1)
+    assert_equal(1, len(getqflist()))
     cclose
 enddef
 
