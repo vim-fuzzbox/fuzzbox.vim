@@ -166,7 +166,7 @@ be used to scroll in both the preview and menu windows.
 - FuzzyMru
   - \<CTRL-Y> toggles between all MRU files and CWD only
 
-- FuzzyFiles, FuzzyGrep, FuzzyMru, FuzzyQuickfix
+- FuzzyFiles, FuzzyGrep, FuzzyMru, FuzzyInBuffer, FuzzyQuickfix
   - \<CTRL-Q> sends results to quickfix list
     
 - FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyMru, and other commands that list files

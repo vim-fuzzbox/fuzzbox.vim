@@ -238,7 +238,7 @@ Command specific keymaps
   * <CTRL-Y> toggles white preview background color
 * FuzzyMru
   * <CTRL-Y> toggles between all MRU files and CWD only
-* FuzzyFiles, FuzzyGrep, FuzzyMru, FuzzyQuickfix
+* FuzzyFiles, FuzzyGrep, FuzzyMru, FuzzyInBuffer, FuzzyQuickfix
   * <CTRL-Q> sends results to quickfix list
 * FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyMru, and other commands that list files
   * <CTRL-S> or <CTRL-X> opens selected file in new split
