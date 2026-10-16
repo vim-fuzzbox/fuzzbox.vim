@@ -82,6 +82,18 @@ def Test_FuzzyGrep_OpenSplit()
     close
 enddef
 
+def Test_FuzzyGreps_SendToQuickfix()
+    h.Execute('FuzzyGrep')
+    h.Type('spam')
+    h.Type('ham')
+    h.Type('eggs')
+    h.Type("\<C-Q>")
+    cwindow
+    assert_notequal(stridx(getline('.'), $'files{fs}spam.txt'), -1)
+    assert_notequal(stridx(getline('.'), 'ham'), -1)
+    cclose
+enddef
+
 def Test_FuzzyBuffers()
     edit files/foo.txt
     edit files/spam.txt
@@ -130,6 +142,15 @@ def Test_FuzzyInBuffer()
     write
 enddef
 
+def Test_FuzzyInBuffer_SendToQuickfix()
+    edit files/foo.txt
+    h.Execute('FuzzyInBuffer')
+    h.Type("\<C-Q>")
+    cwindow
+    assert_notequal(stridx(getline('.'), $'files{fs}foo.txt'), -1)
+    cclose
+enddef
+
 def Test_FuzzyMru()
     edit files/foo.txt
     edit files/spam.txt
@@ -151,6 +172,17 @@ def Test_FuzzyMru_OpenSplit()
     assert_equal(wincount_before + 1, winnr('$'))
     assert_notequal(winnr_before, winnr())
     close
+enddef
+
+def Test_FuzzyMru_SendToQuickfix()
+    edit files/foo.txt
+    edit files/spam.txt
+    h.Execute('FuzzyMru')
+    h.Type('filesfoo')
+    h.Type("\<C-Q>")
+    cwindow
+    assert_notequal(stridx(getline('.'), $'files{fs}foo.txt'), -1)
+    cclose
 enddef
 
 def Test_FuzzyMarks()
