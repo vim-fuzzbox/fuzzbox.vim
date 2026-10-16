@@ -35,6 +35,7 @@ export def Teardown()
             execute 'bwipe ' .. buf.bufnr
         endif
     endfor
+    setqflist([], 'f')
     cd -
     &splitright = splitright
     &splitbelow = splitbelow

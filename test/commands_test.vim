@@ -186,6 +186,40 @@ def Test_FuzzyMru_SendToQuickfix()
     cclose
 enddef
 
+def Test_FuzzyQuickfix()
+    execute $'vimgrep /foo\|spam/j files{fs}*.txt'
+    cclose
+    h.Execute('FuzzyQuickfix')
+    h.Type("spam")
+    h.Enter()
+    assert_equal($'files{fs}spam.txt', bufname())
+enddef
+
+def Test_FuzzyQuickfix_OpenSplit()
+    execute $'vimgrep /foo\|spam/j files{fs}*.txt'
+    cclose
+    var winnr_before = winnr()
+    var wincount_before = winnr('$')
+    h.Execute('FuzzyQuickfix')
+    h.Type('foo')
+    h.Type("\<C-S>")
+    assert_equal($'files{fs}foo.txt', bufname())
+    assert_equal(wincount_before + 1, winnr('$'))
+    assert_notequal(winnr_before, winnr())
+    close
+enddef
+
+def Test_FuzzyQuickfix_SendToQuickfix()
+    execute $'vimgrep /foo\|spam/j files{fs}*.txt'
+    h.Execute('FuzzyQuickfix')
+    h.Type("spam")
+    h.Type("\<C-Q>")
+    cwindow
+    assert_notequal(stridx(getline('.'), $'files{fs}spam.txt'), -1)
+    assert_equal(1, len(getqflist()))
+    cclose
+enddef
+
 def Test_FuzzyMarks()
     edit files/foo.txt
     edit files/spam.txt
