@@ -15,9 +15,10 @@ var iswin = utils.IsWin()
 # not all programs have such an option, so addressing it here just works, and
 # also means anyone creating a custom command does not need to think about it.
 
-# Parse result and return a list with file, line number and column number
+# Parse result and return list with file, line num, col num, and buffer num
 # Line and column are set to 0 when they are not included in the result
 # Do not change these defaults without updating any callers relying on them
+# FIXME: does not allow for colon in file or directory names
 def ParseResult(result: string): list<any>
     if iswin && result =~ '^\a:'
         var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]

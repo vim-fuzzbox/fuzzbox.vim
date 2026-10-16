@@ -166,16 +166,15 @@ be used to scroll in both the preview and menu windows.
 - FuzzyMru
   - \<CTRL-Y> toggles between all MRU files and CWD only
 
-- FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix,
-  FuzzyMarks, FuzzyTags
-  - \<CTRL-S> or \<CTRL-X> opens selected file in horizontal split
-  - \<CTRL-V> opens selected file in vertical split
+- FuzzyFiles, FuzzyGrep, FuzzyMru, FuzzyQuickfix
+  - \<CTRL-Q> sends results to quickfix list
+    
+- FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyMru, and other commands that list files
+  - \<CTRL-S> or \<CTRL-X> opens selected file in new split
+  - \<CTRL-V> opens selected file in new vertical split
   - \<CTRL-T> opens selected file in new tab page
 
-- FuzzyBuffers, FuzzyFiles, FuzzyGrep, FuzzyInBuffer, FuzzyMru, FuzzyQuickfix
-  - \<CTRL-Q> sends results to quickfix list
-
-Send results to quickfix list only includes results currently in the menu buffer,
+Send to quickfix list only includes results currently shown in the menu window,
 which effectively limits the results to a few hundred at most (this is probably
 what you want, sending thousands of results to the quickfix list is slow).
 
@@ -324,7 +323,7 @@ let g:fuzzbox_reuse_windows = ['netrw', 'bufexplorer', 'mru', 'terminal']
 ```
 
 ### g:fuzzbox_respect_gitignore
-Make FuzzyFiles & FuzzyGrep respect `.gitignore`. Default 1. Only work when
+Make FuzzyFiles & FuzzyGrep respect `.gitignore`. Default 1. Only works when
 1. inside a git repository and git is installed
 2. or either rg or fd is installed for FuzzyFiles
 3. or either rg or ag is installed for FuzzyGrep
