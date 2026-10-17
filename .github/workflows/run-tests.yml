@@ -18,7 +18,9 @@ jobs:
       - name: Test Commands
         run: |
           ./test/run_tests.sh commands_test.vim
+      - name: Test Actions
+        run: |
+          ./test/run_tests.sh actions_test.vim
       - name: Test Devicons
         run: |
           ./test/run_tests.sh devicons_test.vim
-

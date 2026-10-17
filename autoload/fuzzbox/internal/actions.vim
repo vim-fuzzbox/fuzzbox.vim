@@ -15,18 +15,22 @@ var iswin = utils.IsWin()
 # not all programs have such an option, so addressing it here just works, and
 # also means anyone creating a custom command does not need to think about it.
 
-# Parse result and return list with file, line num, col num, and buffer num
-# Line and column are set to 0 when they are not included in the result
+# Parse result and return a list with file, line number, column number and
+# text. Line and column are set to 0 when they are not included in the result,
+# and text is set to an empty string
 # Do not change these defaults without updating any callers relying on them
-# FIXME: does not allow for colon in file or directory names
 def ParseResult(result: string): list<any>
-    if iswin && result =~ '^\a:'
-        var [drive, path, line, col] = split(result .. ':0:0', ':')[0 : 3]
-        var file = drive .. ':' .. path
-        return [file, str2nr(line), str2nr(col), BufNrExact(file)]
+    # Find the first :line or :line:col followed by a colon or end of string
+    # Everything before it is the file, and everything after it is the text
+    # If there is no match the result contains only a file path
+    # Note: A file path containing :digits: or ending in :digits will be parsed
+    # as a file with line number, assumed to be an acceptably rare edge case
+    var [sep, start, end] = matchstrpos(result, '\v:\zs\d+%(:\d+)?\ze%(:|$)')
+    if start == -1
+        return [result, 0, 0, '']
     endif
-    var [file, line, col] = split(result .. ':0:0', ':')[0 : 2]
-    return [file, str2nr(line), str2nr(col), BufNrExact(file)]
+    var [line, col] = split(sep .. ':0', ':')[0 : 1]
+    return [strpart(result, 0, start - 1), str2nr(line), str2nr(col), strpart(result, end + 1)]
 enddef
 
 def BufNrExact(path: string): number
@@ -57,7 +61,7 @@ export def PreviewFile(wid: number, result: string, opts: dict<any> = {})
         return
     endif
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col, bufnr] = ParseResult(result)
+    var [file, line, col, _] = ParseResult(result)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     previewer.PreviewFile(wid, fnamemodify(path, ':p'), line, col)
 enddef
@@ -68,7 +72,8 @@ export def OpenFile(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col, bufnr] = ParseResult(result)
+    var [file, line, col, _] = ParseResult(result)
+    var bufnr = BufNrExact(file)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     var fname = FnameForOpen(path)
     utils.MoveToUsableWindow()
@@ -93,7 +98,8 @@ export def OpenFileTab(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col, bufnr] = ParseResult(result)
+    var [file, line, col, _] = ParseResult(result)
+    var bufnr = BufNrExact(file)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     var fname = FnameForOpen(path)
     execute 'tabnew'
@@ -118,7 +124,8 @@ export def OpenFileVSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col, bufnr] = ParseResult(result)
+    var [file, line, col, _] = ParseResult(result)
+    var bufnr = BufNrExact(file)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     var fname = FnameForOpen(path)
     execute 'vsplit'
@@ -143,7 +150,8 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     endif
     popup_close(wid)
     var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var [file, line, col, bufnr] = ParseResult(result)
+    var [file, line, col, _] = ParseResult(result)
+    var bufnr = BufNrExact(file)
     var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
     var fname = FnameForOpen(path)
     execute 'split'
@@ -169,10 +177,10 @@ export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     lines = reverse(getbufline(bufnr, 1, "$"))
     filter(lines, (_, val) => !empty(val))
     setqflist(map(lines, (_, val) => {
-        var [file, line, col, _] = ParseResult(val)
+        var [file, line, col, text] = ParseResult(val)
         line = line > 0 ? line : 1
         col = col > 0 ? col : 1
-        var text = split(val, ':' .. line .. ':' .. col .. ':')[-1]
+        text = empty(text) ? file : text
         if has_devicons
             if file == text
                 text = devicons.RemoveDevicon(text)
