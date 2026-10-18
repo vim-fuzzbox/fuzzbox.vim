@@ -18,6 +18,9 @@ jobs:
       - name: Test Commands
         run: |
           ./test/run_tests.sh commands_test.vim
+      - name: Test Selector
+        run: |
+          ./test/run_tests.sh selector_test.vim
       - name: Test Actions
         run: |
           ./test/run_tests.sh actions_test.vim
