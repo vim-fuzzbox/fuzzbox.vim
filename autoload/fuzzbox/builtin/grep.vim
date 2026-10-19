@@ -23,55 +23,22 @@ var pid: number
 var async_limit = g:fuzzbox_async_limit
 var max_results = g:fuzzbox_max_results
 
-def MatchSepPos(str: string): list<any>
-    var matchdata: list<any>
-    for pattern in ['\:\d\+:\d\+:', '\:\d\+:']
-        matchdata = matchstrpos(str, pattern)
-        if matchdata[1] != -1
-            return matchdata
-        endif
-    endfor
-    return ['', -1, -1]
-enddef
-
-def ParseResult(str: string): list<any>
-    var seq = MatchSepPos(str)
-    if seq[1] == -1
-        return [null, -1, -1]
-    endif
-    var path = strpart(str, 0, seq[1])
-    var linecol = split(seq[0], ':')
-    var line = str2nr(linecol[0])
-    var col: number
-    if len(linecol) == 2
-        col = str2nr(linecol[1])
-    else
-        col = 0
-    endif
-    return [path, line, col]
-enddef
-
 def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
-    var seq = MatchSepPos(val)
-    if seq[1] == -1
+    # Workaround for ripgrep, must use . for relative path when stdout not a tty
+    var final_str = substitute(val, '\v^\.(\\|\/)', '', '')
+
+    # Find the first :line or :line:col followed by a colon or end of string
+    # Note: this is the regex used by ParseResult() in actions.vim, which is
+    # used to parse the result when opening the file, use the same regex here
+    var [sep, start, end] = matchstrpos(final_str, '\v:\zs\d+%(:\d+)?\ze%(:|$)')
+    if start == -1
         return acc
     endif
-
-    var linecol = split(seq[0], ':')
-    var line: number = str2nr(linecol[0])
-    var col: number
-    if len(linecol) == 2
-        col = str2nr(linecol[1])
-    endif
-    var path = strpart(val, 0, seq[1])
-    var str = strpart(val, seq[2])
-
-    # Workaround for ripgrep, must use . for relative path when stdout not a tty
-    var relative_path = substitute(path, '\v^\.(\\|\/)', '', '')
-
-    var prefix = relative_path .. seq[0]
-    var col_list = [col + len(prefix), len(pattern)]
-    var final_str = prefix .. str
+    var linecol = split(sep .. ':0', ':')
+    var line = str2nr(linecol[0])
+    var col = str2nr(linecol[1])
+    # Offset column by the length of the file:line:col: prefix for highlighting
+    var col_list = [col + end + 1, len(pattern)]
     acc.dict[final_str] = [line, col, len(pattern)]
     var obj = {
         col_list: col_list,
@@ -156,7 +123,7 @@ def UpdatePreviewHl(wid: number)
     if !has_key(cur_dict, cur_menu_item)
         return
     endif
-    var [path, linenr, colnr] = ParseResult(cur_menu_item)
+    var [linenr, colnr, _] = cur_dict[cur_menu_item]
     clearmatches(wid)
     if !previewer.IsTextFile(wid)
         return
