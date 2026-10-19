@@ -38,7 +38,8 @@ def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
     var line = str2nr(linecol[0])
     var col = str2nr(linecol[1])
     # Offset column by the length of the file:line:col: prefix for highlighting
-    var col_list = [col + end + 1, len(pattern)]
+    # No highlight without a column number, e.g. from grep -n or findstr
+    var col_list: list<number> = col > 0 ? [col + end + 1, len(pattern)] : []
     acc.dict[final_str] = [line, col, len(pattern)]
     var obj = {
         col_list: col_list,
@@ -105,7 +106,9 @@ def ResultHandle(lists: list<any>): list<any>
     var idx = 1
     for r in result.objs
         add(strs, r.final_str)
-        add(cols, [idx] + r.col_list)
+        if !empty(r.col_list)
+            add(cols, [idx] + r.col_list)
+        endif
         idx += 1
     endfor
     return [strs, cols, result.dict]
