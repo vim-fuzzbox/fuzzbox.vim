@@ -17,6 +17,7 @@ var preview_tid: number
 var input_tid: number
 var t_ve: string
 var hlcursor: dict<any>
+var paste: bool
 export var active = false
 
 var keymaps: dict<any> = {
@@ -431,7 +432,8 @@ def PromptFilter(wid: number, key: string): number
         endif
     elseif key == "P" && has('gui') && line->slice(cur_pos - 3, cur_pos) == '"+g'
         # handle gvim & macvim paste, copied from scope.vim, thanks @girishji
-        var pasted = getreg('+')
+        # Note: strip newlines from pasted text, same as when using terminal Vim
+        var pasted = getreg('+')->substitute('[\r\n]\+', '', 'g')
         line = line->slice(0, cur_pos - 3) .. pasted .. line->slice(cur_pos)
         cur_pos = (cur_pos - 3) + len(pasted)
     elseif (ascii_val >= 32 && ascii_val <= 126) || (ascii_val >= 160) || (ascii_val == 9)
@@ -479,6 +481,17 @@ def PromptFilter(wid: number, key: string): number
 enddef
 
 def MenuFilter(wid: number, key: string): number
+    # skip newlines in pasted text, requires bracketed paste support
+    # Note: newlines pasted from GUI Vim are handled in PromptFilter()
+    if key == "\<PasteStart>"
+        paste = true
+        return 1
+    elseif key == "\<PasteEnd>"
+        paste = false
+        return 1
+    elseif paste && (key == "\<CR>" || key == "\<NL>")
+        return 1
+    endif
     var bufnr = winbufnr(wid)
     var width = popup_getoptions(wid).maxwidth
     var moved = 0
@@ -1160,6 +1173,7 @@ export def Start(opts: dict<any>): dict<any>
     if active
         return { menu: -1, prompt: -1, preview: -1 }
     endif
+    paste = false
     active = true
 
     if exists('#User#FuzzboxOpening')
