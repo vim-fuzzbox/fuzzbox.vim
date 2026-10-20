@@ -353,10 +353,10 @@ def PromptFilter(wid: number, key: string): number
     var bufline = getbufline(bufnr, 1)[0][: -2]
     var line = copy(bufline)
     var cur_pos = cursor_pos # index by number of char not byte
-    var max_pos = len(line)
+    var max_pos = strcharlen(line)
     var ascii_val = char2nr(key)
     if index(keymaps['backspace'], key) >= 0
-        if cur_pos == len(line)
+        if cur_pos == max_pos
             line = line[: -2]
         else
             var before = cur_pos - 2 >= 0 ? line[: cur_pos - 2] : ''
