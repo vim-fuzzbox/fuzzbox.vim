@@ -11,20 +11,23 @@ import autoload './grep/cmdbuilder.vim'
 var cwd: string
 var custom_cmd: string
 var cur_pattern: string
-var cur_result: list<string>
 var cur_menu_item: string
-var last_pattern: string
-var last_result_len: number
-var last_result: list<string>
 var cur_dict: dict<any>
 var cur_job: job
+
+# Only the first async_limit results are shown in the menu, so only those are
+# parsed and kept, any further output from the job is just counted
+var cur_strs: list<string>
+var cur_cols: list<list<number>>
+var cur_count: number
 # Incomplete last line from the previous chunk of raw job output
 var part_line: string
+var menu_dirty: bool
 
 var async_limit = g:fuzzbox_async_limit
 var max_results = g:fuzzbox_max_results
 
-def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
+def ParseLine(val: string)
     # Workaround for ripgrep, must use . for relative path when stdout not a tty
     var final_str = substitute(val, '\v^\.(\\|\/)', '', '')
 
@@ -33,32 +36,44 @@ def Reducer(pattern: string, acc: dict<any>, val: string): dict<any>
     # used to parse the result when opening the file, use the same regex here
     var [sep, start, end] = matchstrpos(final_str, '\v:\zs\d+%(:\d+)?\ze%(:|$)')
     if start == -1
-        return acc
+        return
     endif
     var linecol = split(sep .. ':0', ':')
     var line = str2nr(linecol[0])
     var col = str2nr(linecol[1])
+    cur_dict[final_str] = [line, col, len(cur_pattern)]
+    add(cur_strs, final_str)
     # Offset column by the length of the file:line:col: prefix for highlighting
     # No highlight without a column number, e.g. from grep -n or findstr
-    var col_list: list<number> = col > 0 ? [col + end + 1, len(pattern)] : []
-    acc.dict[final_str] = [line, col, len(pattern)]
-    var obj = {
-        col_list: col_list,
-        final_str: final_str,
-        line: line,
-    }
-    add(acc.objs, obj)
-    add(acc.strs, final_str)
-    add(acc.cols, col_list)
-    return acc
+    if col > 0
+        add(cur_cols, [len(cur_strs), col + end + 1, len(cur_pattern)])
+    endif
+enddef
+
+def AddLines(lines: list<string>)
+    for line in lines
+        if len(cur_strs) >= async_limit
+            break
+        endif
+        ParseLine(line)
+    endfor
+    menu_dirty = true
+enddef
+
+def ResetResults()
+    cur_strs = []
+    cur_cols = []
+    cur_dict = {}
+    cur_count = 0
+    part_line = ''
+    menu_dirty = true
 enddef
 
 def JobStart(pattern: string)
     if job_status(cur_job) == 'run'
         job_stop(cur_job)
     endif
-    cur_result = []
-    part_line = ''
+    ResetResults()
     if pattern == ''
         return
     endif
@@ -80,14 +95,22 @@ def JobStart(pattern: string)
 enddef
 
 def JobOutCb(channel: channel, msg: string)
-    if ch_getjob(channel) == cur_job
-        # Raw output can be split anywhere, keep an incomplete last line until
-        # the rest of it is received
-        var lists = utils.Split(part_line .. msg)
-        part_line = msg[-1 : ] == "\n" || empty(lists) ? '' : remove(lists, -1)
-        cur_result += lists
-        UpdateMenu()
+    # ignore output from previous jobs that have been stopped
+    if ch_getjob(channel) != cur_job
+        return
     endif
+    # Raw output can be split anywhere, so only count complete lines, and only
+    # split and parse the output while there is still space in the menu
+    cur_count += count(msg, "\n")
+    if len(cur_strs) < async_limit
+        var lines = utils.Split(part_line .. msg)
+        part_line = msg[-1 : ] == "\n" || empty(lines) ? '' : remove(lines, -1)
+        AddLines(lines)
+    else
+        # menu is full, only track whether output ends with an incomplete line
+        part_line = msg[-1 : ] == "\n" ? '' : msg[-1 : ]
+    endif
+    UpdateMenu()
 enddef
 
 def JobErrCb(channel: channel, msg: string)
@@ -104,29 +127,11 @@ enddef
 def JobCloseCb(channel: channel)
     # output may not end with a newline
     if ch_getjob(channel) == cur_job && !empty(part_line)
-        add(cur_result, part_line)
+        cur_count += 1
+        AddLines([part_line])
         part_line = ''
         UpdateMenu()
     endif
-enddef
-
-def ResultHandle(lists: list<any>): list<any>
-    if cur_pattern == ''
-        return [[], [], {}]
-    endif
-    var result = reduce(lists, function('Reducer', [cur_pattern]),
-         { strs: [], cols: [], objs: [], dict: {} })
-    var strs = []
-    var cols = []
-    var idx = 1
-    for r in result.objs
-        add(strs, r.final_str)
-        if !empty(r.col_list)
-            add(cols, [idx] + r.col_list)
-        endif
-        idx += 1
-    endfor
-    return [strs, cols, result.dict]
 enddef
 
 # async version
@@ -166,41 +171,26 @@ def UpdateMenu()
     if !popup.active
         return
     endif
-    var cur_result_len = len(cur_result)
     if cur_pattern == ''
         popup.UpdateMenu([], [])
-        last_pattern = cur_pattern
-        last_result_len = cur_result_len
         popup.SetCounter(null)
         return
     endif
 
-    # limit results to prevent ballooning memory usage
-    if cur_result_len > max_results
+    # limit results to prevent the job running for a long time
+    if cur_count > max_results
         job_stop(cur_job)
         popup.SetCounter('> ' .. max_results)
     elseif job_status(cur_job) != 'run'
-        popup.SetCounter(cur_result_len)
+        popup.SetCounter(cur_count)
     endif
 
-    if last_pattern == cur_pattern
-        && cur_result_len == last_result_len
+    # menu doesn't change once full, avoid updating it for every chunk
+    if !menu_dirty
         return
     endif
-
-    var strs: list<string>
-    var cols: list<list<number>>
-    if cur_result_len == 0
-        strs = []
-        cols = []
-    else
-        last_result = cur_result
-        [strs, cols, cur_dict] = ResultHandle(cur_result->slice(0, async_limit))
-    endif
-
-    popup.UpdateMenu(strs, cols)
-    last_pattern = cur_pattern
-    last_result_len = cur_result_len
+    popup.UpdateMenu(cur_strs, cur_cols)
+    menu_dirty = false
 enddef
 
 def Close(wid: number)
@@ -208,8 +198,7 @@ def Close(wid: number)
         job_stop(cur_job)
     endif
     # release memory
-    cur_result = []
-    last_result = []
+    ResetResults()
 enddef
 
 export def Start(opts: dict<any> = {})
@@ -226,13 +215,8 @@ export def Start(opts: dict<any> = {})
     endif
 
     cur_pattern = ''
-    cur_result = []
     cur_menu_item = ''
-
-    last_pattern = ''
-    last_result_len = -1
-    last_result = []
-    cur_dict = {}
+    ResetResults()
 
     var wids = selector.Start([], extend(opts, {
         select_cb: actions.OpenFile,
