@@ -14,6 +14,8 @@ var cur_result: list<string>
 var total_count: number
 var cur_count: number
 var cur_job: job
+# Incomplete last line from the previous chunk of raw job output
+var part_line: string
 
 var async_limit = g:fuzzbox_async_limit
 var max_results = g:fuzzbox_max_results
@@ -37,6 +39,7 @@ def JobStart(path: string, cmd: string)
         job_stop(cur_job)
     endif
     cur_result = []
+    part_line = ''
     if path == ''
         return
     endif
@@ -44,13 +47,17 @@ def JobStart(path: string, cmd: string)
         out_cb: function('JobOutCb'),
         out_mode: 'raw',
         exit_cb: function('JobExitCb'),
+        close_cb: function('JobCloseCb'),
         err_cb: function('JobErrCb'),
         cwd: path
     })
 enddef
 
 def JobOutCb(channel: channel, msg: string)
-    var lists = utils.Split(msg)
+    # Raw output can be split anywhere, keep an incomplete last line until the
+    # rest of it is received
+    var lists = utils.Split(part_line .. msg)
+    part_line = msg[-1 : ] == "\n" || empty(lists) ? '' : remove(lists, -1)
     cur_result += lists
     UpdateMenu()
 enddef
@@ -61,6 +68,16 @@ enddef
 
 def JobExitCb(job: job, status: number)
     UpdateMenu()
+enddef
+
+# Called after all output has been passed to JobOutCb, unlike JobExitCb
+def JobCloseCb(channel: channel)
+    # output may not end with a newline
+    if !empty(part_line)
+        add(cur_result, part_line)
+        part_line = ''
+        UpdateMenu()
+    endif
 enddef
 
 var async_tid: number

@@ -60,6 +60,21 @@ def Test_FuzzyFiles_SendToQuickfix()
     cclose
 enddef
 
+def Test_FuzzyFiles_LineSplitAcrossOutput()
+    if has('win64')
+        return
+    endif
+    # command to mimic a line split over two messages from the channel
+    fuzzbox#Launch('files', {
+        command: 'sh -c "echo files/foo.txt; printf files/sp; sleep 0.05; echo am.txt"'
+    })
+    sleep 100m
+    h.Type("\<C-Q>")
+    var names = getqflist()->mapnew((_, e) => bufname(e.bufnr))->sort()
+    assert_equal([$'files{fs}foo.txt', $'files{fs}spam.txt'], names)
+    cclose
+enddef
+
 def Test_FuzzyGrep()
     h.Execute('FuzzyGrep')
     h.Type('spam')
@@ -93,6 +108,24 @@ def Test_FuzzyGreps_SendToQuickfix()
     assert_notequal(stridx(getline('.'), $'files{fs}spam.txt'), -1)
     assert_notequal(stridx(getline('.'), 'ham'), -1)
     assert_equal(1, len(getqflist()))
+    cclose
+enddef
+
+def Test_FuzzyGrep_LineSplitAcrossOutput()
+    if has('win64')
+        return
+    endif
+    # command to mimic a line split over two messages from the channel
+    fuzzbox#Launch('grep', {
+        command: 'sh -c "printf files/spam.; sleep 0.05; printf txt:1:1:spam"'
+    })
+    h.Wait()
+    h.Type('spam')
+    sleep 100m
+    h.Type("\<C-Q>")
+    var qf = getqflist()
+    assert_equal(1, len(qf))
+    assert_equal($'files{fs}spam.txt', bufname(qf[0].bufnr))
     cclose
 enddef
 

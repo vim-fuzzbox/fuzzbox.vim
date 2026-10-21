@@ -19,6 +19,8 @@ var last_result: list<string>
 var cur_dict: dict<any>
 var cur_job: job
 var pid: number
+# Incomplete last line from the previous chunk of raw job output
+var part_line: string
 
 var async_limit = g:fuzzbox_async_limit
 var max_results = g:fuzzbox_max_results
@@ -57,6 +59,7 @@ def JobStart(pattern: string)
         job_stop(cur_job)
     endif
     cur_result = []
+    part_line = ''
     if pattern == ''
         return
     endif
@@ -71,6 +74,7 @@ def JobStart(pattern: string)
         out_cb: function('JobOutCb'),
         out_mode: 'raw',
         exit_cb: function('JobExitCb'),
+        close_cb: function('JobCloseCb'),
         err_cb: function('JobErrCb'),
         cwd: cwd
     })
@@ -79,7 +83,10 @@ enddef
 
 def JobOutCb(channel: channel, msg: string)
     if job_info(ch_getjob(channel)).process == pid
-        var lists = utils.Split(msg)
+        # Raw output can be split anywhere, keep an incomplete last line until
+        # the rest of it is received
+        var lists = utils.Split(part_line .. msg)
+        part_line = msg[-1 : ] == "\n" || empty(lists) ? '' : remove(lists, -1)
         cur_result += lists
         UpdateMenu()
     endif
@@ -91,6 +98,16 @@ enddef
 
 def JobExitCb(job: job, status: number)
     if job == cur_job
+        UpdateMenu()
+    endif
+enddef
+
+# Called after all output has been passed to JobOutCb, unlike JobExitCb
+def JobCloseCb(channel: channel)
+    # output may not end with a newline
+    if job_info(ch_getjob(channel)).process == pid && !empty(part_line)
+        add(cur_result, part_line)
+        part_line = ''
         UpdateMenu()
     endif
 enddef
