@@ -18,7 +18,6 @@ var last_result_len: number
 var last_result: list<string>
 var cur_dict: dict<any>
 var cur_job: job
-var pid: number
 # Incomplete last line from the previous chunk of raw job output
 var part_line: string
 
@@ -78,11 +77,10 @@ def JobStart(pattern: string)
         err_cb: function('JobErrCb'),
         cwd: cwd
     })
-    pid = job_info(cur_job).process
 enddef
 
 def JobOutCb(channel: channel, msg: string)
-    if job_info(ch_getjob(channel)).process == pid
+    if ch_getjob(channel) == cur_job
         # Raw output can be split anywhere, keep an incomplete last line until
         # the rest of it is received
         var lists = utils.Split(part_line .. msg)
@@ -105,7 +103,7 @@ enddef
 # Called after all output has been passed to JobOutCb, unlike JobExitCb
 def JobCloseCb(channel: channel)
     # output may not end with a newline
-    if job_info(ch_getjob(channel)).process == pid && !empty(part_line)
+    if ch_getjob(channel) == cur_job && !empty(part_line)
         add(cur_result, part_line)
         part_line = ''
         UpdateMenu()
