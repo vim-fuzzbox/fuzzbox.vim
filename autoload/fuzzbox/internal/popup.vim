@@ -43,7 +43,7 @@ var keymaps: dict<any> = {
     'cursor_end': ["\<C-e>", "\<End>"], # :h c_CTRL-E
     'cursor_word_left': ["\<C-Left>"], # :h c_<C-Left>
     'cursor_word_right': ["\<C-Right>"], # :h c_<C-Right>
-    'backspace': ["\<C-h>", "\<BS>"], # :h c_CTRL-H
+    'backspace': ["\<C-h>", "\<BS>", "\<S-BS>"], # :h c_CTRL-H
     'delete': ["\<Del>"], # :h c_<Del>
     'delete_all': [],
     'delete_word': ["\<C-w>"], # :h c_CTRL-W

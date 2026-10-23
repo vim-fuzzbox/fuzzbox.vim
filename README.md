@@ -549,7 +549,7 @@ let g:fuzzbox_keymaps = {
   \ 'cursor_begining': ["\<C-b>", "\<Home>"],
   \ 'cursor_word_left': ["\<C-Left>"],
   \ 'cursor_word_right': ["\<C-Right>"],
-  \ 'backspace': ["\<C-h>", "\<BS>"],
+  \ 'backspace': ["\<C-h>", "\<BS>", "\<S-BS>"],
   \ 'delete': ["\<Del>"],
   \ 'delete_all': [],
   \ 'delete_word': ["\<C-w>"],
