@@ -138,6 +138,42 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
     endif
 enddef
 
+def PreviewImage(wid: number, path: string): bool
+    if has('image_popup') == 0
+        return false
+    endif
+    var size_pop = popup_getpos(wid)
+    var cell_px = getcellpixels()
+    var WIDTH = (size_pop.core_width) * cell_px[0]
+    var HEIGHT = (size_pop.core_height) * cell_px[1]
+
+    var tmpname = tempname() .. '.rgb'
+    
+    var cmd = $'convert {shellescape(path)} -background "transparent" -resize {WIDTH}x{HEIGHT}\> -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+    system(cmd)
+    if v:shell_error != 0 || !filereadable(tmpname)
+        delete(tmpname)
+        return false
+    endif
+
+    var blob = readblob(tmpname)
+    delete(tmpname)
+
+    if popup_getoptions(wid)->empty()
+        return false
+    endif
+
+    popup_settext(wid, '')
+    popup_setoptions(wid, {
+        image: {
+            data: blob,
+            width: WIDTH,
+            height: HEIGHT,
+        },
+    })
+    return true
+enddef
+
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
     Reset(wid)
     popup.SetTitle(wid, fnamemodify(path, ':t'))
@@ -146,6 +182,14 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         return
     endif
     if IsBinary(path)
+        const ext = fnamemodify(path, ':e')
+        var return_val: bool
+        if ext ==# 'png' || ext ==# 'jpg' || ext ==# 'jpeg' || ext ==# 'bmp'
+            return_val = PreviewImage(wid, path)
+        endif
+        if return_val == true
+            return
+        endif
         PreviewMessage(wid, 'Binary cannot be previewed')
         return
     endif
