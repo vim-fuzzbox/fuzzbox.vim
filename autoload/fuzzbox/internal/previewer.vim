@@ -139,9 +139,10 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
 enddef
 
 def PreviewImage(wid: number, path: string): bool
-    if has('image_popup') == 0
+    if !has('image_popup')
         return false
     endif
+    var cmd: string
     var size_pop = popup_getpos(wid)
     var cell_px = getcellpixels()
     var WIDTH = (size_pop.core_width) * cell_px[0]
@@ -149,7 +150,18 @@ def PreviewImage(wid: number, path: string): bool
 
     var tmpname = tempname() .. '.rgb'
 
-    var cmd = $'magick {shellescape(path)} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+    if v:imagebackend == 'kitty'
+        cmd = $'magick {shellescape(path)} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+    elseif v:imagebackend == 'sixel'
+        # transparent background not supported, remove alpha channel and set the
+        # background color to match the bg color reported by Vim, if possible
+        var rgb = getbgcolor()
+        var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
+        cmd = $'magick {shellescape(path)} -resize "{WIDTH}x{HEIGHT}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgb:{shellescape(tmpname)}'
+    else
+        return false
+    endif
+
     system(cmd)
     if v:shell_error != 0 || !filereadable(tmpname)
         delete(tmpname)
