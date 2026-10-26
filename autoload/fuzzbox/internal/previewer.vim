@@ -148,8 +148,8 @@ def PreviewImage(wid: number, path: string): bool
     var HEIGHT = (size_pop.core_height) * cell_px[1]
 
     var tmpname = tempname() .. '.rgb'
-    
-    var cmd = $'convert {shellescape(path)} -background "transparent" -resize {WIDTH}x{HEIGHT}\> -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+
+    var cmd = $'magick {shellescape(path)} -background "transparent" -resize {WIDTH}x{HEIGHT}\> -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
     system(cmd)
     if v:shell_error != 0 || !filereadable(tmpname)
         delete(tmpname)
