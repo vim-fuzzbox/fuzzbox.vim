@@ -149,7 +149,7 @@ def PreviewImage(wid: number, path: string): bool
 
     var tmpname = tempname() .. '.rgb'
 
-    var cmd = $'magick {shellescape(path)} -background "transparent" -resize {WIDTH}x{HEIGHT}\> -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+    var cmd = $'magick {shellescape(path)} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
     system(cmd)
     if v:shell_error != 0 || !filereadable(tmpname)
         delete(tmpname)
