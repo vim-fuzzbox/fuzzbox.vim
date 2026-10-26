@@ -143,15 +143,16 @@ enddef
 # not mean the terminal program supports sixel, e.g. Apple Terminal, Alacritty
 # See https://vt100.net/docs/vt510-rm/DA1.html
 # FIXME: I have no idea if this works or blows up on Windows, to be tested!
-def TermHasSixel(): bool
-    if empty(v:termda1) && !has('gui_running')
-        echoraw("\<Esc>[c")
-    endif
-    # Note: v:termda1 is only set when a response is received from the terminal,
-    # and Vim sends the message asychronously, so a check immediately after the
-    # query might not be correct. Caching the result is not worth the effort.
-    return v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
-enddef
+var term_has_sixel: bool
+augroup FuzzboxTermHasSixel
+  autocmd!
+  autocmd TermResponseAll da1 {
+      term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+  }
+augroup END
+if !has('gui_running') && has('image_popup') && v:imagebackend == 'sixel'
+    echoraw("\<Esc>[c")
+endif
 
 def PreviewImage(wid: number, path: string)
     var cmd: string
@@ -165,7 +166,7 @@ def PreviewImage(wid: number, path: string)
     # FIXME: No allowance for GUI Vim, does "gui" backend support transparency?
     if v:imagebackend == 'kitty'
         cmd = $'magick {shellescape(path)} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
-    elseif v:imagebackend == 'sixel' && TermHasSixel()
+    elseif v:imagebackend == 'sixel' && term_has_sixel
         # transparent background not supported, remove alpha channel and set the
         # background color to match the bg color reported by Vim, if possible
         var rgb = getbgcolor()
