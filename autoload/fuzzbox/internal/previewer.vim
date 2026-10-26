@@ -138,10 +138,7 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
     endif
 enddef
 
-def PreviewImage(wid: number, path: string): bool
-    if !has('image_popup')
-        return false
-    endif
+def PreviewImage(wid: number, path: string)
     var cmd: string
     var size_pop = popup_getpos(wid)
     var cell_px = getcellpixels()
@@ -159,23 +156,25 @@ def PreviewImage(wid: number, path: string): bool
         var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
         cmd = $'magick {shellescape(path)} -resize "{WIDTH}x{HEIGHT}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgb:{shellescape(tmpname)}'
     else
-        return false
+        PreviewMessage(wid, 'Image preview not supported')
+        return
     endif
+
+    popup_settext(wid, '')
 
     system(cmd)
     if v:shell_error != 0 || !filereadable(tmpname)
         delete(tmpname)
-        return false
+        return
     endif
 
     var blob = readblob(tmpname)
     delete(tmpname)
 
     if popup_getoptions(wid)->empty()
-        return false
+        return
     endif
 
-    popup_settext(wid, '')
     popup_setoptions(wid, {
         image: {
             data: blob,
@@ -183,7 +182,6 @@ def PreviewImage(wid: number, path: string): bool
             height: HEIGHT,
         },
     })
-    return true
 enddef
 
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
@@ -194,12 +192,9 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         return
     endif
     if IsBinary(path)
-        const ext = fnamemodify(path, ':e')
-        var return_val: bool
-        if ext ==# 'png' || ext ==# 'jpg' || ext ==# 'jpeg' || ext ==# 'bmp'
-            return_val = PreviewImage(wid, path)
-        endif
-        if return_val == true
+        const ext = fnamemodify(path, ':e')->tolower()
+        if has('image_popup') && index(['png', 'jpg', 'jpeg', 'bmp'], ext) != -1
+            PreviewImage(wid, path)
             return
         endif
         PreviewMessage(wid, 'Binary cannot be previewed')
