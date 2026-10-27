@@ -179,7 +179,9 @@ def PreviewImage(wid: number, path: string)
 
     popup_settext(wid, '')
 
-    system(cmd)
+    # Use silent to avoid stray characters showing on screen, see :h system()
+    silent system(cmd)
+
     if v:shell_error != 0 || !filereadable(tmpname)
         delete(tmpname)
         return
