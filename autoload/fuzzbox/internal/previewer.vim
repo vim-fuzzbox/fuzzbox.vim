@@ -210,6 +210,10 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         PreviewText(wid, 'File not found: ' .. path)
         return
     endif
+    if getfsize(path) / pow(1024, 2) > 5 # hard-coded 5MiB limit for now
+        PreviewMessage(wid, 'File exceeds preview size limit')
+        return
+    endif
     if IsBinary(path)
         const ext = fnamemodify(path, ':e')->tolower()
         if has('image_popup') && index(['png', 'jpg', 'jpeg', 'bmp'], ext) != -1
@@ -217,10 +221,6 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
             return
         endif
         PreviewMessage(wid, 'Binary cannot be previewed')
-        return
-    endif
-    if getfsize(path) / pow(1024, 2) > 5 # hard-coded 5MiB limit for now
-        PreviewMessage(wid, 'File exceeds preview size limit')
         return
     endif
     var content = readfile(path)
