@@ -156,8 +156,12 @@ if !has('gui_running') && has('image_popup') && v:imagebackend == 'sixel'
     echoraw("\<Esc>[c")
 endif
 
+var has_magick: any
 def PreviewImage(wid: number, path: string)
-    if !has('image_popup')
+    if empty(has_magick)
+        has_magick = executable('magick')
+    endif
+    if !has('image_popup') || !has_magick
         PreviewMessage(wid, 'Image preview not supported')
         return
     endif
