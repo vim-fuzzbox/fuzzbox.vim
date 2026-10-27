@@ -7,13 +7,14 @@ import autoload './devicons.vim'
 import autoload './launcher.vim'
 import autoload './utils.vim'
 
-var wins = { menu: -1, prompt: -1, preview: -1 }
+export var wins = { menu: -1, prompt: -1, preview: -1 }
 var raw_opts: dict<any>
 var options: dict<any>
 var cursor_pos: number
 var cursor_mid: number
 var loading_tid: number
 var preview_tid: number
+var cur_menu_item: string
 var input_tid: number
 var t_ve: string
 var hlcursor: dict<any>
@@ -295,6 +296,15 @@ def HandleChange()
         sign_unplace('PopUpFuzzbox', {buffer: bufnr, id: 1})
         sign_place(1, 'PopUpFuzzbox', 'FuzzboxSelection', bufnr, {lnum: lnum})
     endif
+
+    # menu text can be updated repeatedly without changing the selected item,
+    # e.g. while a list loads, so only invoke callbacks when it has changed
+    var menu_item = GetResult()
+    if menu_item == cur_menu_item
+        return
+    endif
+    cur_menu_item = menu_item
+
     if has_key(options, 'change_cb') &&
             type(options.change_cb) == v:t_func
             InvokeAction(options.change_cb, wins.menu)
@@ -1138,7 +1148,7 @@ def HandleResize()
                 wrap: options.preview_wrap
             })
             wins.preview = PopupPreview(preview_opts)
-            HandleChange()
+            InvokeAction(options.preview_cb, wins.preview)
         else
             MovePopup(wins.preview, layout.preview)
             SetTitle(wins.preview, GetTitle(wins.preview))
@@ -1174,6 +1184,7 @@ export def Start(opts: dict<any>): dict<any>
         return { menu: -1, prompt: -1, preview: -1 }
     endif
     paste = false
+    cur_menu_item = ''
     active = true
 
     if exists('#User#FuzzboxOpening')

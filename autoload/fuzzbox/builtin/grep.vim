@@ -191,6 +191,13 @@ def UpdateMenu()
     endif
     popup.UpdateMenu(cur_strs, cur_cols)
     menu_dirty = false
+
+    # The preview is only updated when the selected menu item changes, but the
+    # match highlight also depends on the pattern, e.g. typing 'foob' after
+    # 'foo' can select the same item, so update it for the current pattern
+    if popup.wins.preview != -1
+        UpdatePreviewHl(popup.wins.preview)
+    endif
 enddef
 
 def Close(wid: number)
