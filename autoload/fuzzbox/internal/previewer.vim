@@ -3,6 +3,8 @@ vim9script
 import autoload './popup.vim'
 import './filetype.vim'
 
+var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
+
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
@@ -155,6 +157,10 @@ if !has('gui_running') && has('image_popup') && v:imagebackend == 'sixel'
 endif
 
 def PreviewImage(wid: number, path: string)
+    if !has('image_popup')
+        PreviewMessage(wid, 'Image preview not supported')
+        return
+    endif
     var cmd: string
     var size_pop = popup_getpos(wid)
     var cell_px = getcellpixels()
@@ -216,7 +222,7 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
     endif
     if IsBinary(path)
         const ext = fnamemodify(path, ':e')->tolower()
-        if has('image_popup') && index(['png', 'jpg', 'jpeg', 'bmp'], ext) != -1
+        if preview_image && index(['png', 'jpg', 'jpeg', 'bmp'], ext) != -1
             PreviewImage(wid, path)
             return
         endif
