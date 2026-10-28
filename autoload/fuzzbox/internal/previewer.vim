@@ -192,27 +192,30 @@ def PreviewImage(wid: number, path: string)
     popup_settext(wid, '')
 
     # Use silent to avoid stray characters showing on screen, see :h system()
-    silent system(cmd)
+    silent var output = system(cmd)
 
-    if v:shell_error != 0 || !filereadable(tmpname)
+    if v:shell_error != 0
+        echohl ErrorMsg | echom output | echohl None
         delete(tmpname)
         return
     endif
 
-    var blob = readblob(tmpname)
-    delete(tmpname)
-
-    if popup_getoptions(wid)->empty()
-        return
-    endif
-
-    popup_setoptions(wid, {
-        image: {
-            data: blob,
-            width: WIDTH,
-            height: HEIGHT,
-        },
-    })
+    try
+        var blob = readblob(tmpname)
+        popup_setoptions(wid, {
+            image: {
+                data: blob,
+                width: WIDTH,
+                height: HEIGHT,
+            },
+        })
+    catch
+        echohl ErrorMsg
+        echom v:exception .. ' ' .. v:throwpoint
+        echohl None
+    finally
+        delete(tmpname)
+    endtry
 enddef
 
 export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number = 0, end_col: number = 0)
