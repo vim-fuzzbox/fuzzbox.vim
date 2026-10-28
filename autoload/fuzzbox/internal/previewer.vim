@@ -187,6 +187,8 @@ def PreviewImage(wid: number, path: string)
         return
     endif
 
+    setwinvar(wid, '&number', 0)
+    setwinvar(wid, '&cursorline', 0)
     popup_settext(wid, '')
 
     # Use silent to avoid stray characters showing on screen, see :h system()
