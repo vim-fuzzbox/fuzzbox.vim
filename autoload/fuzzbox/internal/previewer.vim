@@ -146,7 +146,7 @@ enddef
 # See https://vt100.net/docs/vt510-rm/DA1.html
 # FIXME: I have no idea if this works or blows up on Windows, to be tested!
 var term_has_sixel: bool
-def SetTermHasSiexl()
+def SetTermHasSixel()
     if !has('gui_running') && has('image_popup') && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
         augroup FuzzboxTermHasSixel
             autocmd!
@@ -157,7 +157,7 @@ def SetTermHasSiexl()
         echoraw("\<Esc>[c")
     endif
 enddef
-SetTermHasSiexl()
+SetTermHasSixel()
 
 var has_magick: any
 def PreviewImage(wid: number, path: string)
