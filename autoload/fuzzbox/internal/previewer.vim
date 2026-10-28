@@ -175,13 +175,13 @@ def PreviewImage(wid: number, path: string)
 
     # FIXME: No allowance for GUI Vim, does "gui" backend support transparency?
     if v:imagebackend == 'kitty'
-        cmd = $'magick {shellescape(path)} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
+        cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
     elseif v:imagebackend == 'sixel' && term_has_sixel
         # transparent background not supported, remove alpha channel and set the
         # background color to match the bg color reported by Vim, if possible
         var rgb = getbgcolor()
         var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-        cmd = $'magick {shellescape(path)} -resize "{WIDTH}x{HEIGHT}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgb:{shellescape(tmpname)}'
+        cmd = $'magick {shellescape(path .. "[0]")} -resize "{WIDTH}x{HEIGHT}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgb:{shellescape(tmpname)}'
     else
         PreviewMessage(wid, 'Image preview not supported')
         return
@@ -226,7 +226,7 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
     endif
     if IsBinary(path)
         const ext = fnamemodify(path, ':e')->tolower()
-        if preview_image && index(['png', 'jpg', 'jpeg', 'bmp'], ext) != -1
+        if preview_image && index(['png', 'jpg', 'jpeg', 'bmp', 'gif'], ext) != -1
             PreviewImage(wid, path)
             return
         endif
