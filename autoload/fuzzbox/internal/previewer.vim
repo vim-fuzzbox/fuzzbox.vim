@@ -146,15 +146,18 @@ enddef
 # See https://vt100.net/docs/vt510-rm/DA1.html
 # FIXME: I have no idea if this works or blows up on Windows, to be tested!
 var term_has_sixel: bool
-augroup FuzzboxTermHasSixel
-  autocmd!
-  autocmd TermResponseAll da1 {
-      term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
-  }
-augroup END
-if !has('gui_running') && has('image_popup') && v:imagebackend == 'sixel'
-    echoraw("\<Esc>[c")
-endif
+def SetTermHasSiexl()
+    if !has('gui_running') && has('image_popup') && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
+        augroup FuzzboxTermHasSixel
+            autocmd!
+            autocmd TermResponseAll da1 {
+                term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+            }
+        augroup END
+        echoraw("\<Esc>[c")
+    endif
+enddef
+SetTermHasSiexl()
 
 var has_magick: any
 def PreviewImage(wid: number, path: string)
@@ -165,24 +168,30 @@ def PreviewImage(wid: number, path: string)
         PreviewMessage(wid, 'Image preview not supported')
         return
     endif
+
     var cmd: string
-    var size_pop = popup_getpos(wid)
-    var cell_px = getcellpixels()
-    var WIDTH = (size_pop.core_width) * cell_px[0]
-    var HEIGHT = (size_pop.core_height) * cell_px[1]
-
+    var width: number
+    var height: number
     var tmpname = tempname() .. '.rgb'
-
-    # FIXME: No allowance for GUI Vim, does "gui" backend support transparency?
-    if v:imagebackend == 'kitty'
-        cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{WIDTH}x{HEIGHT}>" -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgba:{shellescape(tmpname)}'
-    elseif v:imagebackend == 'sixel' && term_has_sixel
-        # transparent background not supported, remove alpha channel and set the
-        # background color to match the bg color reported by Vim, if possible
-        var rgb = getbgcolor()
-        var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-        cmd = $'magick {shellescape(path .. "[0]")} +repage -resize "{WIDTH}x{HEIGHT}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {WIDTH}x{HEIGHT} -depth 8 rgb:{shellescape(tmpname)}'
-    else
+    if exists_compiled('*getcellpixels')
+        var size_pop = popup_getpos(wid)
+        var cell_px = getcellpixels()
+        if !empty(cell_px) # getcellpixels() returns [] on failure
+            width = (size_pop.core_width) * cell_px[0]
+            height = (size_pop.core_height) * cell_px[1]
+            # FIXME: No allowance for GUI Vim
+            if exists_compiled('v:imagebackend') && v:imagebackend == 'kitty'
+                cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgba:{shellescape(tmpname)}'
+            elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
+                # transparent background not supported, remove alpha channel and set the
+                # background color to match the bg color reported by Vim, if possible
+                var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
+                var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
+                cmd = $'magick {shellescape(path .. "[0]")} +repage -resize "{width}x{height}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {width}x{height} -depth 8 rgb:{shellescape(tmpname)}'
+            endif
+        endif
+    endif
+    if empty(cmd)
         PreviewMessage(wid, 'Image preview not supported')
         return
     endif
@@ -205,8 +214,8 @@ def PreviewImage(wid: number, path: string)
         popup_setoptions(wid, {
             image: {
                 data: blob,
-                width: WIDTH,
-                height: HEIGHT,
+                width: width,
+                height: height,
             },
         })
     catch
