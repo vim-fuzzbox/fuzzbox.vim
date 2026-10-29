@@ -173,22 +173,20 @@ def PreviewImage(wid: number, path: string)
     var width: number
     var height: number
     var tmpname = tempname() .. '.rgb'
-    if exists_compiled('*getcellpixels')
+    var cell_px = exists_compiled('*getcellpixels') ? getcellpixels() : []
+    if !empty(cell_px) # getcellpixels() returns [] on failure
         var size_pop = popup_getpos(wid)
-        var cell_px = getcellpixels()
-        if !empty(cell_px) # getcellpixels() returns [] on failure
-            width = (size_pop.core_width) * cell_px[0]
-            height = (size_pop.core_height) * cell_px[1]
-            # FIXME: No allowance for GUI Vim
-            if exists_compiled('v:imagebackend') && v:imagebackend == 'kitty'
-                cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgba:{shellescape(tmpname)}'
-            elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
-                # transparent background not supported, remove alpha channel and set the
-                # background color to match the bg color reported by Vim, if possible
-                var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
-                var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-                cmd = $'magick {shellescape(path .. "[0]")} +repage -resize "{width}x{height}>" -background "{bg}" -alpha remove -alpha off -gravity center -extent {width}x{height} -depth 8 rgb:{shellescape(tmpname)}'
-            endif
+        width = (size_pop.core_width) * cell_px[0]
+        height = (size_pop.core_height) * cell_px[1]
+        # FIXME: No allowance for GUI Vim
+        if exists_compiled('v:imagebackend') && v:imagebackend == 'kitty'
+            cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgba:{shellescape(tmpname)}'
+        elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
+            # transparent background not supported, remove alpha channel and set
+            # background to match the bg color reported by Vim, if possible
+            var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
+            var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
+            cmd = $'magick {shellescape(path .. "[0]")} -background "{bg}" -alpha remove -alpha off +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgb:{shellescape(tmpname)}'
         endif
     endif
     if empty(cmd)
