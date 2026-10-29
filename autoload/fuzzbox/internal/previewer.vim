@@ -9,6 +9,27 @@ const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
 
+# Actually detect if the terminal has sixel support by sending a primary device
+# attributes (DA1) query to check, just because $TERM is set to some xterm does
+# not mean the terminal program supports sixel, e.g. Apple Terminal, Alacritty
+# Vim sets image backend to sixel for xterm by default, see :h 'imageprotocol'
+# See https://vt100.net/docs/vt510-rm/DA1.html
+var term_has_sixel: bool
+def SetTermHasSixel()
+    if !has('gui_running') && has('image_popup') && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
+        augroup FuzzboxTermHasSixel
+            autocmd!
+            autocmd TermResponseAll da1 {
+                term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+            }
+        augroup END
+        echoraw("\<Esc>[c")
+    endif
+enddef
+if preview_image
+    SetTermHasSixel()
+endif
+
 def IsBinary(path: string): bool
     # NUL byte check for binary files, used to avoid showing preview
     # Assumes a file encoding that does not allow NUL bytes, so will
@@ -139,25 +160,6 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
         win_execute(wid, 'norm! gg')
     endif
 enddef
-
-# Actually detect if the terminal has sixel support by sending a primary device
-# attributes (DA1) query to check, just because $TERM is set to some xterm does
-# not mean the terminal program supports sixel, e.g. Apple Terminal, Alacritty
-# See https://vt100.net/docs/vt510-rm/DA1.html
-# FIXME: I have no idea if this works or blows up on Windows, to be tested!
-var term_has_sixel: bool
-def SetTermHasSixel()
-    if !has('gui_running') && has('image_popup') && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
-        augroup FuzzboxTermHasSixel
-            autocmd!
-            autocmd TermResponseAll da1 {
-                term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
-            }
-        augroup END
-        echoraw("\<Esc>[c")
-    endif
-enddef
-SetTermHasSixel()
 
 var has_magick: any
 def PreviewImage(wid: number, path: string)
