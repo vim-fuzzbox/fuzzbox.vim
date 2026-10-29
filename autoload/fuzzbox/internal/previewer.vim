@@ -178,8 +178,7 @@ def PreviewImage(wid: number, path: string)
         var size_pop = popup_getpos(wid)
         width = (size_pop.core_width) * cell_px[0]
         height = (size_pop.core_height) * cell_px[1]
-        # FIXME: No allowance for GUI Vim
-        if exists_compiled('v:imagebackend') && v:imagebackend == 'kitty'
+        if exists_compiled('v:imagebackend') && ( v:imagebackend == 'kitty' || v:imagebackend == 'gui' )
             cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgba:{shellescape(tmpname)}'
         elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
             # transparent background not supported, remove alpha channel and set
