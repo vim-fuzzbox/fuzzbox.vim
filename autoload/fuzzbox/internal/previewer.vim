@@ -161,9 +161,9 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
     endif
 enddef
 
-var has_magick: any
+var has_magick: number = -1
 def PreviewImage(wid: number, path: string)
-    if empty(has_magick)
+    if has_magick == -1
         has_magick = executable('magick')
     endif
     if !has('image_popup') || !has_magick
