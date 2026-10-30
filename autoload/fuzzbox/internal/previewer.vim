@@ -10,10 +10,10 @@ const PDF_SIGNATURE = '%PDF-'
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
 
 # Actually detect if the terminal has sixel support by sending a primary device
-# attributes (DA1) query to check, just because $TERM is set to some xterm does
-# not mean the terminal program supports sixel, e.g. Apple Terminal, Alacritty
-# Vim sets image backend to sixel for xterm by default, see :h 'imageprotocol'
-# See https://vt100.net/docs/vt510-rm/DA1.html
+# attributes (DA1) query to check, see https://vt100.net/docs/vt510-rm/DA1.html
+# Vim sets image backend to sixel for xterm by default, see :h imageprotocol,
+# but the terminal program may not actually support sixel, e.g. Apple Terminal
+# note: the DA1 query is run asynchronously, so run once on script load/import
 var term_has_sixel: bool
 def SetTermHasSixel()
     if !has('gui_running') && has('image_popup') && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
@@ -171,26 +171,31 @@ def PreviewImage(wid: number, path: string)
         return
     endif
 
-    var cmd: string
-    var width: number
-    var height: number
-    var tmpname = tempname() .. '.rgb'
-    var cell_px = exists_compiled('*getcellpixels') ? getcellpixels() : []
-    if !empty(cell_px) # getcellpixels() returns [] on failure
-        var size_pop = popup_getpos(wid)
-        width = (size_pop.core_width) * cell_px[0]
-        height = (size_pop.core_height) * cell_px[1]
-        if exists_compiled('v:imagebackend') && ( v:imagebackend == 'kitty' || v:imagebackend == 'gui' )
-            cmd = $'magick {shellescape(path .. "[0]")} -background "transparent" +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgba:{shellescape(tmpname)}'
-        elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
-            # transparent background not supported, remove alpha channel and set
-            # background to match the bg color reported by Vim, if possible
-            var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
-            var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-            cmd = $'magick {shellescape(path .. "[0]")} -background "{bg}" -alpha remove -alpha off +repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8 rgb:{shellescape(tmpname)}'
-        endif
+    var cellpixels = exists_compiled('*getcellpixels') ? getcellpixels() : []
+    if empty(cellpixels)
+        # getcellpixels() returns [] where not supported or on failure
+        PreviewMessage(wid, 'Image preview not supported')
+        return
     endif
-    if empty(cmd)
+
+    var cmd: string
+    var tmpname = tempname()
+    var popup_pos = popup_getpos(wid)
+    var width = popup_pos.core_width * cellpixels[0]
+    var height = popup_pos.core_height * cellpixels[1]
+
+    var base_cmd = $'magick {shellescape(path .. "[0]")}'
+    var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
+    if exists_compiled('v:imagebackend') && ( v:imagebackend == 'kitty' || v:imagebackend == 'gui' )
+        # RGBA output supported, use transparent background
+        cmd = $'{base_cmd} -background "transparent" {base_opts} rgba:{shellescape(tmpname)}'
+    elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel' && term_has_sixel
+        # RGBA not supported, RGB only, so remove alpha channel and set
+        # background to match the bg color reported by Vim if possible
+        var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
+        var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
+        cmd = $'{base_cmd} -background "{bg}" -alpha remove -alpha off {base_opts} rgb:{shellescape(tmpname)}'
+    else
         PreviewMessage(wid, 'Image preview not supported')
         return
     endif
