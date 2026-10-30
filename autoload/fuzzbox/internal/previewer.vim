@@ -184,6 +184,7 @@ def PreviewImage(wid: number, path: string)
     var width = popup_pos.core_width * cellpixels[0]
     var height = popup_pos.core_height * cellpixels[1]
 
+    # Note: settings like -background must come before other options
     var base_cmd = $'magick {shellescape(path .. "[0]")}'
     var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
     if exists_compiled('v:imagebackend') && ( v:imagebackend == 'kitty' || v:imagebackend == 'gui' )
