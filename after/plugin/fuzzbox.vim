@@ -57,6 +57,6 @@ def SendTermDA1()
         echoraw("\<Esc>[c")
     endif
 enddef
-if !has('gui_running') && has('image_popup')
+if !has('gui_running') && has('image_popup') && get(g:, 'fuzzbox_preview_image', false)
     SendTermDA1()
 endif
