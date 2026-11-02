@@ -9,6 +9,35 @@ const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
 
+# Actually detect if the terminal has sixel support by sending a primary device
+# attributes (DA1) query to check, see https://vt100.net/docs/vt510-rm/DA1.html
+# Vim sets image backend to sixel for xterm by default, see :h 'imageprotocol'
+# but that doesn't mean the terminal program supports sixel, e.g. Apple Terminal
+# Note: the DA1 query is asynchronous, so image previews when the backend is
+# sixel will only be enabled once the response is received. Although it should
+# be rare, the response can also arrive after Vim has exited, in which case it
+# will be written directly to your terminal. You can avoid these problems by
+# setting g:fuzzbox_term_has_sixel, in which case the DA1 query is skipped.
+var term_has_sixel: bool
+def SetTermHasSixel()
+    if exists_compiled('v:termda1') && !empty(v:termda1)
+        term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+    elseif exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
+        augroup FuzzboxTermHasSixel
+            autocmd!
+            autocmd TermResponseAll da1 {
+                term_has_sixel = v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
+            }
+        augroup END
+        echoraw("\<Esc>[c")
+    endif
+enddef
+if exists('g:fuzzbox_term_has_sixel')
+    term_has_sixel = g:fuzzbox_term_has_sixel
+elseif preview_image && !has('gui_running') && has('image_popup')
+    SetTermHasSixel()
+endif
+
 def IsBinary(path: string): bool
     # NUL byte check for binary files, used to avoid showing preview
     # Assumes a file encoding that does not allow NUL bytes, so will
@@ -164,14 +193,6 @@ def PreviewImage(wid: number, path: string)
     var height = popup_pos.core_height * cellpixels[1]
     var imagebackend = exists_compiled('v:imagebackend') ? v:imagebackend : 'none'
 
-    # Vim sets the backend to sixel for xterm by default, see :h imageprotocol,
-    # but the terminal program may not actually support it, e.g. Apple Terminal
-    # This checks the response to the VT100 device attributes (DA1) query for
-    # sixel support. The query is sent if needed in after/plugin/fuzzbox.vim
-    # The DA1 query is asynchronous, so check at runtime, and don't cache
-    var term_has_sixel = imagebackend == 'sixel' && exists_compiled('v:termda1')
-        && v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
-
     # ImageMagick settings like -background must come before operator options
     # like -resize. Using +repage completely removes the virtual canvas.
     # Applying width and height limits protects against a decompression bomb
@@ -180,7 +201,7 @@ def PreviewImage(wid: number, path: string)
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background
         cmd = $'{base_cmd} -background "transparent" {base_opts} rgba:{shellescape(tmpname)}'
-    elseif term_has_sixel
+    elseif imagebackend == 'sixel' && term_has_sixel
         # RGBA not supported, RGB only, so remove alpha channel and set
         # background to match the bg color reported by Vim if possible
         var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []

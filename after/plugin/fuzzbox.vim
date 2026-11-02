@@ -45,18 +45,3 @@ if !empty(devicons_colorize) && exists('g:fuzzbox_devicons_glyph_func') &&
         pattern: join(devicons_colorize, ',')
     }])
 endif
-
-# Send a primary device attributes (DA1) query to the terminal so the previewer
-# can check if sixel is supported, see https://vt100.net/docs/vt510-rm/DA1.html
-# Vim sets image backend to sixel for xterm by default, see :h imageprotocol,
-# but the terminal program may not actually support sixel, e.g. Apple Terminal
-# Note: the DA1 query is asynchronous, so it runs here, on startup, not runtime
-def SendTermDA1()
-    if exists_compiled('v:termda1') && empty(v:termda1)
-            && exists_compiled('v:imagebackend') && v:imagebackend == 'sixel'
-        echoraw("\<Esc>[c")
-    endif
-enddef
-if !has('gui_running') && has('image_popup') && get(g:, 'fuzzbox_preview_image', false)
-    SendTermDA1()
-endif
