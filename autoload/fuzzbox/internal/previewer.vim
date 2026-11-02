@@ -173,8 +173,9 @@ def PreviewImage(wid: number, path: string)
         && v:termda1->matchstr('\[?\zs[0-9;]*\zec')->split(';')->index('4') >= 0
 
     # ImageMagick settings like -background must come before operator options
-    # like -resize. Using +repage completely removes the virtual canvas
-    var base_cmd = $'magick {shellescape(path .. "[0]")}'
+    # like -resize. Using +repage completely removes the virtual canvas.
+    # Applying width and height limits protects against a decompression bomb
+    var base_cmd = $'magick -limit width 10000 -limit height 10000 {shellescape(path .. "[0]")}'
     var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background
