@@ -5,6 +5,9 @@ import './filetype.vim'
 
 var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
 
+# Only these file extensions and image formats are supported for image preview
+const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif' }
+
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
@@ -187,6 +190,7 @@ def PreviewImage(wid: number, path: string)
     endif
 
     var cmd: string
+    var ext = fnamemodify(path, ':e')->tolower()
     var tmpname = tempname()
     var popup_pos = popup_getpos(wid)
     var width = popup_pos.core_width * cellpixels[0]
@@ -196,7 +200,9 @@ def PreviewImage(wid: number, path: string)
     # ImageMagick settings like -background must come before operator options
     # like -resize. Using +repage completely removes the virtual canvas.
     # Applying width and height limits protects against a decompression bomb
-    var base_cmd = $'magick -limit width 10000 -limit height 10000 {shellescape(path .. "[0]")}'
+    # Only predefined formats are supported because ImageMagick may check the
+    # file headers to determine the format to use and ignore the file extension
+    var base_cmd = $'magick -limit width 10000 -limit height 10000 {imagemagick_formats[ext]}:{shellescape(path .. "[0]")}'
     var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background
@@ -258,7 +264,7 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
     endif
     if IsBinary(path)
         const ext = fnamemodify(path, ':e')->tolower()
-        if preview_image && index(['png', 'jpg', 'jpeg', 'bmp', 'gif'], ext) != -1
+        if preview_image && has_key(imagemagick_formats, ext)
             PreviewImage(wid, path)
             return
         endif
