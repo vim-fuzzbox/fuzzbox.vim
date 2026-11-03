@@ -6,7 +6,7 @@ import './filetype.vim'
 var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
 
 # Only these file extensions and image formats are supported for image preview
-const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif' }
+const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon' }
 
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
