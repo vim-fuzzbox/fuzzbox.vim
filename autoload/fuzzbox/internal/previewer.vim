@@ -6,7 +6,7 @@ import './filetype.vim'
 var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
 
 # Only these file extensions and image formats are supported for image preview
-const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon' }
+const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon', svg: 'svg' }
 
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
@@ -262,12 +262,12 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         PreviewMessage(wid, 'File exceeds preview size limit')
         return
     endif
+    const ext = fnamemodify(path, ':e')->tolower()
+    if preview_image && has_key(imagemagick_formats, ext)
+        PreviewImage(wid, path)
+        return
+    endif
     if IsBinary(path)
-        const ext = fnamemodify(path, ':e')->tolower()
-        if preview_image && has_key(imagemagick_formats, ext)
-            PreviewImage(wid, path)
-            return
-        endif
         PreviewMessage(wid, 'Binary cannot be previewed')
         return
     endif
