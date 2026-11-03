@@ -72,6 +72,16 @@ function IsBinaryBlob(path)
     return index(blob, 0) != -1
 endfunction
 
+# Note: use of legacy function a workaround for compilation failing when
+# system() would be called with a list on Vim versions before 9.2.0250
+function SystemRaw(cmd)
+    if type(a:cmd) != v:t_list
+        echoerr 'Invalid argument, a:cmd must be of type List'
+    endif
+    silent let output = system(a:cmd)
+    return output
+endfunction
+
 def FTDetectModelines(content: list<string>): string
     if ( !&modeline || &modelines == 0 ) && !exists('g:loaded_securemodelines')
         return ''
@@ -189,7 +199,9 @@ def PreviewImage(wid: number, path: string)
         return
     endif
 
-    var cmd: string
+    # Note: use list so the command is run raw rather than via a shell, and
+    # mouse reporting remains under the control of Vim while the command runs
+    var cmd: list<string>
     var ext = fnamemodify(path, ':e')->tolower()
     var tmpname = tempname()
     var popup_pos = popup_getpos(wid)
@@ -202,17 +214,18 @@ def PreviewImage(wid: number, path: string)
     # Applying width and height limits protects against a decompression bomb
     # Only predefined formats are supported because ImageMagick may check the
     # file headers to determine the format to use and ignore the file extension
-    var base_cmd = $'magick -limit width 10000 -limit height 10000 {imagemagick_formats[ext]}:{shellescape(path .. "[0]")}'
-    var base_opts = $'+repage -resize "{width}x{height}>" -gravity center -extent {width}x{height} -depth 8'
+    var inputfile = $'{imagemagick_formats[ext]}:{path}[0]'
+    var base_args = 'magick -limit width 10000 -limit height 10000'->split() + [inputfile]
+    var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background
-        cmd = $'{base_cmd} -background "transparent" {base_opts} rgba:{shellescape(tmpname)}'
+        cmd = base_args + '-background transparent'->split() + base_opts + [$'rgba:{tmpname}']
     elseif imagebackend == 'sixel' && term_has_sixel
         # RGBA not supported, RGB only, so remove alpha channel and set
         # background to match the bg color reported by Vim if possible
         var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
         var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-        cmd = $'{base_cmd} -background "{bg}" -alpha remove -alpha off {base_opts} rgb:{shellescape(tmpname)}'
+        cmd = base_args + $'-background {bg} -alpha remove -alpha off'->split() + base_opts + [$'rgb:{tmpname}']
     else
         PreviewMessage(wid, 'Image preview not supported')
         return
@@ -225,7 +238,7 @@ def PreviewImage(wid: number, path: string)
     # Use silent to avoid stray characters showing on screen, see :h system()
     # Using system() is blocking, but acceptable as performance is adequate
     # when limited to files not greater than the max preview fize size of 5MiB
-    silent var output = system(cmd)
+    var output = SystemRaw(cmd)
 
     if v:shell_error != 0
         echohl ErrorMsg | echom output | echohl None
