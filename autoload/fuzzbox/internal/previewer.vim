@@ -3,10 +3,14 @@ vim9script
 import autoload './popup.vim'
 import './filetype.vim'
 
-var preview_image = exists('g:fuzzbox_preview_image') ? g:fuzzbox_preview_image : false
+var image_preview = exists('g:fuzzbox_image_preview') ? g:fuzzbox_image_preview : false
 
-# Only these file extensions and image formats are supported for image preview
-const imagemagick_formats = { png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon' }
+# Only these file extensions and image formats are allowed for image preview
+# Note: normalize keys when reading g:fuzzbox_image_formats, lower case expected
+var image_formats = exists('g:fuzzbox_image_formats') && type(g:fuzzbox_image_formats) == v:t_dict ?
+    g:fuzzbox_image_formats->items()->reduce((acc, kv) => extend(acc, {[tolower(kv[0])]: kv[1]}), {}) : {
+    png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon'
+}
 
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
@@ -37,7 +41,7 @@ def SetTermHasSixel()
 enddef
 if exists('g:fuzzbox_term_has_sixel')
     term_has_sixel = g:fuzzbox_term_has_sixel
-elseif preview_image && !has('gui_running') && has('image_popup')
+elseif image_preview && !has('gui_running') && has('image_popup')
     SetTermHasSixel()
 endif
 
@@ -214,7 +218,7 @@ def PreviewImage(wid: number, path: string)
     # Applying width and height limits protects against a decompression bomb
     # Only predefined formats are supported because ImageMagick may check the
     # file headers to determine the format to use and ignore the file extension
-    var inputfile = $'{imagemagick_formats[ext]}:{path}[0]'
+    var inputfile = $'{image_formats[ext]}:{path}[0]'
     var base_args = 'magick -limit width 10000 -limit height 10000'->split() + [inputfile]
     var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
@@ -275,12 +279,12 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         PreviewMessage(wid, 'File exceeds preview size limit')
         return
     endif
+    const ext = fnamemodify(path, ':e')->tolower()
+    if image_preview && has_key(image_formats, ext)
+        PreviewImage(wid, path)
+        return
+    endif
     if IsBinary(path)
-        const ext = fnamemodify(path, ':e')->tolower()
-        if preview_image && has_key(imagemagick_formats, ext)
-            PreviewImage(wid, path)
-            return
-        endif
         PreviewMessage(wid, 'Binary cannot be previewed')
         return
     endif
