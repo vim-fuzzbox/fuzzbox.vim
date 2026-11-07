@@ -218,18 +218,26 @@ def PreviewImage(wid: number, path: string)
     # Applying width and height limits protects against a decompression bomb
     # Only predefined formats are supported because ImageMagick may check the
     # file headers to determine the format to use and ignore the file extension
-    var inputfile = $'{image_formats[ext]}:{path}[0]'
+    var format = image_formats[ext]
+    var inputfile = $'{format}:{path}[0]'
+    # PDFs are rendered with a transparent page, which is hard to read, so
+    # page_args flattens the page onto white. The -background before the input
+    # file is the canvas used when reading SVGs (the PDF reader ignores it),
+    # and the -background after page_args is used by -extent for padding
+    var page_args = format =~? 'pdf' ? '-background white -alpha remove'->split() : []
     var base_args = 'magick -limit width 10000 -limit height 10000'->split()
     var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
-        # RGBA supported, use transparent background
-        cmd = base_args + '-background transparent'->split() + [inputfile] + base_opts + [$'rgba:{tmpname}']
+        # RGBA supported, use transparent background (white page for PDFs)
+        cmd = base_args + ['-background', 'transparent', inputfile] + page_args
+            + ['-background', 'transparent'] + base_opts + [$'rgba:{tmpname}']
     elseif imagebackend == 'sixel' && term_has_sixel
         # RGBA not supported, RGB only, so remove alpha channel and set
         # background to match the bg color reported by Vim if possible
         var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
         var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-        cmd = base_args + $'-background {bg}'->split() + [inputfile] + '-alpha remove -alpha off'->split() + base_opts + [$'rgb:{tmpname}']
+        cmd = base_args + ['-background', bg, inputfile] + page_args
+            + ['-background', bg] + '-alpha remove -alpha off'->split() + base_opts + [$'rgb:{tmpname}']
     else
         PreviewMessage(wid, 'Image preview not supported')
         return
