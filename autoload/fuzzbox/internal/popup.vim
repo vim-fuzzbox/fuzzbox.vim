@@ -316,7 +316,7 @@ def HandleChange()
         timer_stop(preview_tid)
         preview_tid = timer_start(20, (_) => {
             if active # allow for popups to have closed when lambda is invoked
-                InvokeAction(options.preview_cb, wins.preview)
+                InvokeAction(options.preview_cb, wins.preview, menu_item)
             endif
         }, { repeat: 0 })
     endif
