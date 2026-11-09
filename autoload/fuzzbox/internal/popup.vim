@@ -5,6 +5,8 @@ scriptencoding utf-8
 import autoload './colors.vim'
 import autoload './devicons.vim'
 import autoload './launcher.vim'
+import autoload './previewer.vim'
+import autoload './actions.vim'
 import autoload './utils.vim'
 
 export var wins = { menu: -1, prompt: -1, preview: -1 }
@@ -315,7 +317,7 @@ def HandleChange()
         # timer to avoid triggering preview unnecessarily during mouse scroll
         timer_stop(preview_tid)
         preview_tid = timer_start(20, (_) => {
-            if active # allow for popups to have closed when lambda is invoked
+            if active && wins.preview != -1
                 InvokeAction(options.preview_cb, wins.preview, menu_item)
             endif
         }, { repeat: 0 })
@@ -1148,12 +1150,23 @@ def HandleResize()
                 wrap: options.preview_wrap
             })
             wins.preview = PopupPreview(preview_opts)
-            InvokeAction(options.preview_cb, wins.preview)
+            InvokeAction(options.preview_cb, wins.preview, cur_menu_item)
         else
             MovePopup(wins.preview, layout.preview)
             SetTitle(wins.preview, GetTitle(wins.preview))
+            # Re-render images and warning message previews after resize
+            # Relies on previewer setting &filetype for text file previews
+            if options.preview_cb == actions.PreviewFile && !previewer.IsTextFile(wins.preview)
+                timer_stop(preview_tid)
+                preview_tid = timer_start(20, (_) => {
+                    if active && wins.preview != -1
+                        InvokeAction(options.preview_cb, wins.preview, cur_menu_item)
+                    endif
+                }, { repeat: 0 })
+            endif
         endif
     elseif wins.preview != -1
+        timer_stop(preview_tid)
         popup_close(wins.preview)
         wins.preview = -1
     endif
