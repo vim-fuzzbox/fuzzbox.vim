@@ -11,6 +11,15 @@ var image_preview = exists('g:fuzzbox_image_preview') ? g:fuzzbox_image_preview 
 var image_formats = exists('g:fuzzbox_image_formats') && type(g:fuzzbox_image_formats) == v:t_list ?
     g:fuzzbox_image_formats->mapnew((_, v) => tolower(v)) : ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'ico']
 
+# Set some reasonable ImageMagick resource and time limits for image previews.
+# Adding width and height limits allows an early check for a decompression bomb,
+# setting disk to 0 forces ImageMagick to abort if it can't process in memory.
+# Note: g:fuzzbox_image_limits extends, does not replace, the default limits
+var image_limits = { width: '8KP', height: '8KP', memory: '256MiB', disk: 0, time: 5 }
+if exists('g:fuzzbox_image_limits') && type(g:fuzzbox_image_limits) == v:t_dict
+    extend(image_limits, g:fuzzbox_image_limits)
+endif
+
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
 const PDF_SIGNATURE_BLOB = list2blob(str2list(PDF_SIGNATURE))
@@ -214,7 +223,6 @@ def PreviewImage(wid: number, path: string)
 
     # ImageMagick settings like -background must come before operator options
     # like -resize. Using +repage completely removes the virtual canvas.
-    # Applying width and height limits protects against a decompression bomb
     # Only predefined formats are supported because ImageMagick may check the
     # file headers to determine the format to use and ignore the file extension
     var inputfile = $'{ext}:{path}[0]'
@@ -222,19 +230,20 @@ def PreviewImage(wid: number, path: string)
     # page_args flattens the page onto white. The -background before the input
     # file is the canvas used when reading SVGs (the PDF reader ignores it),
     # and the -background after page_args is used by -extent for padding
-    var page_args = ext =~? 'pdf' ? '-background white -alpha remove'->split() : []
-    var base_args = 'magick -limit width 10000 -limit height 10000'->split()
+    var page_args = ext =~? '\v^e?pdf$' ? '-background white -alpha remove'->split() : []
+    var size_hint = ext =~? '\v^jpe?g$' ? $'-define jpeg:size={width * 2}x{height * 2}'->split() : []
+    var base_args = ['magick'] + image_limits->items()->mapnew((_, kv) => ['-limit', kv[0], $'{kv[1]}'])->flattennew()
     var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background (white page for PDFs)
-        cmd = base_args + ['-background', 'transparent', inputfile] + page_args
+        cmd = base_args + size_hint + ['-background', 'transparent', inputfile] + page_args
             + ['-background', 'transparent'] + base_opts + [$'rgba:{tmpname}']
     elseif imagebackend == 'sixel' && term_has_sixel
         # RGBA not supported, RGB only, so remove alpha channel and set
         # background to match the bg color reported by Vim if possible
         var rgb = exists_compiled('*getbgcolor') ? getbgcolor() : []
         var bg = empty(rgb) ? 'gray' : printf('#%02x%02x%02x', rgb[0], rgb[1], rgb[2])
-        cmd = base_args + ['-background', bg, inputfile] + page_args
+        cmd = base_args + size_hint + ['-background', bg, inputfile] + page_args
             + ['-background', bg] + '-alpha remove -alpha off'->split() + base_opts + [$'rgb:{tmpname}']
     else
         PreviewMessage(wid, 'Image preview not supported')
