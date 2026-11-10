@@ -5,12 +5,11 @@ import './filetype.vim'
 
 var image_preview = exists('g:fuzzbox_image_preview') ? g:fuzzbox_image_preview : false
 
-# Only these file extensions and image formats are allowed for image preview
-# Note: normalize keys when reading g:fuzzbox_image_formats, lower case expected
-var image_formats = exists('g:fuzzbox_image_formats') && type(g:fuzzbox_image_formats) == v:t_dict ?
-    g:fuzzbox_image_formats->items()->reduce((acc, kv) => extend(acc, {[tolower(kv[0])]: kv[1]}), {}) : {
-    png: 'png', jpg: 'jpeg', jpeg: 'jpeg', bmp: 'bmp', gif: 'gif', ico: 'icon'
-}
+# Only these file extensions are allowed for image preview, they should be
+# recognised as known formats by ImageMagick, check `magick -list format`
+# Note: normalize list when reading g:fuzzbox_image_formats, lower case expected
+var image_formats = exists('g:fuzzbox_image_formats') && type(g:fuzzbox_image_formats) == v:t_list ?
+    g:fuzzbox_image_formats->mapnew((_, v) => tolower(v)) : ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'ico']
 
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
@@ -218,13 +217,12 @@ def PreviewImage(wid: number, path: string)
     # Applying width and height limits protects against a decompression bomb
     # Only predefined formats are supported because ImageMagick may check the
     # file headers to determine the format to use and ignore the file extension
-    var format = image_formats[ext]
-    var inputfile = $'{format}:{path}[0]'
+    var inputfile = $'{ext}:{path}[0]'
     # PDFs are rendered with a transparent page, which is hard to read, so
     # page_args flattens the page onto white. The -background before the input
     # file is the canvas used when reading SVGs (the PDF reader ignores it),
     # and the -background after page_args is used by -extent for padding
-    var page_args = format =~? 'pdf' ? '-background white -alpha remove'->split() : []
+    var page_args = ext =~? 'pdf' ? '-background white -alpha remove'->split() : []
     var base_args = 'magick -limit width 10000 -limit height 10000'->split()
     var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
@@ -288,7 +286,7 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         return
     endif
     const ext = fnamemodify(path, ':e')->tolower()
-    if image_preview && has_key(image_formats, ext)
+    if image_preview && index(image_formats, ext) != -1
         PreviewImage(wid, path)
         return
     endif
