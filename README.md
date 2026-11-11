@@ -33,6 +33,8 @@ systems for finding files and searching in files by default (e.g. `grep`,
   allowed and no alternative dependency installed
 - [ctags](https://ctags.io) - used to generate tags for tag search (Universal
   Ctags implementation is required)
+- [ImageMagick](https://imagemagick.org/) - used for image previews, if enabled
+  (version 7 or later required)
 
 ### Compatible plugins
 - [vim-devicons](https://github.com/ryanoasis/vim-devicons) - used to show
@@ -241,6 +243,46 @@ let g:fuzzbox_scrollbar = 0
 ```
 This option does not affect whether the menu window is scrollable, it always
 is, just whether a scrollbar is shown.
+
+### g:fuzzbox_image_preview
+Enable preview for some image formats, default 0.
+```vim
+let g:fuzzbox_image_preview = 0
+```
+This option requires Vim >= 9.2.1161 compiled with `+image_popup`, and a
+compatible terminal or GUI version of Vim capable of displaying images. Your
+terminal is compatible if it supports the sixel or kitty graphics protocol.
+
+It also requires [ImageMagick](https://imagemagick.org/) 7 or later, which is
+used to convert source images to RGB(A) for displaying in Vim.
+
+Vim sets `v:imagebackend` to one of 'sixel', 'kitty', or 'gui' when it thinks
+images can be displayed. If this is empty or 'none' and you think images are
+supported by your terminal or GUI, check the Vim docs for `image-backends`.
+
+### g:fuzzbox_image_formats
+List of file extensions that are enabled for image preview. The file extension
+is also used to specify the image format when invoking ImageMagick, so must
+match formats known to ImageMagick, see `magick -list format`.
+```vim
+let g:fuzzbox_image_formats = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'ico']
+```
+Example usage
+```vim
+let g:fuzzbox_image_formats = ['png', 'jpg', 'gif', 'ico', 'svg', 'pdf']
+```
+
+### g:fuzzbox_image_limits
+Resource limits applied to ImageMagick using the `-limit` option. Merged with
+the defaults, which are:
+```vim
+{ 'width': '8KP', 'height': '8KP', 'memory': '256MiB', 'disk': 0, 'time': 5 }
+```
+
+Example usage
+```vim
+let g:fuzzbox_image_limits = { 'memory': '512MiB' }
+```
 
 ### g:fuzzbox_prompt_sign
 Sign used as prefix for the input in the prompt window. Default '>', must be a

@@ -23,41 +23,44 @@ CONTENTS                                                      *fuzzbox-contents*
     1.7.7. g:fuzzbox_compact_after.............|fuzzbox-g:fuzzbox_compact_after|
     1.7.8. g:fuzzbox_counter.........................|fuzzbox-g:fuzzbox_counter|
     1.7.9. g:fuzzbox_scrollbar.....................|fuzzbox-g:fuzzbox_scrollbar|
-    1.7.10. g:fuzzbox_prompt_sign................|fuzzbox-g:fuzzbox_prompt_sign|
-    1.7.11. g:fuzzbox_selection_sign..........|fuzzbox-g:fuzzbox_selection_sign|
-    1.7.12. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
-    1.7.13. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
-    1.7.14. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
-    1.7.15. g:fuzzbox_loadingchars..............|fuzzbox-g:fuzzbox_loadingchars|
-    1.7.16. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
-    1.7.17. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
-    1.7.18. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
-    1.7.19. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
-    1.7.20. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
-    1.7.21. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
-    1.7.22. g:fuzzbox_recurse_submodules..|fuzzbox-g:fuzzbox_recurse_submodules|
-    1.7.23. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
-    1.7.24. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
-    1.7.25. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
-    1.7.26. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
-    1.7.27. g:fuzzbox_ugrep_options............|fuzzbox-g:fuzzbox_ugrep_options|
-    1.7.28. g:fuzzbox_files_executable......|fuzzbox-g:fuzzbox_files_executable|
-    1.7.29. g:fuzzbox_grep_executable........|fuzzbox-g:fuzzbox_grep_executable|
-    1.7.30. g:fuzzbox_devicons_colorize....|fuzzbox-g:fuzzbox_devicons_colorize|
-    1.7.31. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
-    1.7.32. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
-    1.7.33. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
-    1.7.34. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
-    1.7.35. g:fuzzbox_emacs_keys..................|fuzzbox-g:fuzzbox_emacs_keys|
-    1.7.36. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
-    1.7.37. g:fuzzbox_mru_cwd_only..............|fuzzbox-g:fuzzbox_mru_cwd_only|
-    1.7.38. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
-    1.7.39. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
-    1.7.40. g:fuzzbox_max_results................|fuzzbox-g:fuzzbox_max_results|
-    1.7.41. g:fuzzbox_input_debounce..........|fuzzbox-g:fuzzbox_input_debounce|
-    1.7.42. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
-    1.7.43. g:fuzzbox_async_wait..................|fuzzbox-g:fuzzbox_async_wait|
-    1.7.44. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
+    1.7.10. g:fuzzbox_image_preview............|fuzzbox-g:fuzzbox_image_preview|
+    1.7.11. g:fuzzbox_image_formats............|fuzzbox-g:fuzzbox_image_formats|
+    1.7.12. g:fuzzbox_image_limits..............|fuzzbox-g:fuzzbox_image_limits|
+    1.7.13. g:fuzzbox_prompt_sign................|fuzzbox-g:fuzzbox_prompt_sign|
+    1.7.14. g:fuzzbox_selection_sign..........|fuzzbox-g:fuzzbox_selection_sign|
+    1.7.15. g:fuzzbox_menu_wrap....................|fuzzbox-g:fuzzbox_menu_wrap|
+    1.7.16. g:fuzzbox_preview_wrap..............|fuzzbox-g:fuzzbox_preview_wrap|
+    1.7.17. g:fuzzbox_borderchars................|fuzzbox-g:fuzzbox_borderchars|
+    1.7.18. g:fuzzbox_loadingchars..............|fuzzbox-g:fuzzbox_loadingchars|
+    1.7.19. g:fuzzbox_dynamic_preview_title.|fuzzbox-g:fuzzbox_dynamic_preview_title|
+    1.7.20. g:fuzzbox_reuse_windows............|fuzzbox-g:fuzzbox_reuse_windows|
+    1.7.21. g:fuzzbox_respect_gitignore....|fuzzbox-g:fuzzbox_respect_gitignore|
+    1.7.22. g:fuzzbox_respect_wildignore..|fuzzbox-g:fuzzbox_respect_wildignore|
+    1.7.23. g:fuzzbox_include_hidden..........|fuzzbox-g:fuzzbox_include_hidden|
+    1.7.24. g:fuzzbox_follow_symlinks........|fuzzbox-g:fuzzbox_follow_symlinks|
+    1.7.25. g:fuzzbox_recurse_submodules..|fuzzbox-g:fuzzbox_recurse_submodules|
+    1.7.26. g:fuzzbox_root_patterns............|fuzzbox-g:fuzzbox_root_patterns|
+    1.7.27. g:fuzzbox_exclude_file..............|fuzzbox-g:fuzzbox_exclude_file|
+    1.7.28. g:fuzzbox_exclude_dir................|fuzzbox-g:fuzzbox_exclude_dir|
+    1.7.29. g:fuzzbox_ripgrep_options........|fuzzbox-g:fuzzbox_ripgrep_options|
+    1.7.30. g:fuzzbox_ugrep_options............|fuzzbox-g:fuzzbox_ugrep_options|
+    1.7.31. g:fuzzbox_files_executable......|fuzzbox-g:fuzzbox_files_executable|
+    1.7.32. g:fuzzbox_grep_executable........|fuzzbox-g:fuzzbox_grep_executable|
+    1.7.33. g:fuzzbox_devicons_colorize....|fuzzbox-g:fuzzbox_devicons_colorize|
+    1.7.34. g:fuzzbox_devicons_color_table.|fuzzbox-g:fuzzbox_devicons_color_table|
+    1.7.35. g:fuzzbox_devicons_glyph_func.|fuzzbox-g:fuzzbox_devicons_glyph_func|
+    1.7.36. g:fuzzbox_devicons_color_func.|fuzzbox-g:fuzzbox_devicons_color_func|
+    1.7.37. g:fuzzbox_keymaps........................|fuzzbox-g:fuzzbox_keymaps|
+    1.7.38. g:fuzzbox_emacs_keys..................|fuzzbox-g:fuzzbox_emacs_keys|
+    1.7.39. g:fuzzbox_buffers_exclude........|fuzzbox-g:fuzzbox_buffers_exclude|
+    1.7.40. g:fuzzbox_mru_cwd_only..............|fuzzbox-g:fuzzbox_mru_cwd_only|
+    1.7.41. g:fuzzbox_window_defaults........|fuzzbox-g:fuzzbox_window_defaults|
+    1.7.42. g:fuzzbox_window_options..........|fuzzbox-g:fuzzbox_window_options|
+    1.7.43. g:fuzzbox_max_results................|fuzzbox-g:fuzzbox_max_results|
+    1.7.44. g:fuzzbox_input_debounce..........|fuzzbox-g:fuzzbox_input_debounce|
+    1.7.45. g:fuzzbox_async_step..................|fuzzbox-g:fuzzbox_async_step|
+    1.7.46. g:fuzzbox_async_wait..................|fuzzbox-g:fuzzbox_async_wait|
+    1.7.47. g:fuzzbox_async_limit................|fuzzbox-g:fuzzbox_async_limit|
   1.8. User autocommands.............................|fuzzbox-user_autocommands|
   1.9. Syntax highlighting.........................|fuzzbox-syntax_highlighting|
   1.10. Custom commands................................|fuzzbox-custom_commands|
@@ -103,6 +106,8 @@ OPTIONAL DEPENDENCIES                            *fuzzbox-optional_dependencies*
   allowed and no alternative dependency installed
 * ctags (https://ctags.io) - used to generate tags for tag search (Universal
   Ctags implementation is required)
+* ImageMagick (https://imagemagick.org/) - used for image previews, if enabled
+  (version 7 or later required)
 
 COMPATIBLE PLUGINS                                  *fuzzbox-compatible_plugins*
 
@@ -325,6 +330,51 @@ Show a scrollbar in the menu window when the results do not fit. Default 0
 
 This option does not affect whether the menu window is scrollable, it always
 is, just whether a scrollbar is shown.
+
+G:FUZZBOX_IMAGE_PREVIEW                        *fuzzbox-g:fuzzbox_image_preview*
+
+Enable preview for some image formats, default 0.
+>
+  let g:fuzzbox_image_preview = 0
+<
+
+This option requires Vim >= 9.2.1161 compiled with `+image_popup`, and a
+compatible terminal or GUI version of Vim capable of displaying images. Your
+terminal is compatible if it supports the sixel or kitty graphics protocol.
+
+It also requires ImageMagick (https://imagemagick.org/) 7 or later, which is
+used to convert source images to RGB(A) for displaying in Vim.
+
+Vim sets `v:imagebackend` to one of 'sixel', 'kitty', or 'gui' when it thinks
+images can be displayed. If this is empty or 'none' and you think images are
+supported by your terminal or GUI, check the Vim docs for `image-backends`.
+
+G:FUZZBOX_IMAGE_FORMATS                        *fuzzbox-g:fuzzbox_image_formats*
+
+List of file extensions that are enabled for image preview. The file extension
+is also used to specify the image format when invoking ImageMagick, so must
+match formats known to ImageMagick, see `magick -list format`.
+>
+  let g:fuzzbox_image_formats = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'ico']
+<
+
+Example usage
+>
+  let g:fuzzbox_image_formats = ['png', 'jpg', 'gif', 'ico', 'svg', 'pdf']
+<
+
+G:FUZZBOX_IMAGE_LIMITS                          *fuzzbox-g:fuzzbox_image_limits*
+
+Resource limits applied to ImageMagick using the `-limit` option. Merged with
+the defaults, which are:
+>
+  { 'width': '8KP', 'height': '8KP', 'memory': '256MiB', 'disk': 0, 'time': 5 }
+<
+
+Example usage
+>
+  let g:fuzzbox_image_limits = { 'memory': '512MiB' }
+<
 
 G:FUZZBOX_PROMPT_SIGN                            *fuzzbox-g:fuzzbox_prompt_sign*
 
