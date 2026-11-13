@@ -1,7 +1,11 @@
 vim9script
 
 import autoload './popup.vim'
+import autoload './utils.vim'
 import './filetype.vim'
+
+var iswin = utils.IsWin()
+var fs = utils.PathSep()
 
 var image_preview = exists('g:fuzzbox_image_preview') ? g:fuzzbox_image_preview : false
 
@@ -19,6 +23,10 @@ var image_limits = { width: '8KP', height: '8KP', memory: '256MiB', disk: 0, tim
 if exists('g:fuzzbox_image_limits') && type(g:fuzzbox_image_limits) == v:t_dict
     extend(image_limits, g:fuzzbox_image_limits)
 endif
+
+# Directory containing the fuzzbox ImageMagick security policy, policy.xml,
+# which is applied in addition to the host's policy via MAGICK_CONFIGURE_PATH
+const IMAGE_MAGICK_POLICY_DIR = expand('<script>:p:h') .. fs .. 'image_magick'
 
 const PDF_SIGNATURE = '%PDF-'
 # note: str2blob() only added in vim 9.1.1016
@@ -257,7 +265,28 @@ def PreviewImage(wid: number, path: string)
     # Use silent to avoid stray characters showing on screen, see :h system()
     # Using system() is blocking, but acceptable as performance is adequate
     # when limited to files not greater than the max preview fize size of 5MiB
-    var output = SystemRaw(cmd)
+    # MAGICK_CONFIGURE_PATH is inherited from Vim's environment, so prepend the
+    # fuzzbox policy dir for the duration of the call only, then restore it
+    # (setenv() with null unsets it), so other child processes are unaffected
+    var saved_config_path = getenv('MAGICK_CONFIGURE_PATH')
+    var list_sep = iswin ? ';' : ':'
+    # Keep only absolute entries, ImageMagick resolves empty and relative ones
+    # against the current directory, so a policy.xml there (e.g. in an untrusted
+    # repo) could re-allow denied coders. A policy.xml in an absolute directory,
+    # or the user's or system's ImageMagick config, can still re-allow them.
+    # Note: isabsolutepath() expands ~, but ImageMagick doesn't so reject paths
+    # starting with '~', otherwise a misconfigured MAGICK_CONFIGURE_PATH could
+    # be exploited, e.g. export MAGICK_CONFIGURE_PATH="~/.config/ImageMagick"
+    var config_paths = [IMAGE_MAGICK_POLICY_DIR]
+        + (saved_config_path == null ? [] : split(saved_config_path, list_sep)
+            ->filter((_, p) => isabsolutepath(p) && p[0] != '~'))
+    setenv('MAGICK_CONFIGURE_PATH', join(config_paths, list_sep))
+    var output: string
+    try
+        output = SystemRaw(cmd)
+    finally
+        setenv('MAGICK_CONFIGURE_PATH', saved_config_path)
+    endtry
 
     if v:shell_error != 0
         echohl ErrorMsg | echom output | echohl None

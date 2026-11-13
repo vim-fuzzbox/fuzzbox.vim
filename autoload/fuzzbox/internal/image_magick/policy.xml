@@ -1,0 +1,75 @@
+<!--
+  Fuzzbox ImageMagick security policy for image previews. Applied in addition
+  to the host's policy.xml, through MAGICK_CONFIGURE_PATH, to the ImageMagick
+  process started by PreviewImage() in previewer.vim.
+
+  Based on the Active Storage policy added to Ruby on Rails in commit
+  ea8c40121ce53a3d0255cd4eb6d13bfe3bc01776, minus the gs delegate and the
+  PDF and EPDF coder rules. PDF preview is opt-in through
+  g:fuzzbox_image_formats and needs Ghostscript.
+
+  Compatibility: Fuzzbox currently supports only ImageMagick 7, but this file
+  is kept compatible with ImageMagick 6 in case support for it is added. It
+  uses only the coder, delegate and path domains, with one pattern per rule,
+  which both ImageMagick 6 and 7 honor. Keep it that way. If a rule is added
+  that only works with ImageMagick 7, such as one in the module domain or one
+  using a brace pattern, note that here.
+
+  Fuzzbox already pins the top-level coder by prefixing the input file with
+  its format, but formats such as SVG can reference other files. ImageMagick
+  7.1.2-26 and later also block prefixed references (text:, https: etc.)
+  inside images with StrictReadImage. Older ImageMagick 7 releases, and
+  ImageMagick 6, rely on this policy alone for that.
+
+  Do not put a backtick anywhere in this file. ImageMagick's tokenizer treats
+  a backtick as an opening quote and silently drops every rule up to the next
+  apostrophe.
+-->
+<policymap>
+  <!-- Scripting coder that reads and writes files named inside the image. -->
+  <policy domain="coder" rights="none" pattern="MSL"/>
+
+  <!-- Coders that read a file, or delete one, other than the image being processed. -->
+  <policy domain="coder" rights="none" pattern="EPHEMERAL"/>
+  <policy domain="coder" rights="none" pattern="TEXT"/>
+
+  <!-- Coder that reads back a pixel cache from a file the image header names. -->
+  <policy domain="coder" rights="none" pattern="MPC"/>
+
+  <!-- Coders that display to a screen. -->
+  <policy domain="coder" rights="none" pattern="SHOW"/>
+  <policy domain="coder" rights="none" pattern="WIN"/>
+  <policy domain="coder" rights="none" pattern="PLT"/>
+
+  <!-- Coders that read a reference from outside the image, remote or local. FILE reads file://. -->
+  <policy domain="coder" rights="none" pattern="URL"/>
+  <policy domain="coder" rights="none" pattern="HTTP"/>
+  <policy domain="coder" rights="none" pattern="HTTPS"/>
+  <policy domain="coder" rights="none" pattern="FTP"/>
+  <policy domain="coder" rights="none" pattern="FILE"/>
+
+  <!-- PostScript, XPS and PCL interpreters and their token aliases. The PDF
+       and EPDF coders and the gs delegate are deliberately left allowed for
+       opt-in PDF preview. AI and PDFA use the same Ghostscript reader as PDF
+       but are not needed by Fuzzbox, so they stay denied. -->
+  <policy domain="coder" rights="none" pattern="PS"/>
+  <policy domain="coder" rights="none" pattern="PS2"/>
+  <policy domain="coder" rights="none" pattern="PS3"/>
+  <policy domain="coder" rights="none" pattern="EPS"/>
+  <policy domain="coder" rights="none" pattern="EPS2"/>
+  <policy domain="coder" rights="none" pattern="EPS3"/>
+  <policy domain="coder" rights="none" pattern="EPI"/>
+  <policy domain="coder" rights="none" pattern="EPSF"/>
+  <policy domain="coder" rights="none" pattern="EPSI"/>
+  <policy domain="coder" rights="none" pattern="EPT"/>
+  <policy domain="coder" rights="none" pattern="EPT2"/>
+  <policy domain="coder" rights="none" pattern="EPT3"/>
+  <policy domain="coder" rights="none" pattern="AI"/>
+  <policy domain="coder" rights="none" pattern="PDFA"/>
+  <policy domain="coder" rights="none" pattern="POCKETMOD"/>
+  <policy domain="coder" rights="none" pattern="XPS"/>
+  <policy domain="coder" rights="none" pattern="PCL"/>
+
+  <!-- Indirect reads such as text:@/etc/passwd, which substitute a file for an argument. -->
+  <policy domain="path" rights="none" pattern="@*"/>
+</policymap>
