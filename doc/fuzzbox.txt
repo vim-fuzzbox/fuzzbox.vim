@@ -92,6 +92,10 @@ Fuzzbox uses programs pre-installed on almost all Mac, Linux, and Windows
 systems for finding files and searching in files by default (e.g. `grep`,
 `findstr`), but uses faster alternatives where possible (e.g. `git grep`).
 
+Vim's fuzzy matching algorithm was replaced in version 9.1.1627. If you are
+using an older version of Vim, upgrading will improve performance and accuracy,
+particularly when searching a very large list of files.
+
 OPTIONAL DEPENDENCIES                            *fuzzbox-optional_dependencies*
 
 * ripgrep (https://github.com/BurntSushi/ripgrep) - used to find files and
