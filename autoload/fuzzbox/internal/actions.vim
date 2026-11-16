@@ -170,6 +170,25 @@ export def OpenFileSplit(wid: number, result: string, opts: dict<any> = {})
     endif
 enddef
 
+# Open file with the system opener, using Vim's dist#vim9#Open(),
+# which handles macOS, Linux, Windows, WSL, etc. and respects g:Openprg
+export def OpenFileSystem(wid: number, result: string, opts: dict<any> = {})
+    if empty(result)
+        return
+    endif
+    if !has('patch-9.1.1054')
+        echohl ErrorMsg
+        echom 'fuzzbox: opening with system opener requires Vim 9.1.1054 or later'
+        echohl None
+        return
+    endif
+    var cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
+    var [file, _, _, _] = ParseResult(result)
+    var path = cwd ==# getcwd() ? file : cwd .. '/' .. file
+    dist#vim9#Open(fnamemodify(path, ':p'))
+    echo 'Opening ' .. fnamemodify(path, ':~:.')
+enddef
+
 export def SendToQuickfix(wid: number, result: string, opts: dict<any>)
     var has_devicons = has_key(opts, 'devicons') && opts.devicons && devicons.Enabled()
     var bufnr = winbufnr(wid)

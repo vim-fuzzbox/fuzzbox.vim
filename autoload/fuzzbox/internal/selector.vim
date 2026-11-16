@@ -265,6 +265,7 @@ default_actions = {
     "\<c-s>": actions.OpenFileSplit,
     "\<c-x>": actions.OpenFileSplit,
     "\<c-t>": actions.OpenFileTab,
+    "\<c-o>": actions.OpenFileSystem,
     "\<c-q>": actions.SendToQuickfix,
 }
 
