@@ -179,6 +179,10 @@ be used to scroll in both the preview and menu windows.
   - \<CTRL-S> or \<CTRL-X> opens selected file in new split
   - \<CTRL-V> opens selected file in new vertical split
   - \<CTRL-T> opens selected file in new tab page
+  - \<CTRL-O> opens selected file with the system opener
+
+Opening a file with the system opener requires `dist#vim9#Open()`, included with
+Vim 9.1.1054 and later.
 
 Send to quickfix list only includes results currently shown in the menu window,
 which effectively limits the results to a few hundred at most (this is probably
