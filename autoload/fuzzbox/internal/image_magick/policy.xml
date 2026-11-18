@@ -8,12 +8,12 @@
   PDF and EPDF coder rules. PDF preview is opt-in through
   g:fuzzbox_image_formats and needs Ghostscript.
 
-  Compatibility: Fuzzbox currently supports only ImageMagick 7, but this file
-  is kept compatible with ImageMagick 6 in case support for it is added. It
-  uses only the coder, delegate and path domains, with one pattern per rule,
-  which both ImageMagick 6 and 7 honor. Keep it that way. If a rule is added
-  that only works with ImageMagick 7, such as one in the module domain or one
-  using a brace pattern, note that here.
+  Fuzzbox recommends ImageMagick 7, but version 6.9 is supported so this file
+  is kept compatible with ImageMagick 6. It uses only the coder, delegate and
+  path domains, with one pattern per rule, which both ImageMagick 6 and 7
+  honor. Keep it that way. If a rule is added that only works with ImageMagick
+  7, such as one in the module domain or one using a brace pattern, note that
+  here.
 
   Fuzzbox already pins the top-level coder by prefixing the input file with
   its format, but formats such as SVG can reference other files. ImageMagick

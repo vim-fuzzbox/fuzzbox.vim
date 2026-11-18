@@ -24,6 +24,18 @@ if exists('g:fuzzbox_image_limits') && type(g:fuzzbox_image_limits) == v:t_dict
     extend(image_limits, g:fuzzbox_image_limits)
 endif
 
+var magick_path = exists('g:fuzzbox_imagemagick_path') ? g:fuzzbox_imagemagick_path : ''
+if image_preview && empty(magick_path)
+    if executable('magick')
+        magick_path = exepath('magick')
+    elseif executable('convert')
+        var output = system('convert -version')
+        if v:shell_error == 0 && output =~# '\<ImageMagick\>'
+            magick_path = exepath('convert')
+        endif
+    endif
+endif
+
 # Directory containing the fuzzbox ImageMagick security policy, policy.xml,
 # which is applied in addition to the host's policy via MAGICK_CONFIGURE_PATH
 const IMAGE_MAGICK_POLICY_DIR = expand('<script>:p:h') .. fs .. 'image_magick'
@@ -202,12 +214,8 @@ export def PreviewText(wid: number, text: any, lnum: number = 0, col: number = 0
     endif
 enddef
 
-var has_magick: number = -1
 def PreviewImage(wid: number, path: string)
-    if has_magick == -1
-        has_magick = executable('magick')
-    endif
-    if !has('image_popup') || !has_magick
+    if !has('image_popup') || empty(magick_path)
         PreviewMessage(wid, 'Image preview not supported')
         return
     endif
@@ -240,7 +248,7 @@ def PreviewImage(wid: number, path: string)
     # and the -background after page_args is used by -extent for padding
     var page_args = ext =~? '\v^e?pdf$' ? '-background white -alpha remove'->split() : []
     var size_hint = ext =~? '\v^jpe?g$' ? $'-define jpeg:size={width * 2}x{height * 2}'->split() : []
-    var base_args = ['magick'] + image_limits->items()->mapnew((_, kv) => ['-limit', kv[0], $'{kv[1]}'])->flattennew()
+    var base_args = [magick_path] + image_limits->items()->mapnew((_, kv) => ['-limit', kv[0], $'{kv[1]}'])->flattennew()
     var base_opts = $'+repage -resize {width}x{height}> -gravity center -extent {width}x{height} -depth 8'->split()
     if imagebackend == 'kitty' || imagebackend == 'gui'
         # RGBA supported, use transparent background (white page for PDFs)

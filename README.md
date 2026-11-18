@@ -38,7 +38,7 @@ particularly when searching a very large list of files.
 - [ctags](https://ctags.io) - used to generate tags for tag search (Universal
   Ctags implementation is required)
 - [ImageMagick](https://imagemagick.org/) - used for image previews, if enabled
-  (version 7 or later required)
+  (version 7 or later recommended)
 
 ### Compatible plugins
 - [vim-devicons](https://github.com/ryanoasis/vim-devicons) - used to show
@@ -261,7 +261,7 @@ This option requires Vim >= 9.2.1161 compiled with `+image_popup`, and a
 compatible terminal or GUI version of Vim capable of displaying images. Your
 terminal is compatible if it supports the sixel or kitty graphics protocol.
 
-It also requires [ImageMagick](https://imagemagick.org/) 7 or later, which is
+It also requires [ImageMagick](https://imagemagick.org/) 6.9 or later, which is
 used to convert source images to RGB(A) for displaying in Vim.
 
 Vim sets `v:imagebackend` to one of 'sixel', 'kitty', or 'gui' when it thinks
