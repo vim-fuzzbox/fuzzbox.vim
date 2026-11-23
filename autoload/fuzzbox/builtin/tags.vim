@@ -175,7 +175,7 @@ export def Start(opts: dict<any> = {})
             return fnamemodify(stridx(val, fs) == 0 ? val : cwd .. fs .. val, ':h')
         })
     catch
-        echoerr v:exception
+        throw v:exception
     finally
         exe 'silent lcd ' .. original_cwd
     endtry

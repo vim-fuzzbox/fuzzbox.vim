@@ -25,7 +25,7 @@ var cwd_only = exists('g:fuzzbox_mru_cwd_only') && g:fuzzbox_mru_cwd_only
 var emacs_keys = exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
 
 def ToggleScope()
-    cwd_filter = cwd_filter ? 0 : 1
+    cwd_filter = cwd_filter ? false : true
     var mru_list: list<string> = copy(mru_origin_list)
     if cwd_filter
         mru_list = filter(mru_list, (_, val) => {

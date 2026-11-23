@@ -203,7 +203,7 @@ export def TermColor(val: string): number
         return Hex(val)
     endif
     if !has_key(v:colornames, val)
-        echoerr "color name '" .. val .. "' not found"
+        throw "color name '" .. val .. "' not found"
     endif
     return Hex(get(v:colornames, val))
 enddef

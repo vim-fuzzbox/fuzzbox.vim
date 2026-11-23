@@ -18,7 +18,7 @@ def Change(wid: number, result: string)
         return
     endif
     var color = result
-    &bg = old_bg
+    &background = old_bg
     noa execute 'colorscheme ' .. color
 enddef
 
@@ -27,9 +27,8 @@ def Select(wid: number, result: string)
         return
     endif
     var color = result
-    var bg: string
     if color =~# 'light$'
-        noa &bg = 'light'
+        noautocmd &background = 'light'
     endif
     execute 'colorscheme ' .. color
     changed = true
@@ -37,7 +36,7 @@ enddef
 
 def Close(wid: number)
     if !changed
-        noa &bg = old_bg
+        noa &background = old_bg
         execute 'colorscheme ' .. old_color
     endif
 enddef
@@ -48,10 +47,10 @@ export def Start(opts: dict<any> = {})
 
     changed = false
     old_color = execute('colo')[1 :]
-    old_bg = &bg
+    old_bg = &background
     var colors = GetColors()
 
-    var wids = selector.Start(colors, extend(opts, {
+    selector.Start(colors, extend(opts, {
         change_cb: function('Change'),
         select_cb: function('Select'),
         close_cb: function('Close'),

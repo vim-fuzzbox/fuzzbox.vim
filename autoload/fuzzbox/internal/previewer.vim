@@ -96,22 +96,22 @@ enddef
 # readblob() would be called with invalid args on earlier Vim versions
 # Check first 2048 bytes as some binary formats have a long text header
 # Specific check for PDF file signature because PDF headers can be huge
-function IsBinaryBlob(path)
-    let blob = readblob(a:path, 0, 2048)
-    if blob[0 : len(s:PDF_SIGNATURE) - 1] == s:PDF_SIGNATURE_BLOB
+function IsBinaryBlob(path) abort
+    let l:blob = readblob(a:path, 0, 2048)
+    if l:blob[0 : len(s:PDF_SIGNATURE) - 1] == s:PDF_SIGNATURE_BLOB
         return v:true
     endif
-    return index(blob, 0) != -1
+    return index(l:blob, 0) != -1
 endfunction
 
 # Note: use of legacy function a workaround for compilation failing when
 # system() would be called with a list on Vim versions before 9.2.0250
-function SystemRaw(cmd)
+function SystemRaw(cmd) abort
     if type(a:cmd) != v:t_list
-        echoerr 'Invalid argument, a:cmd must be of type List'
+        throw 'Invalid argument, a:cmd must be of type List'
     endif
-    silent let output = system(a:cmd)
-    return output
+    silent let l:output = system(a:cmd)
+    return l:output
 endfunction
 
 def FTDetectModelines(content: list<string>): string
@@ -364,16 +364,16 @@ export def PreviewFile(wid: number, path: string, lnum: number = 0, col: number 
         win_execute(wid, 'noautocmd setlocal filetype=text')
     endif
 
-    var re = &re
+    var re = &regexpengine
     try
-        &re = 2 # workaround for E363: Pattern uses more memory than 'maxmempattern'
+        &regexpengine = 2 # workaround for E363: Pattern uses more memory than 'maxmempattern'
         win_execute(wid, 'setlocal syntax=' .. getwinvar(wid, '&filetype'))
     catch
         echohl ErrorMsg
         echom 'fuzzbox:' v:exception .. ' ' .. v:throwpoint
         echohl None
     finally
-        &re = re
+        &regexpengine = re
     endtry
 
     if lnum > 0

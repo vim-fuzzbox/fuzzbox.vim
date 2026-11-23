@@ -119,7 +119,7 @@ enddef
 export def Start(opts: dict<any> = {})
     opts.title = has_key(opts, 'title') ? opts.title : 'Buffers'
 
-    var wids = selector.Start(GetBufList(), extend(opts, {
+    selector.Start(GetBufList(), extend(opts, {
         select_cb: function('Select'),
         preview_cb: function('Preview'),
         default_actions: false,

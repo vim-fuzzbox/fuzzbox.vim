@@ -63,7 +63,7 @@ def JobOutCb(channel: channel, msg: string)
 enddef
 
 def JobErrCb(channel: channel, msg: string)
-    echoerr msg
+    throw msg
 enddef
 
 def JobExitCb(job: job, status: number)
@@ -124,7 +124,7 @@ export def Start(opts: dict<any> = {})
     cur_result = []
     cur_pattern = ''
     cwd = len(get(opts, 'cwd', '')) > 0 ? opts.cwd : getcwd()
-    var wids = selector.Start([], extend(opts, {
+    selector.Start([], extend(opts, {
         select_cb: actions.OpenFile,
         preview_cb: actions.PreviewFile,
         input_cb: function('Input'),
