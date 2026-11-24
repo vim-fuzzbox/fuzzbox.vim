@@ -53,6 +53,7 @@ var keymaps: dict<any> = {
     'delete_prefix': ["\<C-u>"], # :h c_CTRL-U
     'delete_suffix': [],
     'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
+    'normal': [], # Experimental: execute in normal mode
 }
 if exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
     extend(keymaps, {
@@ -456,6 +457,19 @@ def PromptFilter(wid: number, key: string): number
             line = before .. key .. line[cur_pos :]
         endif
         cur_pos += 1
+    elseif index(keymaps['normal'], key) >= 0
+        # Experimental: custom keymaps run in normal mode with mappings enabled
+        # Does not work for GUI menu shortcuts as menu RHS is handled as typed
+        try
+            for id in values(wins)->filter((_, w) => w != -1)
+                popup_setoptions(id, {mapping: true})
+            endfor
+            execute 'normal' key
+        finally
+            for id in values(wins)->filter((_, w) => w != -1)
+                popup_setoptions(id, {mapping: false})
+            endfor
+        endtry
     else
         # catch all unhandled keys
         return 1
