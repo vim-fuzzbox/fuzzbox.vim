@@ -189,6 +189,46 @@ def ShowCursor()
     endif
 enddef
 
+# GUI menu commands are sent to Vim as typed keys, so would otherwise be
+# handled by the popup filters, e.g. MacVim Ctrl+Cmd+f sends the keys
+# ":set invfullscreen\r", typed into the prompt, then <CR> closes Fuzzbox and
+# opens the selected match, if any. Paste is handled by PromptFilter().
+# Note: PopUp menu is not currently reachable, <RightMouse> is discarded by
+# the filters, but PopUp.Paste is kept to allow for right click paste later
+const keep_menus = ['Edit.Paste', 'PopUp.Paste']
+var disabled_menus: list<string>
+
+# Use to disable GUI menus while popups active
+def DisableMenus()
+    if has('gui_running') && has('menu')
+        DisableMenuItems()
+    endif
+enddef
+
+# Use to restore GUI menus when closing popups
+def RestoreMenus()
+    if has('gui_running') && has('menu')
+        for item in disabled_menus
+            execute 'silent! nmenu enable' escape(item, ' |')
+        endfor
+    endif
+    disabled_menus = []
+enddef
+
+# Recursively disable enabled menu items, recording them for RestoreMenus()
+def DisableMenuItems(path: string = '')
+    for name in menu_info(path, 'n')->get('submenus', [])
+        var item = (empty(path) ? '' : path .. '.') .. escape(name, '.')
+        var info = menu_info(item, 'n')
+        if has_key(info, 'submenus')
+            DisableMenuItems(item)
+        elseif get(info, 'enabled', false) && index(keep_menus, item) < 0
+            execute 'silent! nmenu disable' escape(item, ' |')
+            disabled_menus->add(item)
+        endif
+    endfor
+enddef
+
 def InvokeAction(Action: func, wid: number, result: any = GetResult())
     if Action == null # allow for null_function
         return
@@ -258,6 +298,7 @@ def MenuCallback(wid: number, result: any)
 
     # restore things to normal
     ShowCursor()
+    RestoreMenus()
     active = false
     options = {}
     wins = { menu: -1, prompt: -1, preview: -1 }
@@ -1237,6 +1278,7 @@ export def Start(opts: dict<any>): dict<any>
     endif
 
     HideCursor()
+    DisableMenus()
 
     autocmd_add([{
         group: 'FuzzboxResize',
