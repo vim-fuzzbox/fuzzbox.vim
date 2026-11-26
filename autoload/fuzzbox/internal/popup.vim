@@ -53,6 +53,7 @@ var keymaps: dict<any> = {
     'delete_prefix': ["\<C-u>"], # :h c_CTRL-U
     'delete_suffix': [],
     'exit': ["\<Esc>", "\<C-c>", "\<C-[>"], # :h c_<Esc>, :h c_CTRL-C
+    'fullscreen': ["\<C-D-f>"], # MacVim only, :h 'fullscreen'
 }
 if exists('g:fuzzbox_emacs_keys') && g:fuzzbox_emacs_keys
     extend(keymaps, {
@@ -626,6 +627,9 @@ def MenuFilter(wid: number, key: string): number
         win_execute(wins.menu, 'norm! ' .. linenr .. 'G')
     elseif index(keymaps['exit'], key) >= 0
         popup_close(wid)
+    elseif index(keymaps['fullscreen'], key) >= 0 && exists('+fullscreen')
+        # Note: use :set as &fullscreen fails to compile without the option
+        set invfullscreen
     elseif has_key(options.actions, key) && type(options.actions[key]) == v:t_func
         InvokeAction(options.actions[key], wins.menu)
     else

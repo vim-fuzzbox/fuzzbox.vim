@@ -742,8 +742,12 @@ Change navigation keymaps. The following are the defaults:
     \ 'delete_word': ["\<C-w>"],
     \ 'delete_prefix': ["\<C-u>"],
     \ 'exit': ["\<Esc>", "\<c-c>", "\<c-[>"],
+    \ 'fullscreen': ["\<C-D-f>"],
     \ }
 <
+
+The `fullscreen` keymap toggles the `'fullscreen'` option, currently only
+supported by MacVim. The default matches the MacVim Window menu shortcut.
 
 G:FUZZBOX_EMACS_KEYS                              *fuzzbox-g:fuzzbox_emacs_keys*
 

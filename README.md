@@ -605,8 +605,11 @@ let g:fuzzbox_keymaps = {
   \ 'delete_word': ["\<C-w>"],
   \ 'delete_prefix': ["\<C-u>"],
   \ 'exit': ["\<Esc>", "\<c-c>", "\<c-[>"],
+  \ 'fullscreen': ["\<C-D-f>"],
   \ }
 ```
+The `fullscreen` keymap toggles the `'fullscreen'` option, currently only
+supported by MacVim. The default matches the MacVim Window menu shortcut.
 
 ### g:fuzzbox_emacs_keys
 Use Emacs style keymaps in the prompt window, default 0. Modifies the
