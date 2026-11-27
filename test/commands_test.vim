@@ -68,7 +68,7 @@ def Test_FuzzyFiles_LineSplitAcrossOutput()
     fuzzbox#Launch('files', {
         command: 'sh -c "echo files/foo.txt; printf files/sp; sleep 0.05; echo am.txt"'
     })
-    sleep 100m
+    sleep 200m
     h.Type("\<C-Q>")
     var names = getqflist()->mapnew((_, e) => bufname(e.bufnr))->sort()
     assert_equal([$'files{fs}foo.txt', $'files{fs}spam.txt'], names)
