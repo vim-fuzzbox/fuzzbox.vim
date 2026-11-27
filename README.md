@@ -162,7 +162,8 @@ Emacs style keymaps set `g:fuzzbox_emacs_keys` to true.
 
 Navigation with the mouse is also supported. A single mouse click in the menu
 window moves the cursor line, double click selects a line. The mouse wheel can
-be used to scroll in both the preview and menu windows.
+be used to scroll in both the preview and menu windows. Clicking the middle
+mouse button in the prompt window pastes from the `*` register, same as Vim.
 
 **Command specific keymaps**
 

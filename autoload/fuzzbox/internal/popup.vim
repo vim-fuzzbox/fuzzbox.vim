@@ -495,6 +495,14 @@ def PromptFilter(wid: number, key: string): number
         var pasted = getreg('+')->substitute('[\r\n]\+', '', 'g')
         line = line->slice(0, cur_pos) .. pasted .. line->slice(cur_pos)
         cur_pos += strcharlen(pasted)
+    elseif key ==? "\<MiddleMouse>"
+        # paste from "* register, same as Vim, see :h <MiddleMouse>
+        if getmousepos().winid != wid
+            return 1
+        endif
+        var pasted = getreg('*')->substitute('[\r\n]\+', '', 'g')
+        line = line->slice(0, cur_pos) .. pasted .. line->slice(cur_pos)
+        cur_pos += strcharlen(pasted)
     elseif (ascii_val >= 32 && ascii_val <= 126) || (ascii_val >= 160) || (ascii_val == 9)
         if cur_pos == len(line)
             line ..= key
